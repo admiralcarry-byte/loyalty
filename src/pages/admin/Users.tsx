@@ -1629,7 +1629,7 @@ const Users = () => {
                     <TableHead>User</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Tier</TableHead>
-                    <TableHead>Liters</TableHead>
+                    <TableHead>Liters/Users</TableHead>
                     <TableHead>Cashback</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
@@ -1651,7 +1651,7 @@ const Users = () => {
                     <TableHead>Customer</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Tier</TableHead>
-                    <TableHead>Liters</TableHead>
+                    <TableHead>Liters/Users</TableHead>
                     <TableHead>Cashback</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>

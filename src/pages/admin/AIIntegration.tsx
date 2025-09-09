@@ -42,7 +42,6 @@ import {
   Gift,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { aiInsightsService, AIInsightsStats } from "@/services/aiInsightsService";
 
 const AIIntegration = () => {
   const { toast } = useToast();
@@ -53,39 +52,11 @@ const AIIntegration = () => {
   const [faqTopic, setFaqTopic] = useState("");
   const [generatedFAQ, setGeneratedFAQ] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [aiStats, setAiStats] = useState<AIInsightsStats>({
-    total_recommendations: 0,
-    high_priority: 0,
-    medium_priority: 0,
-    low_priority: 0,
-    completed: 0,
-    in_progress: 0,
-    pending: 0,
-    implementation_rate: 0,
-    avg_confidence: 0,
-    avg_user_engagement: 0,
-    avg_conversion_rate: 0
-  });
 
-  // Load AI stats on component mount
+  // Load component data on mount
   useEffect(() => {
-    loadAIStats();
+    setLoading(false);
   }, []);
-
-  const loadAIStats = async () => {
-    try {
-      setLoading(true);
-      const response = await aiInsightsService.getAIInsightsStats();
-      
-      if (response.success) {
-        setAiStats(response.data);
-      }
-    } catch (error) {
-      console.error('Error loading AI stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const generatePromotionalText = async () => {
     setIsGenerating(true);

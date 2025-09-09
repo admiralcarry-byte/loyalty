@@ -30,7 +30,6 @@ import NetworkSwitching from "./pages/admin/NetworkSwitching";
 import PurchaseEntry from "./pages/admin/PurchaseEntry";
 import BankDetails from "./pages/admin/BankDetails";
 import CommissionRequest from "./pages/admin/CommissionRequest";
-import AIInsights from "./pages/admin/AIInsights";
 import OnlinePurchases from "./pages/admin/OnlinePurchases";
 import WalletIntegration from "./pages/admin/WalletIntegration";
 import ReceiptUpload from "./pages/admin/ReceiptUpload";
@@ -88,7 +87,6 @@ const App = () => {
           <Route path="/admin/purchase-entry" element={<AdminLayout><PurchaseEntry /></AdminLayout>} />
           <Route path="/admin/bank-details" element={<AdminLayout><BankDetails /></AdminLayout>} />
           <Route path="/admin/commission-request" element={<AdminLayout><CommissionRequest /></AdminLayout>} />
-          <Route path="/admin/ai-insights" element={<AdminLayout><AIInsights /></AdminLayout>} />
           <Route path="/admin/online-purchases" element={<AdminLayout><OnlinePurchases /></AdminLayout>} />
           <Route path="/admin/wallet-integration" element={<AdminLayout><WalletIntegration /></AdminLayout>} />
           <Route path="/admin/receipt-upload" element={<AdminLayout><ReceiptUpload /></AdminLayout>} />

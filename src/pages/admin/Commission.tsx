@@ -39,7 +39,6 @@ import {
   Medal,
   Gem,
   Star,
-  Edit,
   Save,
   X,
   AlertCircle,
@@ -204,11 +203,6 @@ const Commission = () => {
     }
   };
 
-  // Function to handle editing commission rule
-  const handleEditRule = (rule: any) => {
-    // For now, just show a toast message since we don't have edit functionality implemented
-    toast.info('Edit functionality will be implemented in a future update');
-  };
 
   // Function to handle approving payout request
   const handleApprovePayout = async (requestId: string) => {
@@ -791,14 +785,6 @@ const Commission = () => {
                           }
                         }}
                       />
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleEditRule(rule)}
-                        title="Edit commission rule"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
                 ))}

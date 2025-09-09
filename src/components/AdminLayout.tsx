@@ -166,11 +166,6 @@ const navigationGroups = {
   ],
   aiTools: [
     {
-      name: "AI Analytics",
-      href: "/admin/ai-insights",
-      icon: Brain,
-    },
-    {
       name: "AI Content Generator",
       href: "/admin/ai-integration",
       icon: Zap,
