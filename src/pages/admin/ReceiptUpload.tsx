@@ -35,6 +35,7 @@ interface ExtractedData {
 const ReceiptUpload = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -58,6 +59,15 @@ const ReceiptUpload = () => {
   React.useEffect(() => {
     loadUsers();
     loadStores();
+  }, []);
+
+  // Cleanup on component unmount
+  React.useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
   const loadUsers = async () => {
@@ -149,6 +159,9 @@ const ReceiptUpload = () => {
       setIsUploading(true);
       setUploadProgress(0);
 
+      // Create abort controller for this upload
+      abortControllerRef.current = new AbortController();
+
       // Simulate progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
@@ -164,7 +177,8 @@ const ReceiptUpload = () => {
         selectedFile,
         selectedUserId,
         selectedStoreId,
-        purchaseDate || undefined
+        purchaseDate || undefined,
+        abortControllerRef.current.signal
       );
 
       clearInterval(progressInterval);
@@ -183,6 +197,12 @@ const ReceiptUpload = () => {
       }
     } catch (error) {
       console.error('Upload error:', error);
+      
+      // Check if the request was aborted
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Upload was cancelled, don't show error message
+        return;
+      }
       
       // Display extracted OCR data in browser console if available
       if (error && typeof error === 'object' && 'extractedData' in error) {
@@ -256,10 +276,21 @@ const ReceiptUpload = () => {
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+      abortControllerRef.current = null;
     }
   };
 
   const handleClear = () => {
+    // If upload is in progress, cancel it first
+    if (isUploading && abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      toast({
+        title: "Upload Cancelled",
+        description: "The upload has been cancelled successfully.",
+      });
+    }
+    
+    // Clear all state
     setSelectedFile(null);
     setPreviewUrl(null);
     setExtractedData(null);
@@ -267,6 +298,7 @@ const ReceiptUpload = () => {
     setScanUploadId(null);
     setWarnings([]);
     setUploadProgress(0);
+    setIsUploading(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
