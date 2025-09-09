@@ -1448,7 +1448,7 @@ const Users = () => {
                   
                   <div className="space-y-3">
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600">Total Liters</div>
+                      <div className="text-sm text-gray-600">Total Liters/Users</div>
                       <div className="font-medium flex items-center gap-2">
                         <Droplets className="w-4 h-4 text-blue-500" />
                         {viewingUser.liters || 0}L

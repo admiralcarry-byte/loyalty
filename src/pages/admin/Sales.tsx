@@ -557,7 +557,7 @@ const Sales = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="liters">Liters</Label>
+                <Label htmlFor="liters">Liters/Users</Label>
                 <Input
                   id="liters"
                   type="number"
@@ -671,7 +671,7 @@ const Sales = () => {
                 <h3 className="text-lg font-semibold text-gray-900">Sale Details</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-500">Liters</Label>
+                    <Label className="text-sm font-medium text-gray-500">Liters/Users</Label>
                     <div className="font-medium">{viewingSale.liters}L</div>
                   </div>
                   <div className="space-y-2">

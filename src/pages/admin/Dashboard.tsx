@@ -243,7 +243,7 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-to-br from-white to-water-light/20 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Liters</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Liters/Users</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-water-blue to-water-deep">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -295,7 +295,7 @@ const Dashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle>Sales Trend</CardTitle>
-            <CardDescription>Monthly liters sold and revenue generated</CardDescription>
+            <CardDescription>Monthly liters/users sold and revenue generated</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -315,7 +315,7 @@ const Dashboard = () => {
                   dataKey="liters" 
                   stroke="hsl(var(--water-blue))" 
                   strokeWidth={3}
-                  name="Liters"
+                  name="Liters/Users"
                 />
                 <Line 
                   type="monotone" 
@@ -529,7 +529,7 @@ const Dashboard = () => {
                 <TableRow>
                   <TableHead>User</TableHead>
                   <TableHead>Tier</TableHead>
-                  <TableHead>Liters</TableHead>
+                  <TableHead>Liters/Users</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
               </TableHeader>

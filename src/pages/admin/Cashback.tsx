@@ -334,7 +334,7 @@ const Cashback = () => {
                             }))}
                             disabled={!editingSettings}
                           />
-                          <span className="text-sm text-muted-foreground">liters</span>
+                          <span className="text-sm text-muted-foreground">liters/users</span>
                         </div>
                       </div>
                     )}
