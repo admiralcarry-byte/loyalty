@@ -195,11 +195,64 @@ const ReceiptUpload = () => {
         console.log('========================');
       }
       
-      toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload receipt",
-        variant: "destructive",
-      });
+      // Handle validation errors with detailed messages
+      if (error && typeof error === 'object' && 'details' in error) {
+        const validationErrors = (error as any).details;
+        const extractedText = (error as any).extractedText;
+        
+        // Check if this is a non-receipt content error
+        const isNonReceiptError = validationErrors.some((err: string) => 
+          err.includes('does not appear to be a receipt') || 
+          err.includes('not a receipt')
+        );
+        
+        if (isNonReceiptError) {
+          // Check if we have a specific missing elements message
+          const missingElementsError = validationErrors.find((err: string) => 
+            err.includes('Missing:')
+          );
+          
+          if (missingElementsError) {
+            toast({
+              title: "Invalid Receipt Content",
+              description: missingElementsError,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Invalid File Type",
+              description: "The uploaded file does not appear to be a receipt. Please upload an actual purchase receipt, invoice, or bill.",
+              variant: "destructive",
+            });
+          }
+        } else if (validationErrors.some((err: string) => err.includes('Amount not found'))) {
+          toast({
+            title: "Missing Purchase Amount",
+            description: "The receipt does not contain a valid purchase amount. Please ensure the receipt shows the total amount paid.",
+            variant: "destructive",
+          });
+        } else if (validationErrors.some((err: string) => err.includes('store name'))) {
+          toast({
+            title: "Missing Store Information",
+            description: "The receipt does not contain clear store information. Please ensure the store name is visible and readable.",
+            variant: "destructive",
+          });
+        } else {
+          // Generic validation error with first error message
+          toast({
+            title: "Receipt Validation Failed",
+            description: validationErrors[0] || "The receipt could not be processed. Please check the image quality and try again.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Generic error for other types of failures
+        toast({
+          title: "Upload Failed",
+          description: error instanceof Error ? error.message : "Failed to upload receipt. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
