@@ -258,7 +258,7 @@ class WalletIntegrationService {
   private token: string | null;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    this.baseUrl = import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api';
     this.token = localStorage.getItem('token');
   }
 

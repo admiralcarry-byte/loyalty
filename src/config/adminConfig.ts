@@ -7,7 +7,7 @@ export const ADMIN_CONFIG = {
     appName: 'ÁGUA TWEZAH Admin',
     version: '1.0.0',
     environment: import.meta.env.MODE || 'development',
-    apiBaseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    apiBaseUrl: import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api',
     timeout: 10000, // 10 seconds
     retryAttempts: 3
   },
