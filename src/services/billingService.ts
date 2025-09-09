@@ -167,7 +167,7 @@ class BillingService {
   }
 
   // Receipt Upload & OCR Processing
-  async uploadReceipt(file: File, userId: string, storeId: string, purchaseDate?: string, abortSignal?: AbortSignal) {
+  async uploadReceipt(file: File, userId: string, storeId: string, purchaseDate?: string) {
     const formData = new FormData();
     formData.append('receipt', file);
     formData.append('userId', userId);
@@ -184,7 +184,6 @@ class BillingService {
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
       body: formData,
-      signal: abortSignal,
     });
 
     if (!response.ok) {

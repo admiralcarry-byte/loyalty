@@ -35,7 +35,6 @@ interface ExtractedData {
 const ReceiptUpload = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -59,15 +58,6 @@ const ReceiptUpload = () => {
   React.useEffect(() => {
     loadUsers();
     loadStores();
-  }, []);
-
-  // Cleanup on component unmount
-  React.useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, []);
 
   const loadUsers = async () => {
@@ -159,9 +149,6 @@ const ReceiptUpload = () => {
       setIsUploading(true);
       setUploadProgress(0);
 
-      // Create abort controller for this upload
-      abortControllerRef.current = new AbortController();
-
       // Simulate progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
@@ -177,8 +164,7 @@ const ReceiptUpload = () => {
         selectedFile,
         selectedUserId,
         selectedStoreId,
-        purchaseDate || undefined,
-        abortControllerRef.current.signal
+        purchaseDate || undefined
       );
 
       clearInterval(progressInterval);
@@ -198,12 +184,6 @@ const ReceiptUpload = () => {
     } catch (error) {
       console.error('Upload error:', error);
       
-      // Check if the request was aborted
-      if (error instanceof Error && error.name === 'AbortError') {
-        // Upload was cancelled, don't show error message
-        return;
-      }
-      
       // Display extracted OCR data in browser console if available
       if (error && typeof error === 'object' && 'extractedData' in error) {
         console.log('=== OCR EXTRACTED DATA ===');
@@ -215,82 +195,18 @@ const ReceiptUpload = () => {
         console.log('========================');
       }
       
-      // Handle validation errors with detailed messages
-      if (error && typeof error === 'object' && 'details' in error) {
-        const validationErrors = (error as any).details;
-        const extractedText = (error as any).extractedText;
-        
-        // Check if this is a non-receipt content error
-        const isNonReceiptError = validationErrors.some((err: string) => 
-          err.includes('does not appear to be a receipt') || 
-          err.includes('not a receipt')
-        );
-        
-        if (isNonReceiptError) {
-          // Check if we have a specific missing elements message
-          const missingElementsError = validationErrors.find((err: string) => 
-            err.includes('Missing:')
-          );
-          
-          if (missingElementsError) {
-            toast({
-              title: "Invalid Receipt Content",
-              description: missingElementsError,
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Invalid File Type",
-              description: "The uploaded file does not appear to be a receipt. Please upload an actual purchase receipt, invoice, or bill.",
-              variant: "destructive",
-            });
-          }
-        } else if (validationErrors.some((err: string) => err.includes('Amount not found'))) {
-          toast({
-            title: "Missing Purchase Amount",
-            description: "The receipt does not contain a valid purchase amount. Please ensure the receipt shows the total amount paid.",
-            variant: "destructive",
-          });
-        } else if (validationErrors.some((err: string) => err.includes('store name'))) {
-          toast({
-            title: "Missing Store Information",
-            description: "The receipt does not contain clear store information. Please ensure the store name is visible and readable.",
-            variant: "destructive",
-          });
-        } else {
-          // Generic validation error with first error message
-          toast({
-            title: "Receipt Validation Failed",
-            description: validationErrors[0] || "The receipt could not be processed. Please check the image quality and try again.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        // Generic error for other types of failures
-        toast({
-          title: "Upload Failed",
-          description: error instanceof Error ? error.message : "Failed to upload receipt. Please try again.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload receipt",
+        variant: "destructive",
+      });
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
-      abortControllerRef.current = null;
     }
   };
 
   const handleClear = () => {
-    // If upload is in progress, cancel it first
-    if (isUploading && abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      toast({
-        title: "Upload Cancelled",
-        description: "The upload has been cancelled successfully.",
-      });
-    }
-    
-    // Clear all state
     setSelectedFile(null);
     setPreviewUrl(null);
     setExtractedData(null);
@@ -298,7 +214,6 @@ const ReceiptUpload = () => {
     setScanUploadId(null);
     setWarnings([]);
     setUploadProgress(0);
-    setIsUploading(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
