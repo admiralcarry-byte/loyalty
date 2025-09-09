@@ -253,6 +253,21 @@ const ReceiptUpload = () => {
             <CardDescription>
               Select a receipt image or PDF for processing
             </CardDescription>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Upload Requirements:</strong>
+                <ul className="mt-2 space-y-1 text-sm">
+                  <li>• Upload actual purchase receipts, invoices, or bills</li>
+                  <li>• Image must contain: store name, purchase amount, date</li>
+                  <li>• Supported formats: JPG, PNG, PDF (max 10MB)</li>
+                  <li>• Ensure text is clear and readable</li>
+                </ul>
+                <p className="mt-2 text-sm text-red-600">
+                  <strong>Do not upload:</strong> Screenshots of app notifications, dashboards, or other non-receipt content.
+                </p>
+              </AlertDescription>
+            </Alert>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* File Selection */}

@@ -1,28 +1,63 @@
 import { BaseService } from './baseService';
 
 export interface Store {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-  manager: string;
-  status: 'active' | 'inactive' | 'maintenance';
-  latitude?: number;
-  longitude?: number;
-  openingHours: {
-    monday: string;
-    tuesday: string;
-    wednesday: string;
-    thursday: string;
-    friday: string;
-    saturday: string;
-    sunday: string;
+  code?: string;
+  type: 'retail' | 'wholesale' | 'distributor' | 'online';
+  status: 'active' | 'inactive' | 'suspended';
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    postal_code?: string;
+    country: string;
+  };
+  location?: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  contact: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  manager: {
+    name?: string;
+    phone?: string;
+    email?: string;
+  };
+  operating_hours: {
+    monday: { open: string; close: string; closed: boolean };
+    tuesday: { open: string; close: string; closed: boolean };
+    wednesday: { open: string; close: string; closed: boolean };
+    thursday: { open: string; close: string; closed: boolean };
+    friday: { open: string; close: string; closed: boolean };
+    saturday: { open: string; close: string; closed: boolean };
+    sunday: { open: string; close: string; closed: boolean };
   };
   services: string[];
-  createdAt: string;
-  updatedAt: string;
+  payment_methods?: string[];
+  commission_rate?: number;
+  minimum_order?: number;
+  delivery_radius?: number;
+  delivery_fee?: number;
+  inventory?: {
+    total_bottles: number;
+    available_bottles: number;
+    reserved_bottles: number;
+  };
+  performance?: {
+    total_sales: number;
+    total_orders: number;
+    average_order_value: number;
+    customer_count: number;
+  };
+  notes?: string;
+  tags?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface StoresResponse {

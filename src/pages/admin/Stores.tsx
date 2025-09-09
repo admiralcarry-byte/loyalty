@@ -97,24 +97,50 @@ const Stores = () => {
     {
       id: "store1",
       name: "Água Twezah - Luanda Central",
-      city: "Luanda",
-      address: "Rua Comandante Valódia, 123, Luanda",
-      phone: "+244 222 123 456",
-      email: "luanda.central@aguatwezah.ao",
-      manager: "João Silva",
+      type: "retail",
       status: "active",
-      latitude: -8.8383,
-      longitude: 13.2344,
-      openingHours: {
-        monday: "8:00-20:00",
-        tuesday: "8:00-20:00",
-        wednesday: "8:00-20:00",
-        thursday: "8:00-20:00",
-        friday: "8:00-20:00",
-        saturday: "8:00-20:00",
-        sunday: "9:00-18:00"
+      address: {
+        street: "Rua Comandante Valódia, 123",
+        city: "Luanda",
+        state: "Luanda",
+        postal_code: "1000",
+        country: "Angola"
+      },
+      location: {
+        type: "Point",
+        coordinates: [13.2344, -8.8383] // [longitude, latitude]
+      },
+      contact: {
+        phone: "+244 222 123 456",
+        email: "luanda.central@aguatwezah.ao",
+        website: "https://aguatwezah.ao"
+      },
+      manager: {
+        name: "João Silva",
+        phone: "+244 222 123 456",
+        email: "joao.silva@aguatwezah.ao"
+      },
+      operating_hours: {
+        monday: { open: "8:00", close: "20:00", closed: false },
+        tuesday: { open: "8:00", close: "20:00", closed: false },
+        wednesday: { open: "8:00", close: "20:00", closed: false },
+        thursday: { open: "8:00", close: "20:00", closed: false },
+        friday: { open: "8:00", close: "20:00", closed: false },
+        saturday: { open: "8:00", close: "20:00", closed: false },
+        sunday: { open: "9:00", close: "18:00", closed: false }
       },
       services: ["water_delivery", "retail_sales", "bulk_orders"],
+      inventory: {
+        total_bottles: 5000,
+        available_bottles: 4500,
+        reserved_bottles: 500
+      },
+      performance: {
+        total_sales: 15000,
+        total_orders: 1200,
+        average_order_value: 12.50,
+        customer_count: 800
+      },
       createdAt: "2024-01-15",
       updatedAt: "2024-01-20"
     }
@@ -122,36 +148,62 @@ const Stores = () => {
 
   const [newStore, setNewStore] = useState({
     name: "",
-    city: "",
-    address: "",
-    phone: "",
-    email: "",
-    manager: "",
-    status: "active" as "active" | "inactive" | "maintenance",
-    latitude: 0,
-    longitude: 0,
-    openingHours: {
-      monday: "",
-      tuesday: "",
-      wednesday: "",
-      thursday: "",
-      friday: "",
-      saturday: "",
-      sunday: ""
+    type: "retail" as "retail" | "wholesale" | "distributor" | "online",
+    status: "active" as "active" | "inactive" | "suspended",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      postal_code: "",
+      country: "Angola"
     },
-    services: [] as string[]
+    location: {
+      type: "Point" as "Point",
+      coordinates: [0, 0] as [number, number]
+    },
+    contact: {
+      phone: "",
+      email: "",
+      website: ""
+    },
+    manager: {
+      name: "",
+      phone: "",
+      email: ""
+    },
+    operating_hours: {
+      monday: { open: "", close: "", closed: false },
+      tuesday: { open: "", close: "", closed: false },
+      wednesday: { open: "", close: "", closed: false },
+      thursday: { open: "", close: "", closed: false },
+      friday: { open: "", close: "", closed: false },
+      saturday: { open: "", close: "", closed: false },
+      sunday: { open: "", close: "", closed: false }
+    },
+    services: [] as string[],
+    inventory: {
+      total_bottles: 0,
+      available_bottles: 0,
+      reserved_bottles: 0
+    },
+    performance: {
+      total_sales: 0,
+      total_orders: 0,
+      average_order_value: 0,
+      customer_count: 0
+    }
   });
 
   const cities = ["Luanda", "Benguela", "Huambo", "Lobito", "Lubango", "Namibe", "Malanje", "Kuito"];
 
   const filteredStores = stores.filter(store => 
     store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    store.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    store.manager.toLowerCase().includes(searchTerm.toLowerCase())
+    store.address.street.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (store.manager?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddStore = async () => {
-    if (!newStore.name || !newStore.city || !newStore.address || !newStore.phone || !newStore.email) {
+    if (!newStore.name || !newStore.address.street || !newStore.contact.phone || !newStore.contact.email) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -161,11 +213,12 @@ const Stores = () => {
     }
 
     // Geocode the address to get coordinates
-    let coordinates = { latitude: 0, longitude: 0 };
+    let coordinates = [0, 0] as [number, number];
     try {
-      const coords = await geolocationService.geocodeAddress(newStore.address);
+      const fullAddress = `${newStore.address.street}, ${newStore.address.city}, ${newStore.address.state}`;
+      const coords = await geolocationService.geocodeAddress(fullAddress);
       if (coords) {
-        coordinates = coords;
+        coordinates = [coords.longitude, coords.latitude]; // [longitude, latitude]
       }
     } catch (error) {
       console.error("Error geocoding address:", error);
@@ -173,11 +226,20 @@ const Stores = () => {
 
     const store: StoreType = {
       id: `store${Date.now()}`,
-      ...newStore,
-      ...coordinates,
-      status: "active",
-      rating: 0,
-      totalSales: 0,
+      name: newStore.name,
+      type: newStore.type,
+      status: newStore.status,
+      address: newStore.address,
+      location: {
+        type: "Point",
+        coordinates: coordinates
+      },
+      contact: newStore.contact,
+      manager: newStore.manager,
+      operating_hours: newStore.operating_hours,
+      services: newStore.services,
+      inventory: newStore.inventory,
+      performance: newStore.performance,
       createdAt: new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString().split('T')[0]
     };
@@ -185,17 +247,50 @@ const Stores = () => {
     setStores([...stores, store]);
     setNewStore({
       name: "",
-      city: "",
-      address: "",
-      phone: "",
-      email: "",
-      website: "",
-      type: "retail",
-      openingHours: "",
-      manager: "",
-      capacity: 0,
-      latitude: 0,
-      longitude: 0
+      type: "retail" as "retail" | "wholesale" | "distributor" | "online",
+      status: "active" as "active" | "inactive" | "suspended",
+      address: {
+        street: "",
+        city: "",
+        state: "",
+        postal_code: "",
+        country: "Angola"
+      },
+      location: {
+        type: "Point" as "Point",
+        coordinates: [0, 0] as [number, number]
+      },
+      contact: {
+        phone: "",
+        email: "",
+        website: ""
+      },
+      manager: {
+        name: "",
+        phone: "",
+        email: ""
+      },
+      operating_hours: {
+        monday: { open: "", close: "", closed: false },
+        tuesday: { open: "", close: "", closed: false },
+        wednesday: { open: "", close: "", closed: false },
+        thursday: { open: "", close: "", closed: false },
+        friday: { open: "", close: "", closed: false },
+        saturday: { open: "", close: "", closed: false },
+        sunday: { open: "", close: "", closed: false }
+      },
+      services: [] as string[],
+      inventory: {
+        total_bottles: 0,
+        available_bottles: 0,
+        reserved_bottles: 0
+      },
+      performance: {
+        total_sales: 0,
+        total_orders: 0,
+        average_order_value: 0,
+        customer_count: 0
+      }
     });
     setIsAddDialogOpen(false);
 
@@ -363,13 +458,32 @@ const Stores = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="storeAddress" className="text-sm font-medium">Address *</Label>
-                <Textarea
+                <Label htmlFor="storeAddress" className="text-sm font-medium">Street Address *</Label>
+                <Input
                   id="storeAddress"
-                  placeholder="Enter complete store address"
-                  value={newStore.address}
-                  onChange={(e) => setNewStore({...newStore, address: e.target.value})}
-                  rows={2}
+                  placeholder="Enter street address"
+                  value={newStore.address.street}
+                  onChange={(e) => setNewStore({...newStore, address: {...newStore.address, street: e.target.value}})}
+                  className="border-border focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="storeState" className="text-sm font-medium">State *</Label>
+                <Input
+                  id="storeState"
+                  placeholder="Enter state"
+                  value={newStore.address.state}
+                  onChange={(e) => setNewStore({...newStore, address: {...newStore.address, state: e.target.value}})}
+                  className="border-border focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="storePostalCode" className="text-sm font-medium">Postal Code</Label>
+                <Input
+                  id="storePostalCode"
+                  placeholder="Enter postal code"
+                  value={newStore.address.postal_code}
+                  onChange={(e) => setNewStore({...newStore, address: {...newStore.address, postal_code: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -380,8 +494,8 @@ const Stores = () => {
                   <Input
                     id="storePhone"
                     placeholder="+244 XXX XXX XXX"
-                    value={newStore.phone}
-                    onChange={(e) => setNewStore({...newStore, phone: e.target.value})}
+                    value={newStore.contact?.phone || ''}
+                    onChange={(e) => setNewStore({...newStore, contact: {...newStore.contact, phone: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -391,8 +505,8 @@ const Stores = () => {
                     id="storeEmail"
                     type="email"
                     placeholder="store@aguatwezah.ao"
-                    value={newStore.email}
-                    onChange={(e) => setNewStore({...newStore, email: e.target.value})}
+                    value={newStore.contact?.email || ''}
+                    onChange={(e) => setNewStore({...newStore, contact: {...newStore.contact, email: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -403,8 +517,8 @@ const Stores = () => {
                 <Input
                   id="storeWebsite"
                   placeholder="https://aguatwezah.ao/store"
-                  value={newStore.website}
-                  onChange={(e) => setNewStore({...newStore, website: e.target.value})}
+                  value={newStore.contact?.website || ''}
+                  onChange={(e) => setNewStore({...newStore, contact: {...newStore.contact, website: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -412,25 +526,26 @@ const Stores = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="storeType" className="text-sm font-medium">Store Type</Label>
-                  <Select value={newStore.type} onValueChange={(value: "retail" | "wholesale" | "both") => setNewStore({...newStore, type: value})}>
+                  <Select value={newStore.type} onValueChange={(value: "retail" | "wholesale" | "distributor" | "online") => setNewStore({...newStore, type: value})}>
                     <SelectTrigger className="border-border focus:ring-2 focus:ring-primary/20">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="retail">Retail</SelectItem>
                       <SelectItem value="wholesale">Wholesale</SelectItem>
-                      <SelectItem value="both">Both</SelectItem>
+                      <SelectItem value="distributor">Distributor</SelectItem>
+                      <SelectItem value="online">Online</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="storeCapacity" className="text-sm font-medium">Capacity (L)</Label>
+                  <Label htmlFor="storeCapacity" className="text-sm font-medium">Total Bottles</Label>
                   <Input
                     id="storeCapacity"
                     type="number"
                     placeholder="5000"
-                    value={newStore.capacity}
-                    onChange={(e) => setNewStore({...newStore, capacity: parseInt(e.target.value) || 0})}
+                    value={newStore.inventory?.total_bottles || 0}
+                    onChange={(e) => setNewStore({...newStore, inventory: {...newStore.inventory, total_bottles: parseInt(e.target.value) || 0}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -441,8 +556,20 @@ const Stores = () => {
                 <Input
                   id="storeHours"
                   placeholder="Mon-Sat: 8:00-20:00, Sun: 9:00-18:00"
-                  value={newStore.openingHours}
-                  onChange={(e) => setNewStore({...newStore, openingHours: e.target.value})}
+                  value={newStore.operating_hours ? Object.values(newStore.operating_hours).map(day => `${day.open}-${day.close}`).join(', ') : ''}
+                  onChange={(e) => {
+                    const hours = e.target.value;
+                    const [open, close] = hours.includes('-') ? hours.split('-') : ['8:00', '20:00'];
+                    setNewStore({...newStore, operating_hours: {
+                      monday: { open, close, closed: false },
+                      tuesday: { open, close, closed: false },
+                      wednesday: { open, close, closed: false },
+                      thursday: { open, close, closed: false },
+                      friday: { open, close, closed: false },
+                      saturday: { open, close, closed: false },
+                      sunday: { open, close, closed: false }
+                    }});
+                  }}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -452,8 +579,8 @@ const Stores = () => {
                 <Input
                   id="storeManager"
                   placeholder="Manager name"
-                  value={newStore.manager}
-                  onChange={(e) => setNewStore({...newStore, manager: e.target.value})}
+                  value={newStore.manager?.name || ''}
+                  onChange={(e) => setNewStore({...newStore, manager: {...newStore.manager, name: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -466,8 +593,8 @@ const Stores = () => {
                     type="number"
                     step="any"
                     placeholder="-8.8383"
-                    value={newStore.latitude}
-                    onChange={(e) => setNewStore({...newStore, latitude: parseFloat(e.target.value) || 0})}
+                    value={newStore.location?.coordinates[1] || 0}
+                    onChange={(e) => setNewStore({...newStore, location: {...newStore.location, coordinates: [newStore.location?.coordinates[0] || 0, parseFloat(e.target.value) || 0]}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -478,8 +605,8 @@ const Stores = () => {
                     type="number"
                     step="any"
                     placeholder="13.2344"
-                    value={newStore.longitude}
-                    onChange={(e) => setNewStore({...newStore, longitude: parseFloat(e.target.value) || 0})}
+                    value={newStore.location?.coordinates[0] || 0}
+                    onChange={(e) => setNewStore({...newStore, location: {...newStore.location, coordinates: [parseFloat(e.target.value) || 0, newStore.location?.coordinates[1] || 0]}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -551,17 +678,17 @@ const Stores = () => {
 
         <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-cyan-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Capacity</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Inventory</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500/10 to-teal-500/10">
               <Droplets className="h-4 w-4 text-cyan-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {stores.reduce((sum, store) => sum + store.capacity, 0).toLocaleString()}L
+              {stores.reduce((sum, store) => sum + (store.inventory?.total_bottles || 0), 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Combined storage
+              Total bottles
             </p>
           </CardContent>
         </Card>
@@ -645,8 +772,8 @@ const Stores = () => {
                 <TableHead className="font-semibold">Contact</TableHead>
                 <TableHead className="font-semibold">Type</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Capacity</TableHead>
-                <TableHead className="font-semibold">Rating</TableHead>
+                <TableHead className="font-semibold">Inventory</TableHead>
+                <TableHead className="font-semibold">Avg Order</TableHead>
                 <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -656,7 +783,7 @@ const Stores = () => {
                   <TableCell>
                     <div>
                       <div className="font-medium text-foreground">{store.name}</div>
-                      <div className="text-sm text-muted-foreground">{store.manager}</div>
+                      <div className="text-sm text-muted-foreground">{store.manager?.name || 'N/A'}</div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -665,44 +792,44 @@ const Stores = () => {
                       <div>
                         <div className="font-medium text-foreground">{store.city}</div>
                         <div className="text-sm text-muted-foreground max-w-xs truncate">
-                          {store.address}
+                          {typeof store.address === 'string' ? store.address : `${store.address.street}, ${store.address.city}`}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="text-xs text-muted-foreground">
-                      <div>{store.latitude.toFixed(4)}</div>
-                      <div>{store.longitude.toFixed(4)}</div>
+                      <div>{store.location?.coordinates ? store.location.coordinates[1].toFixed(4) : 'N/A'}</div>
+                      <div>{store.location?.coordinates ? store.location.coordinates[0].toFixed(4) : 'N/A'}</div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
                       <div className="flex items-center gap-1 text-sm">
                         <Phone className="w-3 h-3 text-primary" />
-                        {store.phone}
+                        {store.contact?.phone || 'N/A'}
                       </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Mail className="w-3 h-3" />
-                        {store.email}
+                        {store.contact?.email || 'N/A'}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    {getTypeBadge(store.type)}
+                    {getTypeBadge(store.type || 'retail')}
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(store.status)}
                   </TableCell>
                   <TableCell>
                     <div className="text-sm font-medium text-foreground">
-                      {store.capacity.toLocaleString()}L
+                      {store.inventory?.total_bottles ? store.inventory.total_bottles.toLocaleString() + ' bottles' : 'N/A'}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{store.rating}</span>
+                      <span className="text-sm font-medium">{store.performance?.average_order_value ? `$${store.performance.average_order_value.toFixed(2)}` : 'N/A'}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -778,12 +905,29 @@ const Stores = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="editStoreAddress" className="text-sm font-medium">Address</Label>
-                <Textarea
+                <Label htmlFor="editStoreAddress" className="text-sm font-medium">Street Address</Label>
+                <Input
                   id="editStoreAddress"
-                  value={selectedStore.address}
-                  onChange={(e) => setSelectedStore({...selectedStore, address: e.target.value})}
-                  rows={2}
+                  value={typeof selectedStore.address === 'string' ? selectedStore.address : selectedStore.address?.street || ''}
+                  onChange={(e) => setSelectedStore({...selectedStore, address: typeof selectedStore.address === 'string' ? e.target.value : {...selectedStore.address, street: e.target.value}})}
+                  className="border-border focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editStoreState" className="text-sm font-medium">State</Label>
+                <Input
+                  id="editStoreState"
+                  value={typeof selectedStore.address === 'string' ? '' : selectedStore.address?.state || ''}
+                  onChange={(e) => setSelectedStore({...selectedStore, address: typeof selectedStore.address === 'string' ? {street: selectedStore.address, city: '', state: e.target.value, postal_code: '', country: 'Ghana'} : {...selectedStore.address, state: e.target.value}})}
+                  className="border-border focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editStorePostalCode" className="text-sm font-medium">Postal Code</Label>
+                <Input
+                  id="editStorePostalCode"
+                  value={typeof selectedStore.address === 'string' ? '' : selectedStore.address?.postal_code || ''}
+                  onChange={(e) => setSelectedStore({...selectedStore, address: typeof selectedStore.address === 'string' ? {street: selectedStore.address, city: '', state: '', postal_code: e.target.value, country: 'Ghana'} : {...selectedStore.address, postal_code: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -793,8 +937,8 @@ const Stores = () => {
                   <Label htmlFor="editStorePhone" className="text-sm font-medium">Phone</Label>
                   <Input
                     id="editStorePhone"
-                    value={selectedStore.phone}
-                    onChange={(e) => setSelectedStore({...selectedStore, phone: e.target.value})}
+                    value={selectedStore.contact?.phone || ''}
+                    onChange={(e) => setSelectedStore({...selectedStore, contact: {...selectedStore.contact, phone: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -803,8 +947,8 @@ const Stores = () => {
                   <Input
                     id="editStoreEmail"
                     type="email"
-                    value={selectedStore.email}
-                    onChange={(e) => setSelectedStore({...selectedStore, email: e.target.value})}
+                    value={selectedStore.contact?.email || ''}
+                    onChange={(e) => setSelectedStore({...selectedStore, contact: {...selectedStore.contact, email: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -864,8 +1008,8 @@ const Stores = () => {
                   <Label htmlFor="editStoreManager" className="text-sm font-medium">Store Manager</Label>
                   <Input
                     id="editStoreManager"
-                    value={selectedStore.manager}
-                    onChange={(e) => setSelectedStore({...selectedStore, manager: e.target.value})}
+                    value={selectedStore.manager?.name || ''}
+                    onChange={(e) => setSelectedStore({...selectedStore, manager: {...selectedStore.manager, name: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -875,8 +1019,20 @@ const Stores = () => {
                 <Label htmlFor="editStoreHours" className="text-sm font-medium">Opening Hours</Label>
                 <Input
                   id="editStoreHours"
-                  value={selectedStore.openingHours}
-                  onChange={(e) => setSelectedStore({...selectedStore, openingHours: e.target.value})}
+                  value={selectedStore.operating_hours ? Object.values(selectedStore.operating_hours).map(day => `${day.open}-${day.close}`).join(', ') : ''}
+                  onChange={(e) => {
+                    const hours = e.target.value;
+                    const [open, close] = hours.includes('-') ? hours.split('-') : ['8:00', '20:00'];
+                    setSelectedStore({...selectedStore, operating_hours: {
+                      monday: { open, close, closed: false },
+                      tuesday: { open, close, closed: false },
+                      wednesday: { open, close, closed: false },
+                      thursday: { open, close, closed: false },
+                      friday: { open, close, closed: false },
+                      saturday: { open, close, closed: false },
+                      sunday: { open, close, closed: false }
+                    }});
+                  }}
                   className="border-border focus:ring-2 focus:ring-primary/20"
                 />
               </div>

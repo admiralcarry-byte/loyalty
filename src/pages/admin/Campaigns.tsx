@@ -388,7 +388,9 @@ const Campaigns = () => {
                           />
                           <label htmlFor={shop.id} className="text-sm cursor-pointer flex-1">
                             <div className="font-medium text-foreground">{shop.name}</div>
-                            <div className="text-xs text-muted-foreground">{shop.address}</div>
+                            <div className="text-xs text-muted-foreground">
+                  {typeof shop.address === 'string' ? shop.address : `${shop.address.street}, ${shop.address.city}`}
+                </div>
                             <div className="text-xs text-blue-600">{shop.city}</div>
                           </label>
                         </div>

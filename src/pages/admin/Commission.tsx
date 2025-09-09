@@ -830,8 +830,12 @@ const Commission = () => {
                     <TableRow key={request._id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{request.user.first_name} {request.user.last_name}</div>
-                          <div className="text-sm text-muted-foreground">{request.user.phone}</div>
+                          <div className="font-medium">
+                            {request.user ? `${request.user.first_name} ${request.user.last_name}` : 'Unknown User'}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {request.user?.phone || 'No phone'}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -1027,8 +1031,12 @@ const Commission = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">Influencer</Label>
-                  <p className="text-lg font-semibold">{selectedPayoutRequest.user.first_name} {selectedPayoutRequest.user.last_name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedPayoutRequest.user.phone}</p>
+                  <p className="text-lg font-semibold">
+                    {selectedPayoutRequest.user ? `${selectedPayoutRequest.user.first_name} ${selectedPayoutRequest.user.last_name}` : 'Unknown User'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPayoutRequest.user?.phone || 'No phone'}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">Request Amount</Label>

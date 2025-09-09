@@ -208,7 +208,9 @@ const StoreMap = ({ stores, onStoreSelect, selectedStoreId }: StoreMapProps) => 
             {isSelected && (
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg border p-3 min-w-48 z-20 mt-2">
                 <div className="font-semibold text-sm text-gray-900">{store.name}</div>
-                <div className="text-xs text-gray-600 mt-1">{store.address}</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  {typeof store.address === 'string' ? store.address : `${store.address.street}, ${store.address.city}`}
+                </div>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className="text-xs">
                     {store.type}
