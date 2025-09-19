@@ -7,7 +7,7 @@ export const WALLET_CONFIG = {
   
   // API Configuration (used when mode is 'api')
   api: {
-    baseUrl: import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api',
+    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
     timeout: 10000, // 10 seconds
     retryAttempts: 3,
   },

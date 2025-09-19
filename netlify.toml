@@ -1,0 +1,21 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  environment = { VITE_API_URL = "https://loyalty-backend-production-8e32.up.railway.app/api", VITE_NODE_ENV = "production" }
+
+[context.deploy-preview]
+  environment = { VITE_API_URL = "https://loyalty-backend-production-8e32.up.railway.app/api", VITE_NODE_ENV = "development" }
+
+[context.branch-deploy]
+  environment = { VITE_API_URL = "https://loyalty-backend-production-8e32.up.railway.app/api", VITE_NODE_ENV = "development" }

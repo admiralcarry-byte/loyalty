@@ -1,6 +1,6 @@
 import { authService } from './authService';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Helper function to make authenticated API requests
 const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {

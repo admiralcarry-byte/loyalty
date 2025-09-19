@@ -198,7 +198,7 @@ const BillingIntegration = () => {
       },
     };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}${endpoint}`, config);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${endpoint}`, config);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));
@@ -292,7 +292,7 @@ const BillingIntegration = () => {
         }
         
         // Fetch the image file from the backend with authentication
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}/billing/download-invoice/${invoiceData.imageFile.filename}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/billing/download-invoice/${invoiceData.imageFile.filename}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -428,7 +428,7 @@ const BillingIntegration = () => {
       console.log('purchaseDate:', new Date().toISOString());
       console.log('receiptFile:', receiptFile.name, 'size:', receiptFile.size);
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}/billing/upload-receipt`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/billing/upload-receipt`, {
         method: 'POST',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
