@@ -3,162 +3,565 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Settings, 
-  Zap, 
-  Activity, 
   FileText, 
   AlertCircle, 
   CheckCircle, 
-  Clock, 
-  RefreshCw,
-  TestTube,
-  Database,
-  Shield,
-  Webhook,
-  Key,
-  Server,
   Upload,
-  ExternalLink,
-  Receipt,
-  BarChart3,
-  Eye
+  QrCode,
+  Download,
+  User,
+  Phone,
+  Mail,
+  ShoppingCart,
+  DollarSign,
+  Building,
+  TestTube
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  billingIntegrationService, 
-  type IntegrationConfig,
-  type SyncResult,
-  type BillingSystem 
-} from "@/services/billingIntegration";
+import { authService } from "@/services/authService";
+
+interface InvoiceFormData {
+  purchaserName: string;
+  phoneNumber: string;
+  email: string;
+  litersPurchased: number;
+  amount: number;
+  storeNumber: string;
+}
+
+interface ReceiptAnalysisData {
+  ocrData: {
+    extractedData: {
+      purchaserName: string;
+      phoneNumber: string;
+      email: string;
+      litersPurchased: number;
+      amount: number;
+      storeNumber: string;
+      invoiceNumber: string;
+      date: string;
+      paymentMethod: string;
+    };
+    confidence: number;
+    rawText: string;
+    technique: string;
+    extractionMethod: string;
+    processingTime: number;
+  };
+  qrData: {
+    extractedFields: {
+      receiptId: string;
+      storeNumber: string;
+      amount: number;
+      date: string;
+      verificationCode: string;
+      customerName: string;
+      transactionId: string;
+      rawData: string;
+    };
+    success: boolean;
+    confidence: number;
+    extractionMethod: string;
+    error: string;
+  };
+}
 
 const BillingIntegration = () => {
   const { toast } = useToast();
-  const [config, setConfig] = useState<IntegrationConfig>({
-    apiUrl: '',
-    apiKey: '',
-    webhookUrl: '',
-    webhookSecret: '',
-    syncFrequency: 5,
-    autoSync: true,
-    customerIdField: 'customer_phone',
-    amountField: 'total_amount',
-    productField: 'products',
-    invoiceField: 'invoice_number',
-    dateField: 'sale_date'
+  
+  // Invoice Generation States
+  const [invoiceFormData, setInvoiceFormData] = useState<InvoiceFormData>({
+    purchaserName: '',
+    phoneNumber: '',
+    email: '',
+    litersPurchased: 0,
+    amount: 0,
+    storeNumber: ''
   });
+  const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
+  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+  const [generatedInvoice, setGeneratedInvoice] = useState<any>(null);
 
-  const [billingSystems] = useState<BillingSystem[]>([
-    { id: '1', name: 'QuickBooks Online', type: 'both', status: 'active', lastSync: '2024-01-15 14:30:00', syncFrequency: 5 },
-    { id: '2', name: 'Xero', type: 'api', status: 'inactive', lastSync: '2024-01-14 09:15:00', syncFrequency: 10 },
-    { id: '3', name: 'FreshBooks', type: 'webhook', status: 'error', lastSync: '2024-01-15 10:45:00', syncFrequency: 15 }
-  ]);
+  // Receipt Upload States
+  const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
+  const [isAnalyzingReceipt, setIsAnalyzingReceipt] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptAnalysis, setReceiptAnalysis] = useState<ReceiptAnalysisData | null>(null);
+  const [isTestingReceipt, setIsTestingReceipt] = useState(false);
 
-  const [syncLogs, setSyncLogs] = useState<SyncResult[]>([
-    { success: true, recordsProcessed: 45, pointsAwarded: 2250, errors: [], timestamp: '2024-01-15 14:30:00' },
-    { success: true, recordsProcessed: 32, pointsAwarded: 1600, errors: [], timestamp: '2024-01-15 14:25:00' },
-    { success: false, recordsProcessed: 0, pointsAwarded: 0, errors: ['API connection timeout'], timestamp: '2024-01-15 14:20:00' },
-    { success: true, recordsProcessed: 28, pointsAwarded: 1400, errors: [], timestamp: '2024-01-15 14:15:00' }
-  ]);
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  const [isTesting, setIsTesting] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  // Store data state
+  const [availableStores, setAvailableStores] = useState<any[]>([]);
+  const [isLoadingStores, setIsLoadingStores] = useState(false);
+  const [selectedStore, setSelectedStore] = useState<any>(null);
 
-  useEffect(() => {
-    // Load configuration from service
-    const serviceConfig = billingIntegrationService.getConfig();
-    setConfig(serviceConfig);
-  }, []);
-
-  const handleConfigChange = (field: keyof IntegrationConfig, value: string | number | boolean) => {
-    setConfig(prev => ({ ...prev, [field]: value }));
+  // Fetch available stores (only active stores for invoice generation)
+  const fetchAvailableStores = async () => {
+    setIsLoadingStores(true);
+    try {
+      const response = await makeAuthenticatedRequest('/stores?status=active');
+      if (response.success && response.data) {
+        setAvailableStores(response.data);
+      } else {
+        // Clear stores if API returns unsuccessful response
+        setAvailableStores([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stores:', error);
+      // Clear stores on error to prevent showing stale data
+      setAvailableStores([]);
+    } finally {
+      setIsLoadingStores(false);
+    }
   };
 
-  const testConnection = async () => {
-    setIsTesting(true);
+  // Auto-login function
+  const autoLogin = async () => {
     try {
-      const success = await billingIntegrationService.testConnection();
-      if (success) {
+      const response = await authService.login({
+        email: 'admin@aguatwezah.com',
+        password: 'admin123'
+      });
+      
+      if (response.success) {
+        authService.setAuthData(
+          response.data.accessToken,
+          response.data.refreshToken,
+          response.data.user
+        );
+        
+        setIsAuthenticated(true);
         toast({
-          title: "Connection Test Successful",
-          description: "Successfully connected to billing system API",
+          title: "Auto-login Successful",
+          description: "Logged in as admin user",
         });
       } else {
-        throw new Error("Connection failed");
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to use billing features",
+          variant: "destructive"
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: "Authentication Failed",
+        description: "Please log in to use billing features",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Check authentication on component mount
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      setIsAuthenticated(true);
+      setIsCheckingAuth(false);
+      fetchAvailableStores();
+    } else {
+      autoLogin();
+    }
+  }, []);
+
+  // Fetch stores when authenticated
+  useEffect(() => {
+    if (isAuthenticated && authService.isAuthenticated()) {
+      fetchAvailableStores();
+    } else if (!isAuthenticated) {
+      // Clear stores when not authenticated
+      setAvailableStores([]);
+    }
+  }, [isAuthenticated]);
+
+  // Helper function for authenticated API requests
+  const makeAuthenticatedRequest = async (endpoint: string, options: RequestInit = {}) => {
+    const token = authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required. Please log in again.');
+    }
+    
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+    };
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}${endpoint}`, config);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return response.json();
+  };
+
+  // Invoice Generation Functions
+  const handleInvoiceFormChange = (field: keyof InvoiceFormData, value: string | number) => {
+    // Filter out disabled option values
+    if (value === 'loading' || value === 'no-stores') {
+      return;
+    }
+    setInvoiceFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const generateInvoice = async () => {
+    // Validate required fields
+    if (!invoiceFormData.purchaserName || !invoiceFormData.litersPurchased || !invoiceFormData.amount) {
+      toast({
+        title: "Validation Error",
+        description: "Name, liters purchased, and amount are required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingInvoice(true);
+    try {
+      // Generate QR code data (store number hash)
+      const storeNumberHash = btoa(invoiceFormData.storeNumber || 'default-store');
+      
+      // Create invoice data with full datetime
+      const now = new Date();
+      const invoiceData = {
+        ...invoiceFormData,
+        dateGenerated: now.toISOString(),
+        dateGeneratedFormatted: now.toLocaleDateString('en-GB') + ' - ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+        storeNumberHash,
+        qrCodeData: storeNumberHash
+      };
+
+      // Store in database (API call)
+      const result = await makeAuthenticatedRequest('/billing/create-invoice', {
+        method: 'POST',
+        body: JSON.stringify(invoiceData)
+      });
+
+      setGeneratedInvoice(result.data);
+      
+      // Download invoice
+      await downloadInvoice(result.data);
+      
+        toast({
+        title: "Invoice Generated",
+        description: "Invoice has been generated and downloaded successfully",
+      });
+      
+      // Reset form and close dialog
+      setInvoiceFormData({
+        purchaserName: '',
+        phoneNumber: '',
+        email: '',
+        litersPurchased: 0,
+        amount: 0,
+        storeNumber: ''
+      });
+      setIsInvoiceDialogOpen(false);
+      setSelectedStore(null);
+    } catch (error) {
+      toast({
+        title: "Invoice Generation Failed",
+        description: error instanceof Error ? error.message : "Failed to generate invoice. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingInvoice(false);
+    }
+  };
+
+  const downloadInvoice = async (invoiceData: any) => {
+    // Check if we have an image file from the backend
+    if (invoiceData.imageFile && invoiceData.imageFile.filePath) {
+      try {
+        const token = authService.getToken();
+        
+        if (!token) {
+          throw new Error('Authentication required. Please log in again.');
+        }
+        
+        // Fetch the image file from the backend with authentication
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}/billing/download-invoice/${invoiceData.imageFile.filename}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = invoiceData.imageFile.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          return;
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Download failed' }));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Error downloading image file:', error);
+        toast({
+          title: "Download Failed",
+          description: error instanceof Error ? error.message : "Failed to download invoice. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+    
+    // Fallback: Create a simple invoice HTML if image download fails
+    const qrCodeImg = invoiceData.qrCode?.dataURL 
+      ? `<img src="${invoiceData.qrCode.dataURL}" alt="QR Code" style="width: 200px; height: 200px;" />`
+      : `<div class="qr-placeholder">QR Code<br/>Store: ${invoiceData.storeNumberHash}</div>`;
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice - ${invoiceData.purchaserName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .invoice { max-width: 600px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .details { margin-bottom: 20px; }
+          .qr-code { text-align: center; margin: 20px 0; }
+          .qr-placeholder { 
+            width: 200px; 
+            height: 200px; 
+            border: 2px solid #000; 
+            margin: 0 auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: #f0f0f0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice">
+          <div class="header">
+            <h1>INVOICE</h1>
+            <p>Date: ${new Date(invoiceData.dateGenerated).toLocaleDateString('en-GB')} - ${new Date(invoiceData.dateGenerated).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+            <p>Invoice ID: ${invoiceData.invoiceId || invoiceData.saleId}</p>
+          </div>
+          <div class="details">
+            <p><strong>Purchaser:</strong> ${invoiceData.purchaserName}</p>
+            <p><strong>Phone:</strong> ${invoiceData.phoneNumber}</p>
+            <p><strong>Email:</strong> ${invoiceData.email}</p>
+            <p><strong>Liters Purchased:</strong> ${invoiceData.litersPurchased}</p>
+            <p><strong>Amount:</strong> R$ ${invoiceData.amount.toFixed(2)}</p>
+            <p><strong>Store Number:</strong> ${invoiceData.storeNumber}</p>
+          </div>
+          <div class="qr-code">
+            ${qrCodeImg}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([invoiceHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${invoiceData.purchaserName}-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Receipt Upload Functions
+  const handleReceiptFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setReceiptFile(file);
+    }
+  };
+
+  const analyzeReceipt = async () => {
+    if (!receiptFile) {
+      toast({
+        title: "No File Selected",
+        description: "Please select a receipt file to analyze",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzingReceipt(true);
+    try {
+      // First, get available users and stores from the backend
+      const token = authService.getToken();
+      
+      // The backend will now find the user and store based on QR code data
+      // We'll use placeholder values that will be replaced by the backend
+      let userId = 'placeholder-user-id';
+      let storeId = 'placeholder-store-id';
+
+      console.log('Using placeholder IDs - backend will find actual user/store from QR code data');
+
+      const formData = new FormData();
+      formData.append('receipt', receiptFile);
+      formData.append('userId', userId);
+      formData.append('storeId', storeId);
+      formData.append('purchaseDate', new Date().toISOString());
+      
+      // Debug: Log what we're sending
+      console.log('Sending form data:');
+      console.log('userId:', userId, 'type:', typeof userId);
+      console.log('storeId:', storeId, 'type:', typeof storeId);
+      console.log('purchaseDate:', new Date().toISOString());
+      console.log('receiptFile:', receiptFile.name, 'size:', receiptFile.size);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://loyalty-backend-production-8e32.up.railway.app/api'}/billing/upload-receipt`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Extract data from both OCR and QR code results
+        const analysisData: ReceiptAnalysisData = {
+          ocrData: {
+            extractedData: {
+              purchaserName: result.data.ocrData?.extractedData?.customerName || 'Not Found',
+              phoneNumber: result.data.ocrData?.extractedData?.phoneNumber || 'Not Found',
+              email: result.data.ocrData?.extractedData?.email || 'Not Found',
+              litersPurchased: result.data.ocrData?.extractedData?.liters || 0,
+              amount: result.data.ocrData?.extractedData?.amount || 0,
+              storeNumber: result.data.ocrData?.extractedData?.storeName || 'Not Found',
+              invoiceNumber: result.data.ocrData?.extractedData?.invoiceNumber || 'Not Found',
+              date: result.data.ocrData?.extractedData?.date || 'Not Found',
+              paymentMethod: result.data.ocrData?.extractedData?.paymentMethod || 'Not Found'
+            },
+            confidence: result.data.ocrData?.confidence || 0,
+            rawText: result.data.ocrData?.rawText || 'No text extracted',
+            technique: result.data.ocrData?.technique || 'unknown',
+            extractionMethod: result.data.ocrData?.extractionMethod || 'unknown',
+            processingTime: result.data.ocrData?.processingTime || 0
+          },
+          qrData: {
+            extractedFields: {
+              receiptId: result.data.qrData?.extractedFields?.receiptId || 'N/A',
+              storeNumber: result.data.qrData?.extractedFields?.storeNumber || 'N/A',
+              amount: result.data.qrData?.extractedFields?.amount || 0,
+              date: result.data.qrData?.extractedFields?.date || 'N/A',
+              verificationCode: result.data.qrData?.extractedFields?.verificationCode || 'N/A',
+              customerName: result.data.qrData?.extractedFields?.customerName || 'N/A',
+              transactionId: result.data.qrData?.extractedFields?.transactionId || 'N/A',
+              rawData: result.data.qrData?.extractedFields?.rawData || 'N/A'
+            },
+            success: result.data.qrData?.success || false,
+            confidence: result.data.qrData?.confidence || 0,
+            extractionMethod: result.data.qrData?.extractionMethod || 'none',
+            error: result.data.qrData?.error || ''
+          }
+        };
+        
+        setReceiptAnalysis(analysisData);
+        
+        toast({
+          title: "Receipt Analyzed",
+          description: "Receipt has been successfully analyzed",
+        });
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        console.error('Upload receipt error:', errorData);
+        console.error('Validation details:', JSON.stringify(errorData.details, null, 2));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       toast({
-        title: "Connection Test Failed",
-        description: "Unable to connect to billing system API",
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze receipt. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setIsTesting(false);
+      setIsAnalyzingReceipt(false);
     }
   };
 
-  const startManualSync = async () => {
-    setIsSyncing(true);
+  const testReceiptData = async () => {
+    if (!receiptAnalysis) return;
+
+    setIsTestingReceipt(true);
     try {
-      // Simulate sync process
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Add new sync log
-      const newLog: SyncResult = {
-        success: true,
-        recordsProcessed: 45,
-        pointsAwarded: 2250,
-        errors: [],
-        timestamp: new Date().toISOString()
-      };
-      
-      setSyncLogs(prev => [newLog, ...prev]);
-      
+      // Database check
+      const result = await makeAuthenticatedRequest('/billing/verify-purchase', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: receiptAnalysis.ocrData.extractedData.email,
+          phoneNumber: receiptAnalysis.ocrData.extractedData.phoneNumber,
+          litersPurchased: receiptAnalysis.ocrData.extractedData.litersPurchased,
+          amount: receiptAnalysis.ocrData.extractedData.amount,
+          storeNumber: receiptAnalysis.ocrData.extractedData.storeNumber
+        })
+      });
+
       toast({
-        title: "Manual Sync Completed",
-        description: "Successfully synchronized 45 records and awarded 2,250 points",
+        title: "Verification Complete",
+        description: result.found 
+          ? "Purchase information found in database" 
+          : "Purchase information not found in database",
+        variant: result.found ? "default" : "destructive"
       });
     } catch (error) {
       toast({
-        title: "Manual Sync Failed",
-        description: "Error occurred during synchronization",
+        title: "Verification Failed",
+        description: error instanceof Error ? error.message : "Failed to verify purchase data. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setIsSyncing(false);
+      setIsTestingReceipt(false);
     }
   };
 
-  const saveConfiguration = () => {
-    billingIntegrationService.updateConfig(config);
-    toast({
-      title: "Configuration Saved",
-      description: "Billing integration settings have been updated successfully",
-    });
-  };
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active': return <CheckCircle className="w-4 h-4" />;
-      case 'inactive': return <Clock className="w-4 h-4" />;
-      case 'error': return <AlertCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
-    }
-  };
+  // Show authentication required message if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
+          <p className="text-muted-foreground mb-4">Please log in to access billing features</p>
+          <Button onClick={autoLogin}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -169,86 +572,219 @@ const BillingIntegration = () => {
             Billing Integration
           </h1>
           <p className="text-muted-foreground mt-1">
-            Connect your billing software to automatically sync sales and award loyalty points
+            Generate invoices and process receipt uploads for loyalty point management
           </p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            variant="outline" 
-            onClick={testConnection}
-            disabled={isTesting}
-          >
-            {isTesting ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <TestTube className="w-4 h-4 mr-2" />}
-            Test Connection
-          </Button>
-          <Button 
-            onClick={startManualSync}
-            disabled={isSyncing}
-          >
-            {isSyncing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Manual Sync
-          </Button>
         </div>
       </div>
 
-      {/* Selective Billing Options */}
+      {/* Billing Options */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5" />
-            Billing Options
+            <FileText className="w-5 h-5" />
+            Billing Management
           </CardTitle>
           <CardDescription>
-            Choose how you want to process billing data - use external billing company API or upload receipts for OCR processing
+            Generate invoices and process receipt uploads for loyalty point management
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Billing Company API Option */}
-            <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer">
+            {/* Invoice Generation Option */}
+            <Card className="border-2 hover:border-primary/50 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-3 bg-blue-100 rounded-lg">
-                    <ExternalLink className="w-6 h-6 text-blue-600" />
+                    <FileText className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Billing Company API</h3>
-                    <p className="text-sm text-muted-foreground">Connect to external billing system</p>
+                    <h3 className="font-semibold text-lg">Invoice Generation</h3>
+                    <p className="text-sm text-muted-foreground">Create invoices with QR codes</p>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Automatically fetch invoices and billing data from your billing company's API. 
-                  This option provides real-time data synchronization and automated reconciliation.
+                  Generate invoices for purchases with customer information, purchase details, 
+                  and QR codes containing store information for tracking and verification.
                 </p>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Real-time data sync</span>
+                    <span>Customer information capture</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Automated reconciliation</span>
+                    <span>QR code generation</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Bulk invoice processing</span>
+                    <span>Automatic download</span>
                   </div>
                 </div>
+                <Dialog open={isInvoiceDialogOpen} onOpenChange={setIsInvoiceDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Create Invoice
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Create Invoice</DialogTitle>
+                      <DialogDescription>
+                        Enter customer and purchase information to generate an invoice
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="purchaserName">Purchaser Name *</Label>
+                          <Input
+                            id="purchaserName"
+                            placeholder="Enter purchaser name"
+                            value={invoiceFormData.purchaserName}
+                            onChange={(e) => handleInvoiceFormChange('purchaserName', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phoneNumber">Phone Number</Label>
+                          <Input
+                            id="phoneNumber"
+                            placeholder="Enter phone number"
+                            value={invoiceFormData.phoneNumber}
+                            onChange={(e) => handleInvoiceFormChange('phoneNumber', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="Enter email address"
+                          value={invoiceFormData.email}
+                          onChange={(e) => handleInvoiceFormChange('email', e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="litersPurchased">Liters Purchased *</Label>
+                          <Input
+                            id="litersPurchased"
+                            type="number"
+                            placeholder="Enter liters"
+                            value={invoiceFormData.litersPurchased}
+                            onChange={(e) => handleInvoiceFormChange('litersPurchased', parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="amount">Amount (R$) *</Label>
+                          <Input
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            value={invoiceFormData.amount}
+                            onChange={(e) => handleInvoiceFormChange('amount', parseFloat(e.target.value) || 0)}
+                          />
+                  </div>
+                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="storeNumber">Store Number</Label>
+                        <div className="space-y-2">
+                          <Select 
+                            value={selectedStore?._id || ''} 
+                            onValueChange={(value) => {
+                              if (value === 'loading' || value === 'no-stores') return;
+                              const store = availableStores.find(s => s._id === value);
+                              setSelectedStore(store);
+                              if (store?.address?.postal_code) {
+                                handleInvoiceFormChange('storeNumber', store.address.postal_code);
+                              }
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select store number" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {isLoadingStores ? (
+                                <SelectItem value="loading" disabled>Loading stores...</SelectItem>
+                              ) : availableStores && availableStores.length > 0 ? (
+                                availableStores.map((store) => (
+                                  <SelectItem key={store._id} value={store._id}>
+                                    {store.address?.postal_code || 'N/A'} - {store.name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-stores" disabled>There are no registered stores.</SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          
+                          {/* Display selected store code */}
+                          {selectedStore && (
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium text-blue-800">Selected Store Code:</span>
+                                <span className="font-mono bg-blue-100 px-2 py-1 rounded text-blue-900">
+                                  {selectedStore.address?.postal_code || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-blue-600 mt-1">
+                                {selectedStore.name} - {selectedStore.address?.city || 'N/A'}
+                              </div>
+                            </div>
+                          )}
+                          
+                          <Input
+                            id="storeNumber"
+                            placeholder="Or enter store number manually"
+                            value={invoiceFormData.storeNumber}
+                            onChange={(e) => {
+                              handleInvoiceFormChange('storeNumber', e.target.value);
+                              // Clear selected store if user types manually
+                              if (e.target.value !== selectedStore?.address?.postal_code) {
+                                setSelectedStore(null);
+                              }
+                            }}
+                            className="text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsInvoiceDialogOpen(false);
+                            setSelectedStore(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
                 <Button 
-                  className="w-full" 
-                  onClick={() => {
-                    // Navigate to external invoices page
-                    window.location.href = '/admin/external-invoices';
-                  }}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View External Invoices
+                          onClick={generateInvoice}
+                          disabled={isGeneratingInvoice}
+                        >
+                          {isGeneratingInvoice ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="w-4 h-4 mr-2" />
+                              Create Invoice
+                            </>
+                          )}
                 </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
 
             {/* Receipt Upload Option */}
-            <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer">
+            <Card className="border-2 hover:border-primary/50 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-3 bg-green-100 rounded-lg">
@@ -261,7 +797,7 @@ const BillingIntegration = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">
                   Upload receipt images or PDFs for automatic data extraction using OCR technology. 
-                  Perfect for manual receipt processing and data entry.
+                  Extract customer information and QR code data for verification.
                 </p>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm">
@@ -270,426 +806,194 @@ const BillingIntegration = () => {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Manual approval workflow</span>
+                    <span>QR code analysis</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Support for images & PDFs</span>
+                    <span>Database verification</span>
                   </div>
                 </div>
-                <Button 
-                  className="w-full" 
-                  variant="outline"
-                  onClick={() => {
-                    // Navigate to receipt upload page
-                    window.location.href = '/admin/receipt-upload';
-                  }}
-                >
+                <Dialog open={isReceiptDialogOpen} onOpenChange={setIsReceiptDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline">
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Receipts
                 </Button>
-              </CardContent>
-            </Card>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Upload Receipt</DialogTitle>
+                      <DialogDescription>
+                        Upload a receipt image or PDF for OCR analysis and verification
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="receiptFile">Receipt File</Label>
+                        <Input
+                          id="receiptFile"
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={handleReceiptFileChange}
+                        />
           </div>
 
-          {/* Additional Options */}
-          <div className="mt-6 pt-6 border-t">
-            <h4 className="font-medium mb-4">Additional Billing Management</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
-                variant="outline" 
-                className="h-auto p-4 flex flex-col items-center gap-2"
-                onClick={() => {
-                  window.location.href = '/admin/scan-uploads';
-                }}
-              >
-                <Receipt className="w-6 h-6" />
-                <div className="text-center">
-                  <div className="font-medium">Scan Uploads</div>
-                  <div className="text-xs text-muted-foreground">Manage uploaded receipts</div>
+                      {receiptFile && (
+                        <div className="p-4 border rounded-lg bg-gray-50">
+                          <p className="text-sm font-medium">Selected file: {receiptFile.name}</p>
+                          <p className="text-xs text-gray-500">
+                            Size: {(receiptFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
                 </div>
-              </Button>
+                      )}
               
+                      <div className="flex justify-end gap-2">
               <Button 
                 variant="outline" 
-                className="h-auto p-4 flex flex-col items-center gap-2"
                 onClick={() => {
-                  window.location.href = '/admin/unified-billing-history';
-                }}
-              >
-                <BarChart3 className="w-6 h-6" />
-                <div className="text-center">
-                  <div className="font-medium">Billing History</div>
-                  <div className="text-xs text-muted-foreground">View complete history</div>
-                </div>
+                            setIsReceiptDialogOpen(false);
+                            setReceiptFile(null);
+                            setReceiptAnalysis(null);
+                          }}
+                        >
+                          Cancel
               </Button>
-              
               <Button 
-                variant="outline" 
-                className="h-auto p-4 flex flex-col items-center gap-2"
-                onClick={() => {
-                  window.location.href = '/admin/reconciliation-dashboard';
-                }}
-              >
-                <Activity className="w-6 h-6" />
-                <div className="text-center">
-                  <div className="font-medium">Reconciliation</div>
-                  <div className="text-xs text-muted-foreground">Manage reconciliation</div>
-                </div>
+                          onClick={analyzeReceipt}
+                          disabled={!receiptFile || isAnalyzingReceipt}
+                        >
+                          {isAnalyzingReceipt ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <TestTube className="w-4 h-4 mr-2" />
+                              Analyze
+                            </>
+                          )}
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Tabs defaultValue="configuration" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="configuration">Configuration</TabsTrigger>
-          <TabsTrigger value="systems">Billing Systems</TabsTrigger>
-          <TabsTrigger value="sync-status">Sync Status</TabsTrigger>
-          <TabsTrigger value="audit-logs">Audit Logs</TabsTrigger>
-        </TabsList>
+                      {receiptAnalysis && (
+                        <div className="mt-6 space-y-6">
+                          <h4 className="font-medium text-lg">Extracted Information</h4>
+                          
+                          {/* OCR and QR Code Data in Single Column */}
+                          <div className="space-y-6">
+                            {/* OCR Data Section */}
+                            <div className="p-4 border rounded-lg bg-blue-50">
+                              <div className="flex items-center gap-2 mb-3">
+                                <FileText className="w-5 h-5 text-blue-600" />
+                                <h5 className="font-medium text-blue-800">OCR Text Information</h5>
+                                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                                  {Math.round(receiptAnalysis.ocrData.confidence * 100)}% confidence
+                                </span>
+                              </div>
+                              <div className="space-y-2 text-sm">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <p><strong>Name:</strong> {receiptAnalysis.ocrData.extractedData.purchaserName}</p>
+                                  <p><strong>Phone:</strong> {receiptAnalysis.ocrData.extractedData.phoneNumber}</p>
+                                  <p><strong>Email:</strong> {receiptAnalysis.ocrData.extractedData.email}</p>
+                                  <p><strong>Invoice #:</strong> {receiptAnalysis.ocrData.extractedData.invoiceNumber}</p>
+                                  <p><strong>Liters:</strong> {receiptAnalysis.ocrData.extractedData.litersPurchased}</p>
+                                  <p><strong>Amount:</strong> R$ {receiptAnalysis.ocrData.extractedData.amount.toFixed(2)}</p>
+                                  <p><strong>Store:</strong> {receiptAnalysis.ocrData.extractedData.storeNumber}</p>
+                                  <p><strong>Date:</strong> {receiptAnalysis.ocrData.extractedData.date}</p>
+                                  <p><strong>Payment:</strong> {receiptAnalysis.ocrData.extractedData.paymentMethod}</p>
+                                </div>
+                                <div className="mt-3 pt-2 border-t border-blue-200">
+                                  <p className="text-xs text-blue-600">
+                                    <strong>Method:</strong> {receiptAnalysis.ocrData.extractionMethod} | 
+                                    <strong> Time:</strong> {receiptAnalysis.ocrData.processingTime}ms
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
 
-        {/* Configuration Tab */}
-        <TabsContent value="configuration" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* API Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="w-5 h-5" />
-                  API Configuration
-                </CardTitle>
-                <CardDescription>
-                  Configure API connection to your billing software
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="apiUrl">API Base URL</Label>
-                  <Input
-                    id="apiUrl"
-                    placeholder="https://api.billingsystem.com/v1"
-                    value={config.apiUrl}
-                    onChange={(e) => handleConfigChange('apiUrl', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="apiKey">API Key</Label>
-                  <Input
-                    id="apiKey"
-                    type="password"
-                    placeholder="Enter your API key"
-                    value={config.apiKey}
-                    onChange={(e) => handleConfigChange('apiKey', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="syncFrequency">Sync Frequency (minutes)</Label>
-                  <Select value={config.syncFrequency.toString()} onValueChange={(value) => handleConfigChange('syncFrequency', parseInt(value))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Every minute</SelectItem>
-                      <SelectItem value="5">Every 5 minutes</SelectItem>
-                      <SelectItem value="10">Every 10 minutes</SelectItem>
-                      <SelectItem value="15">Every 15 minutes</SelectItem>
-                      <SelectItem value="30">Every 30 minutes</SelectItem>
-                      <SelectItem value="60">Every hour</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Webhook Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Webhook className="w-5 h-5" />
-                  Webhook Configuration
-                </CardTitle>
-                <CardDescription>
-                  Configure webhook endpoint for real-time updates
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="webhookUrl">Webhook URL</Label>
-                  <Input
-                    id="webhookUrl"
-                    placeholder="https://yourdomain.com/api/webhooks/billing"
-                    value={config.webhookUrl}
-                    onChange={(e) => handleConfigChange('webhookUrl', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="webhookSecret">Webhook Secret</Label>
-                  <Input
-                    id="webhookSecret"
-                    type="password"
-                    placeholder="Enter webhook secret for security"
-                    value={config.webhookSecret}
-                    onChange={(e) => handleConfigChange('webhookSecret', e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="autoSync"
-                    checked={config.autoSync}
-                    onCheckedChange={(checked) => handleConfigChange('autoSync', checked)}
-                  />
-                  <Label htmlFor="autoSync">Enable automatic synchronization</Label>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Field Mapping */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Database className="w-5 h-5" />
-                Field Mapping
-              </CardTitle>
-              <CardDescription>
-                Map billing system fields to loyalty app fields
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customerIdField">Customer ID Field</Label>
-                  <Input
-                    id="customerIdField"
-                    placeholder="customer_phone"
-                    value={config.customerIdField}
-                    onChange={(e) => handleConfigChange('customerIdField', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="amountField">Amount Field</Label>
-                  <Input
-                    id="amountField"
-                    placeholder="total_amount"
-                    value={config.amountField}
-                    onChange={(e) => handleConfigChange('amountField', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="productField">Products Field</Label>
-                  <Input
-                    id="productField"
-                    placeholder="products"
-                    value={config.productField}
-                    onChange={(e) => handleConfigChange('productField', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="invoiceField">Invoice Field</Label>
-                  <Input
-                    id="invoiceField"
-                    placeholder="invoice_number"
-                    value={config.invoiceField}
-                    onChange={(e) => handleConfigChange('invoiceField', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dateField">Date Field</Label>
-                  <Input
-                    id="dateField"
-                    placeholder="sale_date"
-                    value={config.dateField}
-                    onChange={(e) => handleConfigChange('dateField', e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button onClick={saveConfiguration} size="lg">
-              <Settings className="w-4 h-4 mr-2" />
-              Save Configuration
-            </Button>
-          </div>
-        </TabsContent>
-
-        {/* Billing Systems Tab */}
-        <TabsContent value="systems" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Server className="w-5 h-5" />
-                Connected Billing Systems
-              </CardTitle>
-              <CardDescription>
-                Overview of all connected billing software systems
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {billingSystems.map((system) => (
-                  <div key={system.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Zap className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{system.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {system.type === 'both' ? 'API + Webhook' : system.type === 'api' ? 'API Only' : 'Webhook Only'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge className={getStatusColor(system.status)}>
-                        <span className="flex items-center gap-1">
-                          {getStatusIcon(system.status)}
-                          {system.status}
-                        </span>
-                      </Badge>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Last Sync</p>
-                        <p className="text-sm font-medium">{system.lastSync}</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Configure
+                            {/* QR Code Data Section */}
+                            <div className="p-4 border rounded-lg bg-green-50">
+                              <div className="flex items-center gap-2 mb-3">
+                                <QrCode className="w-5 h-5 text-green-600" />
+                                <h5 className="font-medium text-green-800">QR Code Information</h5>
+                                {receiptAnalysis.qrData.success ? (
+                                  <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
+                                    {Math.round(receiptAnalysis.qrData.confidence * 100)}% confidence
+                                  </span>
+                                ) : (
+                                  <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">
+                                    Not detected
+                                  </span>
+                                )}
+                              </div>
+                              {receiptAnalysis.qrData.success ? (
+                                <div className="space-y-2 text-sm">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <p><strong>Receipt ID:</strong> {receiptAnalysis.qrData.extractedFields.receiptId}</p>
+                                    <p><strong>Store #:</strong> {receiptAnalysis.qrData.extractedFields.storeNumber}</p>
+                                    <p><strong>Amount:</strong> R$ {receiptAnalysis.qrData.extractedFields.amount.toFixed(2)}</p>
+                                    <p><strong>Date:</strong> {receiptAnalysis.qrData.extractedFields.date}</p>
+                                    <p><strong>Verification:</strong> {receiptAnalysis.qrData.extractedFields.verificationCode}</p>
+                                    <p><strong>Customer Name:</strong> {receiptAnalysis.qrData.extractedFields.customerName}</p>
+                                    <p><strong>Transaction:</strong> {receiptAnalysis.qrData.extractedFields.transactionId}</p>
+                                  </div>
+                                  <div className="mt-3 pt-2 border-t border-green-200">
+                                    <p className="text-xs text-green-600">
+                                      <strong>Method:</strong> {receiptAnalysis.qrData.extractionMethod}
+                                    </p>
+                                    {receiptAnalysis.qrData.extractedFields.rawData && (
+                                      <details className="mt-1">
+                                        <summary className="text-xs text-green-600 cursor-pointer">Raw QR Data</summary>
+                                        <p className="text-xs text-gray-600 mt-1 break-all">
+                                          {receiptAnalysis.qrData.extractedFields.rawData}
+                                        </p>
+                                      </details>
+                                    )}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-gray-600">
+                                  <p>No QR code detected in the image.</p>
+                                  {receiptAnalysis.qrData.error && (
+                                    <p className="text-xs text-red-600 mt-1">
+                                      Error: {receiptAnalysis.qrData.error}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-4">
+                            <Button
+                              onClick={testReceiptData}
+                              disabled={isTestingReceipt}
+                              className="w-full"
+                            >
+                              {isTestingReceipt ? (
+                                <>
+                                  <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                  Testing...
+                                </>
+                              ) : (
+                                <>
+                                  <TestTube className="w-4 h-4 mr-2" />
+                                  Test Database Verification
+                                </>
+                              )}
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Sync Status Tab */}
-        <TabsContent value="sync-status" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Records Synced</CardTitle>
-                <Database className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,247</div>
-                <p className="text-xs text-muted-foreground">
-                  +12% from last week
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Points Awarded</CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">62,350</div>
-                <p className="text-xs text-muted-foreground">
-                  +8% from last week
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">98.5%</div>
-                <p className="text-xs text-muted-foreground">
-                  +0.5% from last week
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                Recent Sync Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {syncLogs.slice(0, 5).map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${
-                        log.success ? 'bg-green-100' : 'bg-red-100'
-                      }`}>
-                        {log.success ? <CheckCircle className="w-4 h-4 text-green-600" /> : <AlertCircle className="w-4 h-4 text-red-600" />}
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          {log.success ? 'Sync completed successfully' : 'Sync failed'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {log.recordsProcessed} records processed, {log.pointsAwarded} points awarded
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">{log.timestamp}</p>
-                      {log.errors.length > 0 && (
-                        <p className="text-xs text-red-600">{log.errors[0]}</p>
                       )}
-                    </div>
-                  </div>
-                ))}
+              </div>
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* Audit Logs Tab */}
-        <TabsContent value="audit-logs" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Integration Audit Logs
-              </CardTitle>
-              <CardDescription>
-                Complete history of all integration operations and API calls
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {syncLogs.map((log, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <Badge variant={log.success ? 'default' : 'destructive'}>
-                          {log.success ? 'Success' : 'Error'}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">{log.timestamp}</span>
-                      </div>
-                      <div className="text-right text-sm">
-                        <p>Records: {log.recordsProcessed}</p>
-                        <p>Points: {log.pointsAwarded}</p>
-                      </div>
-                    </div>
-                    <p className="mt-2 font-medium">
-                      {log.success ? 'Sync completed successfully' : 'Sync failed with errors'}
-                    </p>
-                    {log.errors.length > 0 && (
-                      <Alert className="mt-3">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{log.errors.join(', ')}</AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };

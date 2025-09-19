@@ -1,8 +1,8 @@
 import { BaseService } from './baseService';
 
 export interface ActivityLog {
-  id: number;
-  user_id: number;
+  _id: string;
+  user_id: string;
   action: string;
   description?: string;
   status: 'success' | 'warning' | 'error' | 'info';
@@ -12,7 +12,7 @@ export interface ActivityLog {
   created_at: string;
   updated_at: string;
   user?: {
-    id: number;
+    _id: string;
     first_name: string;
     last_name: string;
     email: string;
@@ -63,7 +63,7 @@ class ActivityLogService extends BaseService {
     return this.request<ActivityLogsResponse>(endpoint);
   }
 
-  async getUserActivityLogs(userId: number, params: {
+  async getUserActivityLogs(userId: string, params: {
     page?: number;
     limit?: number;
     status?: string;
@@ -84,12 +84,12 @@ class ActivityLogService extends BaseService {
     return this.request<ActivityLogsResponse>(endpoint);
   }
 
-  async getActivityLogById(id: number): Promise<ActivityLogResponse> {
+  async getActivityLogById(id: string): Promise<ActivityLogResponse> {
     return this.request<ActivityLogResponse>(`/activity-logs/${id}`);
   }
 
   async createActivityLog(activityData: {
-    user_id: number;
+    user_id: string;
     action: string;
     description?: string;
     status?: 'success' | 'warning' | 'error' | 'info';
@@ -103,7 +103,7 @@ class ActivityLogService extends BaseService {
     });
   }
 
-  async updateActivityLog(id: number, activityData: {
+  async updateActivityLog(id: string, activityData: {
     action?: string;
     description?: string;
     status?: 'success' | 'warning' | 'error' | 'info';
@@ -117,7 +117,7 @@ class ActivityLogService extends BaseService {
     });
   }
 
-  async deleteActivityLog(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteActivityLog(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/activity-logs/${id}`, {
       method: 'DELETE',
     });

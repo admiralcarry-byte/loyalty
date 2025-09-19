@@ -13,8 +13,8 @@ export interface PointsStats {
 }
 
 export interface PointsTransaction {
-  id: number;
-  user_id: number;
+  _id: string;
+  user_id: string;
   points: number;
   transaction_type: string;
   source: string;
@@ -30,7 +30,7 @@ export interface PointsTransaction {
 }
 
 export interface PointsTopEarner {
-  user_id: number;
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -73,17 +73,17 @@ class PointsService extends BaseService {
     return this.request<{ success: boolean; data: { users: PointsTopEarner[] } }>(`/points/top-earners?limit=${limit}`);
   }
 
-  async getPointsTransaction(id: number): Promise<{ success: boolean; data: { transaction: PointsTransaction } }> {
+  async getPointsTransaction(id: string): Promise<{ success: boolean; data: { transaction: PointsTransaction } }> {
     return this.request<{ success: boolean; data: { transaction: PointsTransaction } }>(`/points/${id}`);
   }
 
   async createPointsTransaction(data: {
-    user_id: number;
+    user_id: string;
     points: number;
     transaction_type: string;
     source: string;
     reference_type?: string;
-    reference_id?: number;
+    reference_id?: string;
     description?: string;
   }): Promise<{ success: boolean; message: string; data: { transaction: PointsTransaction } }> {
     return this.request<{ success: boolean; message: string; data: { transaction: PointsTransaction } }>('/points', {
@@ -92,7 +92,7 @@ class PointsService extends BaseService {
     });
   }
 
-  async updatePointsTransaction(id: number, data: {
+  async updatePointsTransaction(id: string, data: {
     description?: string;
   }): Promise<{ success: boolean; message: string; data: { transaction: PointsTransaction } }> {
     return this.request<{ success: boolean; message: string; data: { transaction: PointsTransaction } }>(`/points/${id}`, {
@@ -101,14 +101,22 @@ class PointsService extends BaseService {
     });
   }
 
-  async deletePointsTransaction(id: number): Promise<{ success: boolean; message: string }> {
+  async deletePointsTransaction(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/points/${id}`, {
       method: 'DELETE',
     });
   }
 
-  async getUserPointsTransactions(userId: number, limit: number = 50): Promise<{ success: boolean; data: { transactions: PointsTransaction[]; user: any } }> {
+  async getUserPointsTransactions(userId: string, limit: number = 50): Promise<{ success: boolean; data: { transactions: PointsTransaction[]; user: any } }> {
     return this.request<{ success: boolean; data: { transactions: PointsTransaction[]; user: any } }>(`/points/user/${userId}?limit=${limit}`);
+  }
+
+  async getPointsStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/points/stats/overview');
+  }
+
+  async getTopEarners(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/points/top-earners');
   }
 }
 

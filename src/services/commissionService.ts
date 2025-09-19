@@ -34,18 +34,18 @@ export interface CommissionStats {
 }
 
 export interface CommissionSettings {
-  baseCommission: number;
-  tierMultipliers: {
-    Lead: number;
-    Silver: number;
-    Gold: number;
-    Platinum: number;
+  base_commission_rate: number;
+  tier_multipliers: {
+    lead: number;
+    silver: number;
+    gold: number;
+    platinum: number;
   };
-  minimumActiveUsers: number;
-  payoutThreshold: number;
-  payoutFrequency: string;
-  autoApproval: boolean;
-  commissionCap: number;
+  minimum_active_users: number;
+  payout_threshold: number;
+  payout_frequency: string;
+  auto_approval: boolean;
+  commission_cap: number;
 }
 
 export interface CommissionsResponse {
@@ -149,6 +149,7 @@ class CommissionService extends BaseService {
   }
 
   async getInfluencerPerformance(): Promise<{ success: boolean; data: any[] }> {
+    // Use the dedicated influencer performance endpoint
     return this.request<{ success: boolean; data: any[] }>('/users/influencer-performance');
   }
 
@@ -177,7 +178,7 @@ class CommissionService extends BaseService {
     return this.request<{ success: boolean; data: CommissionSettings[]; pagination: any }>(endpoint);
   }
 
-  async calculateCommission(tier: string, salesAmount: number): Promise<{ success: boolean; data: any }> {
+  async calculateCommissionWithSettings(tier: string, salesAmount: number): Promise<{ success: boolean; data: any }> {
     return this.request<{ success: boolean; data: any }>('/commission-settings/calculate', {
       method: 'POST',
       body: JSON.stringify({ tier, sales_amount: salesAmount }),

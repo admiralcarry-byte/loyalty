@@ -20,6 +20,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -61,13 +61,6 @@ const Commission = () => {
   const [influencers, setInfluencers] = useState<any[]>([]);
   const [selectedInfluencer, setSelectedInfluencer] = useState<any>(null);
   const [showInfluencerModal, setShowInfluencerModal] = useState(false);
-  const [showCreateRuleModal, setShowCreateRuleModal] = useState(false);
-  const [newRule, setNewRule] = useState({
-    name: '',
-    description: '',
-    rate: 0,
-    type: 'percentage'
-  });
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   const [selectedPayoutRequest, setSelectedPayoutRequest] = useState<any>(null);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
@@ -96,30 +89,32 @@ const Commission = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [statsResponse, influencersResponse, settingsResponse, rulesResponse, payoutRequestsResponse] = await Promise.all([
+        const [statsResponse, influencersResponse, settingsResponse, payoutRequestsResponse] = await Promise.all([
           commissionService.getCommissionStats(),
           commissionService.getInfluencerPerformance(),
           commissionService.getCommissionSettings(),
-          commissionService.getCommissionRules(),
           payoutRequestService.getPayoutRequests() // Get ALL payout requests, not just pending ones
         ]);
         
         if (statsResponse.success) {
           setCommissionStats(statsResponse.data);
+        } else {
+          console.error('Failed to load commission stats:', statsResponse);
         }
         
         if (influencersResponse.success) {
           setInfluencers(influencersResponse.data);
+        } else {
+          console.error('Failed to load influencer performance:', influencersResponse);
         }
 
         if (settingsResponse.success) {
           setCommissionSettings(settingsResponse.data);
           setOriginalSettings(settingsResponse.data);
+        } else {
+          console.error('Failed to load commission settings:', settingsResponse);
         }
 
-        if (rulesResponse.success) {
-          setCommissionRules(rulesResponse.data);
-        }
 
         if (payoutRequestsResponse.success) {
           setPayoutRequests(payoutRequestsResponse.data); // data is already an array of payout requests
@@ -155,53 +150,6 @@ const Commission = () => {
     setShowInfluencerModal(true);
   };
 
-  // Function to handle creating new commission rule
-  const handleCreateRule = async () => {
-    try {
-      // Validate form data
-      if (!newRule.name.trim() || !newRule.description.trim() || newRule.rate <= 0) {
-        toast.error('Please fill in all required fields with valid values');
-        return;
-      }
-
-      setLoading(true);
-      
-      // Create rule via API
-      const response = await commissionService.createCommissionRule({
-        name: newRule.name,
-        description: newRule.description,
-        rate: newRule.rate,
-        type: newRule.type,
-        priority: 0
-      });
-
-      if (response.success) {
-        // Refresh commission rules from database
-        const rulesResponse = await commissionService.getCommissionRules();
-        if (rulesResponse.success) {
-          setCommissionRules(rulesResponse.data);
-        }
-        
-        // Reset form and close modal
-        setNewRule({
-          name: '',
-          description: '',
-          rate: 0,
-          type: 'percentage'
-        });
-        setShowCreateRuleModal(false);
-        
-        toast.success('Commission rule created successfully!');
-      } else {
-        toast.error('Failed to create commission rule');
-      }
-    } catch (error) {
-      console.error('Error creating commission rule:', error);
-      toast.error('Failed to create commission rule');
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
   // Function to handle approving payout request
@@ -252,7 +200,7 @@ const Commission = () => {
       const response = await commissionService.saveCommissionSettings(commissionSettings);
       
       if (response.success) {
-        toast.success('New commission settings created successfully!');
+        toast.success('Commission settings updated successfully!');
         setEditingSettings(false);
         // Reload settings to get the latest from database
         const settingsResponse = await commissionService.getCommissionSettings();
@@ -261,18 +209,17 @@ const Commission = () => {
           setOriginalSettings(settingsResponse.data);
         }
       } else {
-        toast.error('Failed to create commission settings');
+        toast.error('Failed to update commission settings');
       }
     } catch (error) {
-      console.error('Error creating commission settings:', error);
-      toast.error('Failed to create commission settings');
+      console.error('Error updating commission settings:', error);
+      toast.error('Failed to update commission settings');
     } finally {
       setLoading(false);
     }
   };
 
   // Commission rules loaded from database
-  const [commissionRules, setCommissionRules] = useState<any[]>([]);
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
@@ -293,7 +240,16 @@ const Commission = () => {
   };
 
   const getStatusBadgeVariant = (status: string) => {
-    return status === "active" ? "default" : "secondary";
+    switch (status) {
+      case "active":
+        return "default";
+      case "inactive":
+        return "secondary";
+      case "suspended":
+        return "destructive";
+      default:
+        return "secondary";
+    }
   };
 
   const calculateCommission = (sales: number, tier: string) => {
@@ -302,24 +258,20 @@ const Commission = () => {
     return (sales * baseRate * multiplier) / 100;
   };
 
-  // Calculate stats from real data or show loading/empty state
+  // Calculate stats from commission records (consistent data source)
   const totalCommissionPaid = commissionStats?.total_paid_commissions || 0;
+  const totalPendingCommissions = commissionStats?.total_pending_commissions || 0;
+  const paidCommissionCount = commissionStats?.paid_commissions || 0;
+  const pendingCommissionCount = commissionStats?.pending_commissions || 0;
   
-  // Calculate payout stats from actual payout request data
-  const pendingPayoutRequests = payoutRequests.filter(request => request.status === 'pending');
-  const approvedPayoutRequests = payoutRequests.filter(request => request.status === 'approved' || request.status === 'paid');
+  // Calculate average commission amount for paid commissions
+  const avgCommissionAmount = paidCommissionCount > 0 ? totalCommissionPaid / paidCommissionCount : 0;
   
-  const totalPendingPayouts = pendingPayoutRequests.reduce((sum, request) => sum + request.amount, 0);
-  const totalApprovedPayouts = approvedPayoutRequests.reduce((sum, request) => sum + request.amount, 0);
-  
-  const pendingPayoutCount = pendingPayoutRequests.length;
-  const approvedPayoutCount = approvedPayoutRequests.length;
-  
-  // Calculate average payout amount
-  const totalPayoutAmount = payoutRequests.reduce((sum, request) => sum + request.amount, 0);
-  const avgPayoutAmount = payoutRequests.length > 0 ? totalPayoutAmount / payoutRequests.length : 0;
-  
-  const activeInfluencers = commissionStats?.paid_commissions || 0;
+  // Use commission data consistently
+  const totalPendingPayouts = totalPendingCommissions;
+  const pendingPayoutCount = pendingCommissionCount;
+  const totalPaidPayouts = totalCommissionPaid;
+  const paidPayoutCount = paidCommissionCount;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -344,10 +296,10 @@ const Commission = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : approvedPayoutCount}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : paidPayoutCount}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
-              <span>{payoutRequests.length} total payout requests</span>
+              <span>{paidPayoutCount} total paid commissions</span>
             </div>
           </CardContent>
         </Card>
@@ -361,7 +313,7 @@ const Commission = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${totalApprovedPayouts.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${totalPaidPayouts.toFixed(2)}`}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <span>Total approved payouts</span>
@@ -395,7 +347,7 @@ const Commission = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${avgPayoutAmount.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${avgCommissionAmount.toFixed(2)}`}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <span>Average payout amount</span>
@@ -408,7 +360,6 @@ const Commission = () => {
         <TabsList>
           <TabsTrigger value="settings">Commission Settings</TabsTrigger>
           <TabsTrigger value="performance">Influencer Performance</TabsTrigger>
-          <TabsTrigger value="rules">Commission Rules</TabsTrigger>
           <TabsTrigger value="payouts">Payout Requests</TabsTrigger>
         </TabsList>
         
@@ -605,8 +556,8 @@ const Commission = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {influencers.map((influencer) => (
-                    <TableRow key={influencer.id}>
+                  {influencers.map((influencer, index) => (
+                    <TableRow key={influencer.id || `influencer-${index}`}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{influencer.name}</div>
@@ -622,23 +573,23 @@ const Commission = () => {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Users className="w-4 h-4 text-primary" />
-                          {influencer.activeUsers}
-                          {influencer.activeUsers < commissionSettings.minimum_active_users && (
+                          {influencer.activeUsers || 0}
+                          {(influencer.activeUsers || 0) < commissionSettings.minimum_active_users && (
                             <AlertCircle className="w-4 h-4 text-warning ml-1" />
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{influencer.totalSales}L</TableCell>
+                      <TableCell>{influencer.totalSales || 0}L</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-success">
                           <DollarSign className="w-4 h-4" />
-                          ${influencer.monthlyCommission.toFixed(2)}
+                          ${(influencer.monthlyCommission || 0).toFixed(2)}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className={`flex items-center gap-1 ${influencer.networkGrowth > 0 ? 'text-success' : 'text-destructive'}`}>
+                        <div className={`flex items-center gap-1 ${(influencer.networkGrowth || 0) > 0 ? 'text-success' : 'text-destructive'}`}>
                           <TrendingUp className="w-4 h-4" />
-                          {influencer.networkGrowth > 0 ? '+' : ''}{influencer.networkGrowth.toFixed(1)}%
+                          {(influencer.networkGrowth || 0) > 0 ? '+' : ''}{(influencer.networkGrowth || 0).toFixed(1)}%
                         </div>
                       </TableCell>
                       <TableCell>
@@ -664,134 +615,6 @@ const Commission = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="rules" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Commission Rules</CardTitle>
-                  <CardDescription>Manage additional commission rules and bonuses</CardDescription>
-                </div>
-                <Dialog open={showCreateRuleModal} onOpenChange={setShowCreateRuleModal}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setShowCreateRuleModal(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Rule
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Create Commission Rule</DialogTitle>
-                      <DialogDescription>
-                        Add a new commission rule or bonus structure.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="ruleName">Rule Name</Label>
-                        <Input 
-                          id="ruleName" 
-                          placeholder="Volume Bonus"
-                          value={newRule.name}
-                          onChange={(e) => setNewRule(prev => ({ ...prev, name: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="ruleDescription">Description</Label>
-                        <Input 
-                          id="ruleDescription" 
-                          placeholder="Extra commission for high volume sales"
-                          value={newRule.description}
-                          onChange={(e) => setNewRule(prev => ({ ...prev, description: e.target.value }))}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="ruleRate">Rate</Label>
-                          <Input 
-                            id="ruleRate" 
-                            type="number" 
-                            step="0.1"
-                            value={newRule.rate}
-                            onChange={(e) => setNewRule(prev => ({ ...prev, rate: parseFloat(e.target.value) || 0 }))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="ruleType">Type</Label>
-                          <Select 
-                            value={newRule.type}
-                            onValueChange={(value) => setNewRule(prev => ({ ...prev, type: value }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="percentage">Percentage</SelectItem>
-                              <SelectItem value="fixed">Fixed Amount</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setShowCreateRuleModal(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleCreateRule}>
-                        Create Rule
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {commissionRules.map((rule) => (
-                  <div key={rule._id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{rule.name}</h3>
-                          <Badge variant={rule.is_active ? "default" : "secondary"}>
-                            {rule.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{rule.description}</p>
-                      <p className="text-sm font-medium mt-2">
-                        {rule.rate}{rule.type === 'percentage' ? '%' : ''} {rule.type === 'percentage' ? 'percentage' : 'fixed amount'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Switch 
-                        checked={rule.is_active}
-                        onCheckedChange={async (checked) => {
-                          try {
-                            const response = await commissionService.toggleCommissionRuleStatus(rule._id, checked);
-                            if (response.success) {
-                              // Refresh commission rules from database
-                              const rulesResponse = await commissionService.getCommissionRules();
-                              if (rulesResponse.success) {
-                                setCommissionRules(rulesResponse.data);
-                              }
-                              toast.success(`Commission rule ${checked ? 'activated' : 'deactivated'} successfully!`);
-                            } else {
-                              toast.error('Failed to update commission rule status');
-                            }
-                          } catch (error) {
-                            console.error('Error toggling commission rule:', error);
-                            toast.error('Failed to update commission rule status');
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="payouts" className="space-y-6">
           <Card>
@@ -812,8 +635,8 @@ const Commission = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {payoutRequests.filter(request => request.status === 'pending').map((request) => (
-                    <TableRow key={request._id}>
+                  {payoutRequests.filter(request => request.status === 'pending').map((request, index) => (
+                    <TableRow key={request._id || `payout-${index}`}>
                       <TableCell>
                         <div>
                           <div className="font-medium">
@@ -940,14 +763,14 @@ const Commission = () => {
                     <Label className="text-sm font-medium text-muted-foreground">Monthly Commission</Label>
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
-                      <span className="text-2xl font-bold text-green-600">${selectedInfluencer.monthlyCommission.toFixed(2)}</span>
+                      <span className="text-2xl font-bold text-green-600">${(selectedInfluencer.monthlyCommission || 0).toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-muted-foreground">Pending Payout</Label>
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-orange-600" />
-                      <span className="text-2xl font-bold text-orange-600">${selectedInfluencer.pendingPayout.toFixed(2)}</span>
+                      <span className="text-2xl font-bold text-orange-600">${(selectedInfluencer.pendingPayout || 0).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -967,12 +790,12 @@ const Commission = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Sales Amount:</span>
-                    <span className="font-medium">${(selectedInfluencer.totalSales * 10).toFixed(2)}</span>
+                    <span className="font-medium">${((selectedInfluencer.totalSales || 0) * 10).toFixed(2)}</span>
                   </div>
                   <hr />
                   <div className="flex justify-between font-semibold">
                     <span>Calculated Commission:</span>
-                    <span className="text-green-600">${calculateCommission(selectedInfluencer.totalSales * 10, selectedInfluencer.tier).toFixed(2)}</span>
+                    <span className="text-green-600">${calculateCommission((selectedInfluencer.totalSales || 0) * 10, selectedInfluencer.tier || 'lead').toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -1082,16 +905,16 @@ const Commission = () => {
                 <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Total Commission Earned:</span>
-                    <span className="font-medium">${selectedPayoutRequest.commission_breakdown.total_commission_earned.toFixed(2)}</span>
+                    <span className="font-medium">${(selectedPayoutRequest.commission_breakdown?.total_commission_earned || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Previously Paid:</span>
-                    <span className="font-medium">${selectedPayoutRequest.commission_breakdown.previously_paid.toFixed(2)}</span>
+                    <span className="font-medium">${(selectedPayoutRequest.commission_breakdown?.previously_paid || 0).toFixed(2)}</span>
                   </div>
                   <hr />
                   <div className="flex justify-between font-semibold">
                     <span>Pending Payout:</span>
-                    <span className="text-green-600">${selectedPayoutRequest.commission_breakdown.pending_payout.toFixed(2)}</span>
+                    <span className="text-green-600">${(selectedPayoutRequest.commission_breakdown?.pending_payout || 0).toFixed(2)}</span>
                   </div>
                 </div>
               </div>

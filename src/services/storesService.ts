@@ -1,11 +1,8 @@
 import { BaseService } from './baseService';
 
 export interface Store {
-  _id?: string;
-  id?: string;
+  _id: string;
   name: string;
-  code?: string;
-  type: 'retail' | 'wholesale' | 'distributor' | 'online';
   status: 'active' | 'inactive' | 'suspended';
   address: {
     street: string;
@@ -14,48 +11,15 @@ export interface Store {
     postal_code?: string;
     country: string;
   };
-  location?: {
-    type: 'Point';
-    coordinates: [number, number]; // [longitude, latitude]
-  };
   contact: {
     phone?: string;
     email?: string;
-    website?: string;
   };
   manager: {
     name?: string;
     phone?: string;
     email?: string;
   };
-  operating_hours: {
-    monday: { open: string; close: string; closed: boolean };
-    tuesday: { open: string; close: string; closed: boolean };
-    wednesday: { open: string; close: string; closed: boolean };
-    thursday: { open: string; close: string; closed: boolean };
-    friday: { open: string; close: string; closed: boolean };
-    saturday: { open: string; close: string; closed: boolean };
-    sunday: { open: string; close: string; closed: boolean };
-  };
-  services: string[];
-  payment_methods?: string[];
-  commission_rate?: number;
-  minimum_order?: number;
-  delivery_radius?: number;
-  delivery_fee?: number;
-  inventory?: {
-    total_bottles: number;
-    available_bottles: number;
-    reserved_bottles: number;
-  };
-  performance?: {
-    total_sales: number;
-    total_orders: number;
-    average_order_value: number;
-    customer_count: number;
-  };
-  notes?: string;
-  tags?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -72,6 +36,10 @@ export interface StoresResponse {
 }
 
 class StoresService extends BaseService {
+  private cachedStores: StoresResponse | null = null;
+  private cacheTimestamp: number = 0;
+  private readonly CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+
   async getStores(params: {
     page?: number;
     limit?: number;
@@ -79,6 +47,17 @@ class StoresService extends BaseService {
     city?: string;
     status?: string;
   } = {}): Promise<StoresResponse> {
+    // Only cache if no search/filter parameters
+    const hasFilters = params.search || params.city || params.status || params.page || params.limit;
+    
+    if (!hasFilters) {
+      // Check if we have valid cached data
+      const now = Date.now();
+      if (this.cachedStores && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
+        return this.cachedStores;
+      }
+    }
+
     const searchParams = new URLSearchParams();
     
     if (params.page) searchParams.append('page', params.page.toString());
@@ -90,7 +69,23 @@ class StoresService extends BaseService {
     const queryString = searchParams.toString();
     const endpoint = `/stores${queryString ? `?${queryString}` : ''}`;
 
-    return this.request<StoresResponse>(endpoint);
+    try {
+      const response = await this.request<StoresResponse>(endpoint);
+      
+      // Cache only if no filters
+      if (!hasFilters) {
+        this.cachedStores = response;
+        this.cacheTimestamp = now;
+      }
+      
+      return response;
+    } catch (error) {
+      // If we have cached data and no filters, return it
+      if (!hasFilters && this.cachedStores) {
+        return this.cachedStores;
+      }
+      throw error;
+    }
   }
 
   async getStoreById(id: string): Promise<{ success: boolean; data: { store: Store } }> {
@@ -119,6 +114,39 @@ class StoresService extends BaseService {
 
   async getStoreStats(id: string): Promise<{ success: boolean; data: any }> {
     return this.request<{ success: boolean; data: any }>(`/stores/${id}/stats`);
+  }
+
+  async getStoresOverviewStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/stores/stats/overview');
+  }
+
+  async updateStoreStatus(id: string, status: string): Promise<{ success: boolean; data: { store: Store } }> {
+    return this.request<{ success: boolean; data: { store: Store } }>(`/stores/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getNearbyStores(latitude: number, longitude: number, radius: number = 10): Promise<{ success: boolean; data: Store[] }> {
+    return this.request<{ success: boolean; data: Store[] }>(`/stores/location/nearby?lat=${latitude}&lng=${longitude}&radius=${radius}`);
+  }
+
+  async searchStores(term: string): Promise<{ success: boolean; data: Store[] }> {
+    return this.request<{ success: boolean; data: Store[] }>(`/stores/search/${encodeURIComponent(term)}`);
+  }
+
+  async getStoresByCity(city: string): Promise<{ success: boolean; data: Store[] }> {
+    return this.request<{ success: boolean; data: Store[] }>(`/stores/city/${encodeURIComponent(city)}`);
+  }
+
+  async getStoresByCountry(country: string): Promise<{ success: boolean; data: Store[] }> {
+    return this.request<{ success: boolean; data: Store[] }>(`/stores/country/${encodeURIComponent(country)}`);
+  }
+
+  // Clear cache when stores are modified
+  clearCache(): void {
+    this.cachedStores = null;
+    this.cacheTimestamp = 0;
   }
 }
 

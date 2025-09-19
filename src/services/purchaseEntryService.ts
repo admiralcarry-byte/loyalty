@@ -13,9 +13,9 @@ export interface PurchaseEntryStats {
 }
 
 export interface PurchaseEntry {
-  id: number;
-  user_id: number;
-  store_id: number;
+  _id: string;
+  user_id: string;
+  store_id: string;
   amount: number;
   liters: number;
   points_earned: number;
@@ -63,13 +63,13 @@ class PurchaseEntryService extends BaseService {
     return this.request<{ success: boolean; data: { entries: PurchaseEntry[]; pagination: any } }>(endpoint);
   }
 
-  async getPurchaseEntry(id: number): Promise<{ success: boolean; data: { entry: PurchaseEntry } }> {
+  async getPurchaseEntry(id: string): Promise<{ success: boolean; data: { entry: PurchaseEntry } }> {
     return this.request<{ success: boolean; data: { entry: PurchaseEntry } }>(`/purchases/${id}`);
   }
 
   async createPurchaseEntry(data: {
-    user_id: number;
-    store_id: number;
+    user_id: string;
+    store_id: string;
     amount: number;
     liters: number;
     points_earned: number;
@@ -84,7 +84,7 @@ class PurchaseEntryService extends BaseService {
     });
   }
 
-  async updatePurchaseEntry(id: number, data: {
+  async updatePurchaseEntry(id: string, data: {
     status?: string;
     description?: string;
   }): Promise<{ success: boolean; message: string; data: { entry: PurchaseEntry } }> {
@@ -94,23 +94,31 @@ class PurchaseEntryService extends BaseService {
     });
   }
 
-  async deletePurchaseEntry(id: number): Promise<{ success: boolean; message: string }> {
+  async deletePurchaseEntry(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/purchases/${id}`, {
       method: 'DELETE',
     });
   }
 
-  async approvePurchaseEntry(id: number): Promise<{ success: boolean; message: string }> {
+  async approvePurchaseEntry(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/purchases/${id}/approve`, {
       method: 'POST',
     });
   }
 
-  async rejectPurchaseEntry(id: number, reason: string): Promise<{ success: boolean; message: string }> {
+  async rejectPurchaseEntry(id: string, reason: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/purchases/${id}/reject`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
+  }
+
+  async getPurchaseStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/purchases/stats/overview');
+  }
+
+  async getPendingPurchases(): Promise<{ success: boolean; data: PurchaseEntry[] }> {
+    return this.request<{ success: boolean; data: PurchaseEntry[] }>('/purchases/pending');
   }
 }
 

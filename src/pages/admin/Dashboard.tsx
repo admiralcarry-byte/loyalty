@@ -46,9 +46,13 @@ import { geolocationService } from "@/services/geolocation";
 import { dashboardService, DashboardStats, SalesChartData } from "@/services/dashboardService";
 import { storesService, Store } from "@/services/storesService";
 import { translationService } from "@/services/translationService";
+import { authService } from "@/services/authService";
+import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
 const Dashboard = () => {
+  const { toast } = useToast();
+  
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [salesData, setSalesData] = useState<SalesChartData[]>([]);
@@ -60,31 +64,87 @@ const Dashboard = () => {
   const [currentStorePage, setCurrentStorePage] = useState(1);
   const storesPerPage = 3;
 
-  // Fetch dashboard data
+  // Auto-login function
+  const autoLogin = async () => {
+    try {
+      const response = await authService.login({
+        email: 'admin@aguatwezah.com',
+        password: 'admin123'
+      });
+      
+      if (response.success) {
+        authService.setAuthData(
+          response.data.accessToken,
+          response.data.refreshToken,
+          response.data.user
+        );
+        
+        toast({
+          title: "Auto-login Successful",
+          description: "Logged in as admin user",
+        });
+        
+        // Now fetch dashboard data
+        fetchDashboardData();
+      } else {
+        setError('Auto-login failed: ' + response.message);
+      }
+    } catch (err: any) {
+      setError('Auto-login failed: ' + err.message);
+    }
+  };
+
+  // Fetch dashboard data with combined endpoint to reduce API calls
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const [dashboardResponse, salesResponse, storesResponse] = await Promise.all([
-        dashboardService.getDashboardData(),
-        dashboardService.getSalesChartData('30'),
-        storesService.getStores({ limit: 10 })
-      ]);
+      // Use combined endpoint to get dashboard and sales data in one request
+      const combinedResponse = await dashboardService.getCombinedDashboardData('30');
+      
+      // Small delay to prevent rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Fetch stores data separately (this is the only additional request needed)
+      const storesResponse = await storesService.getStores({ limit: 10 });
 
-      if (dashboardResponse.success) {
-        setDashboardData(dashboardResponse.data);
+      // Validate and set dashboard data from combined response
+      if (combinedResponse && combinedResponse.success && combinedResponse.data) {
+        if (combinedResponse.data.dashboard) {
+          setDashboardData(combinedResponse.data.dashboard);
+        } else {
+          console.warn('Dashboard data missing from combined response');
+          setDashboardData(null);
+        }
+        
+        if (Array.isArray(combinedResponse.data.salesChart)) {
+          setSalesData(combinedResponse.data.salesChart);
+        } else {
+          console.warn('Sales chart data missing from combined response');
+          setSalesData([]);
+        }
+      } else {
+        console.warn('Combined response invalid:', combinedResponse);
+        setDashboardData(null);
+        setSalesData([]);
       }
 
-      if (salesResponse.success) {
-        setSalesData(salesResponse.data);
-      }
-
-      if (storesResponse.success) {
+      // Validate and set stores data
+      if (storesResponse && storesResponse.success && Array.isArray(storesResponse.data)) {
         setStores(storesResponse.data);
+      } else {
+        console.warn('Stores data response invalid:', storesResponse);
+        setStores([]);
       }
     } catch (err: any) {
+      console.error('Dashboard data fetch error:', err);
       setError(err.message || 'Failed to load dashboard data');
+      
+      // Set default values to prevent crashes
+      setDashboardData(null);
+      setSalesData([]);
+      setStores([]);
     } finally {
       setIsLoading(false);
     }
@@ -92,33 +152,66 @@ const Dashboard = () => {
 
   // Load data on component mount
   useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Auto-login with test credentials
+      autoLogin();
+      return;
+    }
+    
     fetchDashboardData();
   }, []);
 
-  // Transform loyalty distribution data for charts
-  const loyaltyDistribution = dashboardData ? [
-    { name: "Lead", value: dashboardData.userStats.loyaltyDistribution.lead, color: "hsl(var(--accent))", gradient: "url(#leadGradient)" },
-    { name: "Silver", value: dashboardData.userStats.loyaltyDistribution.silver, color: "hsl(var(--loyalty-silver))", gradient: "url(#silverGradient)" },
-    { name: "Gold", value: dashboardData.userStats.loyaltyDistribution.gold, color: "hsl(var(--loyalty-gold))", gradient: "url(#goldGradient)" },
-    { name: "Platinum", value: dashboardData.userStats.loyaltyDistribution.platinum, color: "hsl(var(--loyalty-platinum))", gradient: "url(#platinumGradient)" },
-  ] : [];
+  // Transform loyalty distribution data for charts with safe access
+  const loyaltyDistribution = (() => {
+    if (!dashboardData?.userStats?.loyaltyDistribution) {
+      return [
+        { name: "Lead", value: 0, color: "hsl(var(--accent))", gradient: "url(#leadGradient)" },
+        { name: "Silver", value: 0, color: "hsl(var(--loyalty-silver))", gradient: "url(#silverGradient)" },
+        { name: "Gold", value: 0, color: "hsl(var(--loyalty-gold))", gradient: "url(#goldGradient)" },
+        { name: "Platinum", value: 0, color: "hsl(var(--loyalty-platinum))", gradient: "url(#platinumGradient)" },
+      ];
+    }
 
-  // Transform recent users data
-  const recentUsers = dashboardData?.recentActivity?.filter(activity => activity.type === 'user')?.slice(0, 4)?.map(activity => ({
-    id: activity.id,
-    name: `${activity.first_name} ${activity.last_name}`,
-    phone: '+244 XXX XXX XXX',
-    tier: 'Lead',
-    liters: 0,
-    joined: new Date().toLocaleDateString() // Using current date since timestamp is not provided
+    const totalUsers = dashboardData.userStats.totalUsers || 0;
+    const distribution = dashboardData.userStats.loyaltyDistribution;
+    
+    // Calculate percentages based on total users
+    const leadCount = distribution.lead || 0;
+    const silverCount = distribution.silver || 0;
+    const goldCount = distribution.gold || 0;
+    const platinumCount = distribution.platinum || 0;
+    
+    const leadPercentage = totalUsers > 0 ? Math.round((leadCount / totalUsers) * 100) : 0;
+    const silverPercentage = totalUsers > 0 ? Math.round((silverCount / totalUsers) * 100) : 0;
+    const goldPercentage = totalUsers > 0 ? Math.round((goldCount / totalUsers) * 100) : 0;
+    const platinumPercentage = totalUsers > 0 ? Math.round((platinumCount / totalUsers) * 100) : 0;
+
+    return [
+      { name: "Lead", value: leadPercentage, color: "hsl(var(--accent))", gradient: "url(#leadGradient)" },
+      { name: "Silver", value: silverPercentage, color: "hsl(var(--loyalty-silver))", gradient: "url(#silverGradient)" },
+      { name: "Gold", value: goldPercentage, color: "hsl(var(--loyalty-gold))", gradient: "url(#goldGradient)" },
+      { name: "Platinum", value: platinumPercentage, color: "hsl(var(--loyalty-platinum))", gradient: "url(#platinumGradient)" },
+    ];
+  })();
+
+  // Transform recent users data with safe access
+  const recentUsers = dashboardData?.recentActivity?.filter(activity => activity?.type === 'user')?.slice(0, 4)?.map(activity => ({
+    id: activity?.id || 'unknown',
+    name: `${activity?.first_name || 'Unknown'} ${activity?.last_name || 'User'}`,
+    phone: activity?.phone || 'N/A',
+    tier: activity?.loyalty_tier || 'Lead',
+    liters: activity?.total_liters || 0,
+    joined: activity?.timestamp ? new Date(activity.timestamp).toLocaleDateString() : new Date().toLocaleDateString()
   })) || [];
 
-  // Transform top influencers data
+  // Transform top influencers data with safe access
   const topInfluencers = dashboardData?.commissionStats?.topInfluencers?.map(influencer => ({
-    name: influencer.name,
-    network: influencer.network,
-    commission: `$${influencer.commission.toLocaleString()}`,
-    tier: influencer.tier
+    name: influencer?.name || 'Unknown Influencer',
+    network: influencer?.network || 'Unknown Network',
+    commission: `$${(influencer?.commission || 0).toLocaleString()}`,
+    tier: influencer?.tier || 'Unknown'
   })) || [];
 
   // Transform stores data for dashboard display
@@ -265,10 +358,10 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">${dashboardData?.commissionStats?.paidCommissions?.toLocaleString() || 0}</div>
+            <div className="text-2xl font-bold text-success">${dashboardData?.commissionStats?.total_paid_commissions?.toLocaleString() || 0}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              ${dashboardData?.commissionStats?.pendingCommissions?.toLocaleString() || 0} pending
+              {dashboardData?.commissionStats?.pendingCommissions || 0} pending
             </div>
           </CardContent>
         </Card>
@@ -408,8 +501,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Store Locations Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Store Locations Overview - DISABLED */}
+      {false && <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -514,7 +607,7 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div>}
 
       {/* Recent Activity Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

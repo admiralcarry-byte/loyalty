@@ -69,29 +69,6 @@ export class BillingIntegrationService {
     }
   }
 
-  // Fetch transactions from billing system
-  async fetchTransactions(since?: string): Promise<BillingTransaction[]> {
-    try {
-      const params = since ? `?since=${since}` : '';
-      const response = await fetch(`${this.config.apiUrl}/transactions${params}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return this.mapBillingData(data);
-    } catch (error) {
-      console.error('Failed to fetch transactions:', error);
-      throw error;
-    }
-  }
 
   // Process webhook data
   async processWebhook(payload: any, signature: string): Promise<SyncResult> {

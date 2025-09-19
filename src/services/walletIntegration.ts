@@ -411,17 +411,8 @@ class WalletIntegrationService {
   }
 
   // User wallet statistics
-  async getUserWalletStats(userId: number, pagination?: { page?: number; limit?: number }): Promise<UserWalletStats> {
-    const searchParams = new URLSearchParams();
-    if (pagination) {
-      Object.entries(pagination).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
-
-    const response = await fetch(`${this.baseUrl}/wallets/users/${userId}?${searchParams}`, {
+  async getUserWalletStats(userId: number): Promise<UserWalletStats> {
+    const response = await fetch(`${this.baseUrl}/wallets/users/${userId}`, {
       method: 'GET',
       headers: this.getHeaders(),
     });

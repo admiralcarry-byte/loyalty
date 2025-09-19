@@ -124,6 +124,91 @@ class ReportsService extends BaseService {
     return this.request<ReportsResponse>('/reports/overview');
   }
 
+  async getProductsReport(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by?: 'day' | 'week' | 'month' | 'year';
+  } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.start_date) searchParams.append('start_date', params.start_date);
+    if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params.group_by) searchParams.append('group_by', params.group_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/products${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<ReportsResponse>(endpoint);
+  }
+
+  async getStoresReport(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by?: 'day' | 'week' | 'month' | 'year';
+  } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.start_date) searchParams.append('start_date', params.start_date);
+    if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params.group_by) searchParams.append('group_by', params.group_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/stores${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<ReportsResponse>(endpoint);
+  }
+
+  async getCampaignsReport(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by?: 'day' | 'week' | 'month' | 'year';
+  } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.start_date) searchParams.append('start_date', params.start_date);
+    if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params.group_by) searchParams.append('group_by', params.group_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/campaigns${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<ReportsResponse>(endpoint);
+  }
+
+  async getAuditReport(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by?: 'day' | 'week' | 'month' | 'year';
+  } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.start_date) searchParams.append('start_date', params.start_date);
+    if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params.group_by) searchParams.append('group_by', params.group_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/audit${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<ReportsResponse>(endpoint);
+  }
+
+  async getComprehensiveReport(params: {
+    start_date?: string;
+    end_date?: string;
+    group_by?: 'day' | 'week' | 'month' | 'year';
+  } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.start_date) searchParams.append('start_date', params.start_date);
+    if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params.group_by) searchParams.append('group_by', params.group_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/comprehensive${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<ReportsResponse>(endpoint);
+  }
+
   async exportReport(type: string, format: 'pdf' | 'excel' | 'csv', params: any = {}): Promise<Blob> {
     const searchParams = new URLSearchParams();
     searchParams.append('format', format);

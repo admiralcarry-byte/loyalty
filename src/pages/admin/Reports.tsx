@@ -284,7 +284,15 @@ const Reports = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={tierDistribution}
+                  data={(() => {
+                    // Calculate total users for percentage calculation
+                    const totalUsers = tierDistribution.reduce((sum, tier) => sum + (tier.value || 0), 0);
+                    
+                    return tierDistribution.map((item) => ({
+                      ...item,
+                      value: totalUsers > 0 ? Math.round((item.value / totalUsers) * 100) : 0
+                    }));
+                  })()}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -306,17 +314,25 @@ const Reports = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              {tierDistribution.map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {item.name} ({item.value}%)
-                  </span>
-                </div>
-              ))}
+              {(() => {
+                // Calculate total users for percentage calculation
+                const totalUsers = tierDistribution.reduce((sum, tier) => sum + (tier.value || 0), 0);
+                
+                return tierDistribution.map((item) => {
+                  const percentage = totalUsers > 0 ? Math.round((item.value / totalUsers) * 100) : 0;
+                  return (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {item.name} ({percentage}%)
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </CardContent>
         </Card>

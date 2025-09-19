@@ -6,22 +6,58 @@ export interface LoginCredentials {
 }
 
 export interface User {
-  id: number;
+  _id: string;
   username: string;
   email: string;
-  role: 'admin' | 'manager' | 'staff' | 'influencer' | 'customer';
+  role: 'admin' | 'manager' | 'staff' | 'user' | 'customer' | 'influencer';
   status: 'active' | 'inactive' | 'suspended';
   first_name: string;
-  last_name: string;
-  phone: string;
+  last_name?: string;
+  phone?: string;
+  referral_code?: string;
+  referred_by?: string;
   loyalty_tier: 'lead' | 'silver' | 'gold' | 'platinum';
   points_balance: number;
   liter_balance: number;
   total_purchases: number;
   total_liters: number;
-  referral_code: string;
-  created_at: string;
-  updated_at: string;
+  total_points_earned: number;
+  total_points_spent: number;
+  last_login?: string;
+  profile_image?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    country?: string;
+  };
+  preferences?: {
+    notifications: {
+      email: boolean;
+      sms: boolean;
+      push: boolean;
+    };
+    language: string;
+    timezone: string;
+  };
+  verification?: {
+    email_verified: boolean;
+    phone_verified: boolean;
+    email_verification_token?: string;
+    phone_verification_code?: string;
+    email_verification_expires?: string;
+    phone_verification_expires?: string;
+  };
+  security?: {
+    two_factor_enabled: boolean;
+    two_factor_secret?: string;
+    login_attempts: number;
+    lock_until?: string;
+    password_changed_at?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthResponse {
@@ -109,6 +145,29 @@ class AuthService {
     }
 
     return response;
+  }
+
+  async register(userData: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+  }): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   // Helper methods

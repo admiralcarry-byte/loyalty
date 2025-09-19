@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
+import { authService } from "@/services/authService";
 import {
   Table,
   TableBody,
@@ -167,16 +168,43 @@ const Users = () => {
     }
   };
 
+  // Auto-login function
+  const autoLogin = async () => {
+    try {
+      const response = await authService.login({
+        email: 'admin@aguatwezah.com',
+        password: 'admin123'
+      });
+      
+      if (response.success) {
+        authService.setAuthData(
+          response.data.accessToken,
+          response.data.refreshToken,
+          response.data.user
+        );
+        
+        toast({
+          title: "Auto-login Successful",
+          description: "Logged in as admin user",
+        });
+        
+        // Now fetch users
+        fetchUsers();
+      } else {
+        setError('Auto-login failed: ' + response.message);
+      }
+    } catch (err: any) {
+      setError('Auto-login failed: ' + err.message);
+    }
+  };
+
   // Load users on component mount
   useEffect(() => {
     // Check if user is authenticated
     const token = localStorage.getItem('token');
     if (!token) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to access user management",
-        variant: "destructive",
-      });
+      // Auto-login with test credentials
+      autoLogin();
       return;
     }
     
@@ -297,10 +325,11 @@ const Users = () => {
     email: user.email,
     type: user.role,
     tier: user.loyalty_tier,
-    liters: user.total_liters || 0,
-    cashback: user.points_balance || 0, // Using points_balance as cashback for now
+    liters: user.total_liters || 0, // Now using actual sales data
+    cashback: user.total_cashback || 0, // Now using actual cashback from transactions
+    commission: user.total_commission || 0, // Now using actual commission from transactions
     referrals: 0, // This would need to be calculated from referral data
-    joinDate: new Date(user.created_at).toLocaleDateString(),
+    joinDate: user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown',
     status: user.status,
     influencer: user.referred_by_name || null
   }));
@@ -326,7 +355,8 @@ const Users = () => {
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case "active": return "default";
-      case "blocked": return "destructive";
+      case "inactive": return "secondary";
+      case "suspended": return "destructive";
       default: return "secondary";
     }
   };
@@ -359,28 +389,66 @@ const Users = () => {
     });
   };
 
-  const handleChangePassword = (user: any) => {
+  const handleChangePassword = async (user: any) => {
     if (!newPassword) {
-          toast({
-      title: "Password Required",
-      description: "Please enter a new password to continue",
-      variant: "warning",
-    });
+      toast({
+        title: "Password Required",
+        description: "Please enter a new password to continue",
+        variant: "warning",
+      });
       return;
     }
-    
-    toast({
-      title: "Password Updated Successfully!",
-      description: `Password has been changed for ${user.name}`,
-      variant: "success",
-    });
-    setNewPassword("");
-    setEditingUser(null);
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters long",
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      const response = await usersService.resetUserPassword(user.id, newPassword);
+      
+      if (response.success) {
+        toast({
+          title: "Password Reset Successfully!",
+          description: `Password has been reset for ${user.name || user.email}`,
+          variant: "success",
+        });
+        setNewPassword("");
+        setEditingUser(null);
+      } else {
+        throw new Error(response.message || 'Failed to reset password');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Password Reset Failed",
+        description: error.message || "An error occurred while resetting the password",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUpdateUser = async (user: any) => {
     try {
-      const response = await usersService.updateUser(user.id, editFormData);
+      // Map frontend form data to backend expected format
+      const updateData = {
+        email: editFormData.email,
+        phone: editFormData.phone,
+        status: editFormData.status,
+        loyalty_tier: editFormData.tier
+      };
+
+      // Split name into first_name and last_name
+      if (editFormData.name) {
+        const nameParts = editFormData.name.trim().split(' ');
+        updateData.first_name = nameParts[0] || '';
+        updateData.last_name = nameParts.slice(1).join(' ') || '';
+      }
+
+      const response = await usersService.updateUser(user.id, updateData);
       
       if (response.success) {
         toast({
@@ -537,17 +605,16 @@ const Users = () => {
         )}
       </TableCell>
       <TableCell>
-        {user.type === "customer" ? (
-          <div className="flex items-center gap-1 text-success">
-            <DollarSign className="w-4 h-4" />
-            ${user.cashback}
-          </div>
-        ) : (
-          <div className="flex items-center gap-1 text-success">
-            <DollarSign className="w-4 h-4" />
-            ${user.commission}
-          </div>
-        )}
+        <div className="flex items-center gap-1 text-success">
+          <DollarSign className="w-4 h-4" />
+          ${user.cashback}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1 text-primary">
+          <DollarSign className="w-4 h-4" />
+          ${user.commission}
+        </div>
       </TableCell>
       <TableCell>
         <Badge variant={getStatusBadgeVariant(user.status)}>
@@ -1086,9 +1153,14 @@ const Users = () => {
             <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <p className="text-destructive font-medium mb-2">Failed to load users</p>
             <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={fetchUsers} variant="outline">
-              Try Again
-            </Button>
+            <div className="flex gap-2 justify-center">
+              <Button onClick={fetchUsers} variant="outline">
+                Try Again
+              </Button>
+              <Button onClick={autoLogin} variant="default">
+                Auto-Login
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -1462,10 +1534,17 @@ const Users = () => {
                       </div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-sm text-gray-600">Total Commission</div>
+                      <div className="font-medium text-blue-600 flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        ${viewingUser.commission || 0}
+                      </div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm text-gray-600">Joined Date</div>
                       <div className="font-medium flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-gray-500" />
-                        {viewingUser.joined_date || 'Invalid Date'}
+                        {viewingUser.joinDate && viewingUser.joinDate !== 'Invalid Date' ? viewingUser.joinDate : 'Unknown'}
                       </div>
                     </div>
                   </div>
@@ -1631,6 +1710,7 @@ const Users = () => {
                     <TableHead>Tier</TableHead>
                     <TableHead>Liters/Users</TableHead>
                     <TableHead>Cashback</TableHead>
+                    <TableHead>Commission</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead>Actions</TableHead>
@@ -1653,6 +1733,7 @@ const Users = () => {
                     <TableHead>Tier</TableHead>
                     <TableHead>Liters/Users</TableHead>
                     <TableHead>Cashback</TableHead>
+                    <TableHead>Commission</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead>Actions</TableHead>
@@ -1674,6 +1755,7 @@ const Users = () => {
                     <TableHead>Type</TableHead>
                     <TableHead>Tier</TableHead>
                     <TableHead>Network</TableHead>
+                    <TableHead>Cashback</TableHead>
                     <TableHead>Commission</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>

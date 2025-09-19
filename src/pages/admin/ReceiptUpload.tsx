@@ -80,7 +80,7 @@ const ReceiptUpload = () => {
   const loadStores = async () => {
     try {
       setLoadingStores(true);
-      const response = await storesService.getStores({ limit: 100 });
+      const response = await storesService.getStores({ limit: 100, status: 'active' });
       setStores(response.data || []);
     } catch (error) {
       console.error('Error loading stores:', error);

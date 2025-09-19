@@ -1,7 +1,7 @@
 export interface OnlineOrder {
-  id: number;
+  _id: string;
   order_id: string;
-  user_id: number;
+  user_id: string;
   customer_name: string;
   phone: string;
   email: string;
@@ -21,9 +21,9 @@ export interface OnlineOrder {
 }
 
 export interface OnlineOrderItem {
-  id: number;
-  order_id: number;
-  product_id?: number;
+  _id: string;
+  order_id: string;
+  product_id?: string;
   product_name: string;
   quantity: number;
   unit_price: number;
@@ -34,7 +34,7 @@ export interface OnlineOrderItem {
 
 export interface CreateOrderRequest {
   items: Array<{
-    product_id: number;
+    product_id: string;
     quantity: number;
   }>;
   delivery_method: 'home_delivery' | 'store_pickup';
@@ -148,7 +148,7 @@ class OnlinePurchasesService {
   }
 
   // Get specific order details
-  async getOrder(id: number): Promise<OrderResponse> {
+  async getOrder(id: string): Promise<OrderResponse> {
     return this.request<OrderResponse>(`/online-purchases/${id}`);
   }
 
@@ -160,9 +160,17 @@ class OnlinePurchasesService {
     });
   }
 
+  // Update order
+  async updateOrder(id: string, orderData: Partial<CreateOrderRequest>): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>(`/online-purchases/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(orderData),
+    });
+  }
+
   // Update order status
   async updateOrderStatus(
-    id: number,
+    id: string,
     statusData: UpdateOrderStatusRequest
   ): Promise<{ success: boolean; message: string }> {
     return this.request(`/online-purchases/${id}/status`, {
@@ -172,7 +180,7 @@ class OnlinePurchasesService {
   }
 
   // Cancel order
-  async cancelOrder(id: number): Promise<{ success: boolean; message: string }> {
+  async cancelOrder(id: string): Promise<{ success: boolean; message: string }> {
     return this.request(`/online-purchases/${id}`, {
       method: 'DELETE',
     });

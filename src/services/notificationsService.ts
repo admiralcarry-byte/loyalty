@@ -85,6 +85,18 @@ class NotificationsService extends BaseService {
       body: JSON.stringify({ scheduledAt }),
     });
   }
+
+  async getOldNotifications(): Promise<{ success: boolean; data: Notification[] }> {
+    return this.request<{ success: boolean; data: Notification[] }>('/notifications/old');
+  }
+
+  async getNotificationsStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/notifications/stats/overview');
+  }
+
+  async getNotificationsByUser(userId: string): Promise<{ success: boolean; data: Notification[] }> {
+    return this.request<{ success: boolean; data: Notification[] }>(`/notifications/user/${userId}`);
+  }
 }
 
 export const notificationsService = new NotificationsService();

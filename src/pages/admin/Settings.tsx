@@ -37,7 +37,6 @@ import {
   Badge
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { systemStatsService, SystemStats } from "@/services/systemStatsService";
 import { generalSettingsService, GeneralSettings } from "@/services/generalSettingsService";
 import { translationService } from "@/services/translationService";
 
@@ -48,35 +47,6 @@ const Settings = () => {
     savedChanges: 0,
     systemStatus: 0
   });
-  const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-
-  // Fetch system stats
-  const fetchSystemStats = async () => {
-    try {
-      setIsLoadingStats(true);
-      const stats = await systemStatsService.getSystemStats();
-      setSystemStats(stats);
-    } catch (error) {
-      console.error('Error fetching system stats:', error);
-      // Set default values if fetch fails
-      setSystemStats({
-        active_settings: 12,
-        saved_changes: 8,
-        system_status: 98,
-        system_growth_percentage: 15.2,
-        performance_growth_percentage: 8.7,
-        last_updated: new Date().toISOString()
-      });
-    } finally {
-      setIsLoadingStats(false);
-    }
-  };
-
-  // Fetch system stats on component mount
-  useEffect(() => {
-    fetchSystemStats();
-  }, []);
 
   // Animate numbers on component mount
   useEffect(() => {
@@ -91,17 +61,17 @@ const Settings = () => {
         const progress = currentStep / steps;
         
         setAnimatedValues({
-          activeSettings: Math.floor((systemStats?.active_settings || 0) * progress),
-          savedChanges: Math.floor((systemStats?.saved_changes || 0) * progress),
-          systemStatus: Math.floor((systemStats?.system_status || 0) * progress)
+          activeSettings: Math.floor(12 * progress),
+          savedChanges: Math.floor(8 * progress),
+          systemStatus: Math.floor(98 * progress)
         });
 
         if (currentStep >= steps) {
           clearInterval(interval);
           setAnimatedValues({
-            activeSettings: systemStats?.active_settings || 0,
-            savedChanges: systemStats?.saved_changes || 0,
-            systemStatus: systemStats?.system_status || 0
+            activeSettings: 12,
+            savedChanges: 8,
+            systemStatus: 98
           });
         }
       }, stepDuration);
@@ -109,10 +79,8 @@ const Settings = () => {
       return () => clearInterval(interval);
     };
 
-    if (systemStats) {
-      animateNumbers();
-    }
-  }, [systemStats]);
+    animateNumbers();
+  }, []);
   
   const [generalSettings, setGeneralSettings] = useState<GeneralSettings>({
     app_name: "ÁGUA TWEZAH",
@@ -212,11 +180,9 @@ const Settings = () => {
 
   const handleSaveAll = async () => {
     try {
-      // Refresh system stats after saving
-      await fetchSystemStats();
       toast({
         title: "All Settings Saved!",
-        description: "All settings have been updated and system stats refreshed.",
+        description: "All settings have been updated successfully.",
       });
     } catch (error) {
       toast({
@@ -250,7 +216,7 @@ const Settings = () => {
 {translationService.translate('system.active')}
           </Badge>
           <Button 
-            onClick={fetchSystemStats}
+            onClick={() => window.location.reload()}
             variant="outline"
             className="bg-gradient-to-r from-slate-50 to-slate-100 hover:shadow-md"
           >
@@ -278,19 +244,11 @@ const Settings = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-blue-200 h-8 w-16 rounded"></div>
-              ) : (
-                animatedValues.activeSettings
-              )}
+              {animatedValues.activeSettings}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-green-200 h-3 w-20 rounded"></div>
-              ) : (
-                systemStats?.system_growth_percentage ? `+${systemStats.system_growth_percentage}%` : '0.0%'
-              )} from last month
+              +15.2% from last month
             </div>
           </CardContent>
         </Card>
@@ -304,19 +262,11 @@ const Settings = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-green-200 h-8 w-16 rounded"></div>
-              ) : (
-                animatedValues.savedChanges
-              )}
+              {animatedValues.savedChanges}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-green-200 h-3 w-20 rounded"></div>
-              ) : (
-                systemStats?.performance_growth_percentage ? `+${systemStats.performance_growth_percentage}%` : '0.0%'
-              )} from last month
+              +8.7% from last month
             </div>
           </CardContent>
         </Card>
@@ -330,19 +280,11 @@ const Settings = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-purple-200 h-8 w-16 rounded"></div>
-              ) : (
-                `${animatedValues.systemStatus}%`
-              )}
+              {`${animatedValues.systemStatus}%`}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <CheckCircle className="w-3 h-3 mr-1" />
-              {isLoadingStats ? (
-                <div className="animate-pulse bg-green-200 h-3 w-32 rounded"></div>
-              ) : (
-                "All Systems Operational"
-              )}
+              All Systems Operational
             </div>
           </CardContent>
         </Card>

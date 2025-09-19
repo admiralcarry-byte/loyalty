@@ -39,7 +39,7 @@ export const ADMIN_CONFIG = {
     // Dashboard
     dashboard: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/dashboard',
       simulationDelay: 300,
       refreshInterval: 30000 // 30 seconds
@@ -48,7 +48,7 @@ export const ADMIN_CONFIG = {
     // User Management
     users: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/users',
       simulationDelay: 500,
       pagination: {
@@ -60,7 +60,7 @@ export const ADMIN_CONFIG = {
     // Store Management
     stores: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/stores',
       simulationDelay: 600,
       features: {
@@ -73,7 +73,7 @@ export const ADMIN_CONFIG = {
     // Campaign Management
     campaigns: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/campaigns',
       simulationDelay: 800,
       features: {
@@ -86,7 +86,7 @@ export const ADMIN_CONFIG = {
     // Sales Management
     sales: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/sales',
       simulationDelay: 700,
       features: {
@@ -99,7 +99,7 @@ export const ADMIN_CONFIG = {
     // Commission System
     commissions: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/commissions',
       simulationDelay: 1000,
       features: {
@@ -112,7 +112,7 @@ export const ADMIN_CONFIG = {
     // Billing System
     billing: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/billing',
       simulationDelay: 1200,
       features: {
@@ -125,7 +125,7 @@ export const ADMIN_CONFIG = {
     // Notification System
     notifications: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/notifications',
       simulationDelay: 400,
       features: {
@@ -139,7 +139,7 @@ export const ADMIN_CONFIG = {
     // Reporting System
     reports: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/reports',
       simulationDelay: 1500,
       features: {
@@ -153,7 +153,7 @@ export const ADMIN_CONFIG = {
     // Points System
     points: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/points',
       simulationDelay: 600,
       features: {
@@ -167,7 +167,7 @@ export const ADMIN_CONFIG = {
     // Cashback System
     cashback: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/cashback',
       simulationDelay: 800,
       features: {
@@ -180,7 +180,7 @@ export const ADMIN_CONFIG = {
     // Purchase Management
     purchases: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/purchases',
       simulationDelay: 1000,
       features: {
@@ -193,7 +193,7 @@ export const ADMIN_CONFIG = {
     // Online Purchase System
     onlinePurchases: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/online-purchases',
       simulationDelay: 1200,
       features: {
@@ -206,7 +206,7 @@ export const ADMIN_CONFIG = {
     // Wallet Integration
     wallets: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/wallets',
       simulationDelay: 1000,
       features: {
@@ -247,7 +247,7 @@ export const ADMIN_CONFIG = {
     // Influencer Management
     influencers: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/influencers',
       simulationDelay: 800,
       features: {
@@ -260,7 +260,7 @@ export const ADMIN_CONFIG = {
     // Geolocation Services
     geolocation: {
       enabled: true,
-      useSimulation: true,
+      useSimulation: false,
       realApiEndpoint: '/geolocation',
       simulationDelay: 600,
       features: {

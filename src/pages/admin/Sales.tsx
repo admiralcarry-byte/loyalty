@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { salesService, Sale } from "@/services/salesService";
+import { dashboardService } from "@/services/dashboardService";
+import { formatDateTime } from "@/utils/dateUtils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +49,6 @@ import {
   XCircle,
   MoreHorizontal,
   TrendingUp,
-  BarChart3,
   Activity,
 } from "lucide-react";
 import {
@@ -71,6 +72,7 @@ const Sales = () => {
   const [isCreatingSale, setIsCreatingSale] = useState(false);
   const [viewingSale, setViewingSale] = useState<any>(null);
   
+  
   // Form state for adding new sale
   const [newSaleData, setNewSaleData] = useState({
     customer: '',
@@ -83,22 +85,45 @@ const Sales = () => {
 
   // Transform backend sales data to frontend format
   const transformSalesData = (backendSales: any[]) => {
-    return backendSales.map(sale => ({
-      id: sale._id || sale.id,
-      customer: sale.customer ? `${sale.customer.first_name} ${sale.customer.last_name}` : 'Walk-in Customer',
-      customerPhone: sale.customer?.phone || 'N/A',
-      liters: sale.items?.reduce((sum: number, item: any) => sum + (item.liters || 0), 0) || 0,
-      amount: sale.total_amount || 0,
-      cashback: sale.items?.reduce((sum: number, item: any) => sum + (item.points_earned || 0), 0) || 0,
-      date: new Date(sale.createdAt).toLocaleDateString(),
-      time: new Date(sale.createdAt).toLocaleTimeString(),
-      status: sale.payment_status === 'paid' ? 'verified' : sale.payment_status,
-      verifiedBy: sale.seller ? `${sale.seller.first_name} ${sale.seller.last_name}` : 'N/A',
-      verifiedDate: sale.updatedAt ? new Date(sale.updatedAt).toLocaleDateString() : 'N/A',
-      location: sale.store?.name || 'Unknown Store',
-      influencer: sale.customer?.referral_code || null,
-      commission: sale.commission?.amount || 0
-    }));
+    return backendSales.map(sale => {
+      // Handle date formatting more robustly using utility function
+      const dateValue = sale.created_at || sale.createdAt || sale.date || sale.timestamp;
+      const { date: formattedDate, time: formattedTime } = formatDateTime(dateValue);
+      
+      return {
+        id: sale._id || sale.id,
+        customer: sale.customer?.name || 'Walk-in Customer',
+        customerPhone: sale.customer?.phone || 'N/A',
+        liters: sale.total_liters || sale.quantity || 0, // Use total_liters first, then quantity
+        amount: sale.total_amount || 0,
+        cashback: sale.cashback_earned || 0,
+        date: formattedDate,
+        time: formattedTime,
+        status: (() => {
+          // For cash transactions, they should be verified/completed
+          if (sale.payment_method === 'cash' && (sale.payment_status === 'paid' || sale.status === 'completed')) {
+            return 'verified';
+          }
+          // For other payment methods, check payment status
+          if (sale.payment_status === 'paid' || sale.payment_status === 'completed') {
+            return 'verified';
+          }
+          if (sale.payment_status === 'pending') {
+            return 'pending';
+          }
+          if (sale.payment_status === 'failed') {
+            return 'rejected';
+          }
+          // Default to the sale status if payment_status is not available
+          return sale.status === 'completed' ? 'verified' : sale.status || 'pending';
+        })(),
+        verifiedBy: 'N/A', // This field is not available in current API
+        verifiedDate: formattedDate,
+        location: sale.store?.name || 'Unknown Store',
+        influencer: sale.customer?.referral_code || null,
+        commission: sale.commission?.amount || sale.commission || 0
+      };
+    });
   };
 
   // Fetch sales data
@@ -121,6 +146,7 @@ const Sales = () => {
     }
   };
 
+
   // Handle viewing sale details
   const handleViewDetails = (sale: any) => {
     setViewingSale(sale);
@@ -141,7 +167,7 @@ const Sales = () => {
         amount: parseFloat(newSaleData.amount),
         location: newSaleData.location,
         paymentMethod: newSaleData.paymentMethod,
-        status: 'verified'
+        status: 'verified' as const
       };
       
       const response = await salesService.createSale(saleData);
@@ -170,7 +196,7 @@ const Sales = () => {
     }
   };
 
-  // Load sales on component mount
+  // Load sales data on component mount
   useEffect(() => {
     fetchSales();
   }, []);
@@ -397,7 +423,7 @@ const Sales = () => {
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{totalLiters}L</div>
             <div className="flex items-center text-xs text-success font-medium">
-              <BarChart3 className="w-3 h-3 mr-1" />
+              <TrendingUp className="w-3 h-3 mr-1" />
               +0.0% this week
             </div>
           </CardContent>
@@ -435,6 +461,7 @@ const Sales = () => {
           </CardContent>
         </Card>
       </div>
+
 
       {/* Enhanced Filters and Search */}
       <Card className="border-0 shadow-lg">
@@ -696,10 +723,6 @@ const Sales = () => {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Store Location</Label>
                     <div className="font-medium">{viewingSale.location}</div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-500">Verified By</Label>
-                    <div className="font-medium">{viewingSale.verifiedBy}</div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Sale Date</Label>

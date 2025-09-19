@@ -20,7 +20,7 @@ const Index = () => {
         </div>
         
         <div className="flex gap-4 justify-center">
-          <Link to="/admin">
+          <Link to="/admin/users">
             <Button size="lg" className="gap-2">
               <BarChart3 className="w-5 h-5" />
               Access Admin Panel

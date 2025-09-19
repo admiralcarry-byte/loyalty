@@ -54,27 +54,71 @@ class UsersService {
       ...options,
     };
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, config);
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, config);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      
-      // Handle specific error cases
-      if (response.status === 401) {
-        // Clear invalid token and redirect to login
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        throw new Error('Session expired. Please log in again.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle specific error cases
+        if (response.status === 401) {
+          // Try to refresh token first
+          try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (refreshToken) {
+              const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken }),
+              });
+
+              if (refreshResponse.ok) {
+                const refreshData = await refreshResponse.json();
+                if (refreshData.success && refreshData.data.accessToken) {
+                  localStorage.setItem('token', refreshData.data.accessToken);
+                  // Retry the original request with new token
+                  const retryConfig: RequestInit = {
+                    ...config,
+                    headers: {
+                      ...config.headers,
+                      'Authorization': `Bearer ${refreshData.data.accessToken}`,
+                    },
+                  };
+                  
+                  const retryResponse = await fetch(`${this.baseUrl}${endpoint}`, retryConfig);
+                  if (retryResponse.ok) {
+                    return retryResponse.json();
+                  }
+                }
+              }
+            }
+          } catch (refreshError) {
+            console.warn('Token refresh failed:', refreshError);
+          }
+
+          // Clear invalid tokens and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          throw new Error('Session expired. Please log in again.');
+        }
+        
+        const error = new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
+        (error as any).details = errorData.details;
+        (error as any).errorCode = errorData.error;
+        throw error;
       }
-      
-      const error = new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
-      (error as any).details = errorData.details;
-      (error as any).errorCode = errorData.error;
+
+      return response.json();
+    } catch (error) {
+      // Handle network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error. Please check your connection and try again.');
+      }
       throw error;
     }
-
-    return response.json();
   }
 
   async getUsers(params: {
@@ -100,7 +144,7 @@ class UsersService {
     return this.request<UsersResponse>(endpoint);
   }
 
-  async getUserById(id: number): Promise<{ success: boolean; data: { user: User } }> {
+  async getUserById(id: string): Promise<{ success: boolean; data: { user: User } }> {
     return this.request<{ success: boolean; data: { user: User } }>(`/users/${id}`);
   }
 
@@ -111,14 +155,14 @@ class UsersService {
     });
   }
 
-  async updateUser(id: number, userData: Partial<User>): Promise<{ success: boolean; data: { user: User } }> {
+  async updateUser(id: string, userData: Partial<User>): Promise<{ success: boolean; data: { user: User } }> {
     return this.request<{ success: boolean; data: { user: User } }>(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
   }
 
-  async deleteUser(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/users/${id}`, {
       method: 'DELETE',
     });
@@ -128,10 +172,19 @@ class UsersService {
     return this.request<{ success: boolean; data: UserStats }>('/users/stats/overview');
   }
 
-  async resetUserPassword(id: number): Promise<{ success: boolean; message: string }> {
+  async resetUserPassword(id: string, newPassword: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/users/${id}/reset-password`, {
       method: 'POST',
+      body: JSON.stringify({ newPassword }),
     });
+  }
+
+  async getAllUserStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/users/stats');
+  }
+
+  async getInfluencerPerformance(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/users/influencer-performance');
   }
 }
 

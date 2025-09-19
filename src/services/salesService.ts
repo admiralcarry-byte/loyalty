@@ -94,21 +94,31 @@ class SalesService extends BaseService {
     });
   }
 
-  async verifySale(id: string): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}/verify`, {
-      method: 'POST',
-    });
-  }
-
-  async rejectSale(id: string, reason: string): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ reason }),
+  async updateSaleStatus(id: string, status: string): Promise<{ success: boolean; data: { sale: Sale } }> {
+    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
     });
   }
 
   async getSalesStats(): Promise<{ success: boolean; data: SalesStats }> {
     return this.request<{ success: boolean; data: SalesStats }>('/sales/stats/overview');
+  }
+
+  async getAllSalesStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/sales/stats');
+  }
+
+  async getSalesByUser(userId: string): Promise<{ success: boolean; data: Sale[] }> {
+    return this.request<{ success: boolean; data: Sale[] }>(`/sales/user/${userId}`);
+  }
+
+  async getSalesByStore(storeId: string): Promise<{ success: boolean; data: Sale[] }> {
+    return this.request<{ success: boolean; data: Sale[] }>(`/sales/store/${storeId}`);
+  }
+
+  async getTopSellingProducts(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/sales/top-selling-products');
   }
 }
 

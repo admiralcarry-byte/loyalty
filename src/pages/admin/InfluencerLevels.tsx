@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Table, 
   TableBody, 
@@ -44,7 +42,6 @@ import { translationService } from "@/services/translationService";
 const InfluencerLevels = () => {
   const { toast } = useToast();
   const [editingLevel, setEditingLevel] = useState<string | null>(null);
-  const [autoPromotionEnabled, setAutoPromotionEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [levelRequirements, setLevelRequirements] = useState<InfluencerLevel[]>([]);
   const [influencerStats, setInfluencerStats] = useState<InfluencerStats>({
@@ -141,13 +138,6 @@ const InfluencerLevels = () => {
           <p className="text-muted-foreground mt-1">{translationService.translate('influencer.level.subtitle')}</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-slate-200">
-            <Switch
-              checked={autoPromotionEnabled}
-              onCheckedChange={setAutoPromotionEnabled}
-            />
-            <Label className="text-sm font-medium">{translationService.translate('auto.promotion')}</Label>
-          </div>
           <Button 
             className="bg-gradient-to-r from-primary to-water-blue hover:shadow-primary shadow-md"
             onClick={handleRefresh}
@@ -226,13 +216,7 @@ const InfluencerLevels = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="requirements" className="space-y-6">
-        <TabsList className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
-          <TabsTrigger value="requirements" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">{translationService.translate('level.requirements')}</TabsTrigger>
-          <TabsTrigger value="promotion" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">{translationService.translate('auto.promotion.tab')}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="requirements" className="space-y-6">
+      <div className="space-y-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-2">
@@ -396,100 +380,7 @@ const InfluencerLevels = () => {
               ))}
             </div>
           )}
-        </TabsContent>
-        
-        <TabsContent value="promotion" className="space-y-6">
-          <Card className="bg-gradient-to-br from-white to-slate-50 border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-                Level Promotion Status
-              </CardTitle>
-              <CardDescription>
-                Monitor influencers approaching level upgrades and automatic promotions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50">
-                      <TableHead>Influencer</TableHead>
-                      <TableHead>Current Level</TableHead>
-                      <TableHead>Next Level</TableHead>
-                      <TableHead>Progress</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="flex items-center justify-center gap-2">
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Loading promotion candidates...</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : promotionCandidates.length > 0 ? (
-                    promotionCandidates.map((candidate) => (
-                      <TableRow key={candidate.user_id} className="hover:bg-slate-50">
-                        <TableCell className="font-medium">{candidate.user_name || 'Unknown'}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="border-slate-200">
-                            {candidate.current_level || 'N/A'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="border-blue-200 text-blue-700">
-                            {candidate.next_level || 'N/A'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="w-24 bg-slate-200 rounded-full h-2">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                  candidate.progress >= 100 ? 'bg-green-500' : 
-                                  candidate.progress >= 80 ? 'bg-blue-500' : 'bg-yellow-500'
-                                }`}
-                                style={{ width: `${Math.min(candidate.progress || 0, 100)}%` }}
-                              />
-                            </div>
-                            <span className="text-sm font-medium text-slate-700">
-                              {Math.round(candidate.progress || 0)}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {(candidate.progress || 0) >= 100 ? (
-                            <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              Ready for Promotion
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-slate-100 text-slate-700">
-                              <Activity className="w-3 h-3 mr-1" />
-                              In Progress
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">No promotion candidates found</div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 };

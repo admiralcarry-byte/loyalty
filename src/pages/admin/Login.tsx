@@ -37,7 +37,7 @@ const AdminLogin = () => {
           title: "Login Successful",
           description: "Welcome to ÁGUA TWEZAH Admin Panel",
         });
-        navigate("/admin");
+        navigate("/admin/users");
       } else {
         toast({
           title: "Login Failed",

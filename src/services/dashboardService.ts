@@ -77,6 +77,10 @@ class DashboardService extends BaseService {
     return this.request<{ success: boolean; data: SalesChartData[] }>(`/dashboard/sales-chart?period=${period}`);
   }
 
+  async getCombinedDashboardData(period: string = '30'): Promise<{ success: boolean; data: { dashboard: DashboardStats; salesChart: SalesChartData[] } }> {
+    return this.request<{ success: boolean; data: { dashboard: DashboardStats; salesChart: SalesChartData[] } }>(`/dashboard/combined?period=${period}`);
+  }
+
   async getUserRegistrationData(period: string = '30'): Promise<{ success: boolean; data: UserRegistrationData[] }> {
     return this.request<{ success: boolean; data: UserRegistrationData[] }>(`/dashboard/user-registrations?period=${period}`);
   }
@@ -85,12 +89,20 @@ class DashboardService extends BaseService {
     return this.request<{ success: boolean; data: any }>('/dashboard/loyalty-distribution');
   }
 
-  async getTopInfluencers(): Promise<{ success: boolean; data: any }> {
-    return this.request<{ success: boolean; data: any }>('/dashboard/top-influencers');
+  async getTopCustomers(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/dashboard/top-customers');
   }
 
-  async getRecentUsers(): Promise<{ success: boolean; data: any }> {
-    return this.request<{ success: boolean; data: any }>('/dashboard/recent-users');
+  async getTopStores(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/dashboard/top-stores');
+  }
+
+  async getCashbackConfig(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/dashboard/cashback-config');
+  }
+
+  async getGeographicalStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/dashboard/geographical');
   }
 }
 

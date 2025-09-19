@@ -20,8 +20,8 @@ export interface CashbackStats {
 }
 
 export interface CashbackTransaction {
-  id: number;
-  user_id: number;
+  _id: string;
+  user_id: string;
   amount: number;
   type: string;
   status: string;
@@ -37,7 +37,7 @@ export interface CashbackTransaction {
 }
 
 export interface CashbackTopEarner {
-  user_id: number;
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -47,13 +47,7 @@ export interface CashbackTopEarner {
 }
 
 class CashbackService extends BaseService {
-  async getCashbackStats(): Promise<{ success: boolean; data: CashbackStats }> {
-    return this.request<{ success: boolean; data: CashbackStats }>('/cashback/stats/overview');
-  }
 
-  async getCashbackSettings(): Promise<{ success: boolean; data: any }> {
-    return this.request<{ success: boolean; data: any }>('/cashback/settings');
-  }
 
   async getCashbackTransactions(params?: {
     page?: number;
@@ -81,21 +75,18 @@ class CashbackService extends BaseService {
     return this.request<{ success: boolean; data: { transactions: CashbackTransaction[]; pagination: any } }>(endpoint);
   }
 
-  async getTopCashbackEarners(limit: number = 10): Promise<{ success: boolean; data: { users: CashbackTopEarner[] } }> {
-    return this.request<{ success: boolean; data: { users: CashbackTopEarner[] } }>(`/cashback/top-earners?limit=${limit}`);
-  }
 
-  async getCashbackTransaction(id: number): Promise<{ success: boolean; data: { transaction: CashbackTransaction } }> {
+  async getCashbackTransaction(id: string): Promise<{ success: boolean; data: { transaction: CashbackTransaction } }> {
     return this.request<{ success: boolean; data: { transaction: CashbackTransaction } }>(`/cashback/${id}`);
   }
 
   async createCashbackTransaction(data: {
-    user_id: number;
+    user_id: string;
     amount: number;
     type: string;
     status?: string;
     reference_type?: string;
-    reference_id?: number;
+    reference_id?: string;
     description?: string;
   }): Promise<{ success: boolean; message: string; data: { transaction: CashbackTransaction } }> {
     return this.request<{ success: boolean; message: string; data: { transaction: CashbackTransaction } }>('/cashback', {
@@ -104,7 +95,7 @@ class CashbackService extends BaseService {
     });
   }
 
-  async updateCashbackTransaction(id: number, data: {
+  async updateCashbackTransaction(id: string, data: {
     status?: string;
     description?: string;
   }): Promise<{ success: boolean; message: string; data: { transaction: CashbackTransaction } }> {
@@ -114,26 +105,24 @@ class CashbackService extends BaseService {
     });
   }
 
-  async approveCashbackTransaction(id: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/cashback/${id}/approve`, {
-      method: 'PUT',
-    });
-  }
 
-  async markCashbackAsPaid(id: number): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/cashback/${id}/mark-paid`, {
-      method: 'PUT',
-    });
-  }
 
-  async deleteCashbackTransaction(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteCashbackTransaction(id: string): Promise<{ success: boolean; message: string }> {
     return this.request<{ success: boolean; message: string }>(`/cashback/${id}`, {
       method: 'DELETE',
     });
   }
 
-  async getUserCashbackTransactions(userId: number, limit: number = 50): Promise<{ success: boolean; data: { transactions: CashbackTransaction[]; user: any } }> {
+  async getUserCashbackTransactions(userId: string, limit: number = 50): Promise<{ success: boolean; data: { transactions: CashbackTransaction[]; user: any } }> {
     return this.request<{ success: boolean; data: { transactions: CashbackTransaction[]; user: any } }>(`/cashback/user/${userId}?limit=${limit}`);
+  }
+
+  async getCashbackStats(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/cashback/stats/overview');
+  }
+
+  async getTopEarners(): Promise<{ success: boolean; data: any }> {
+    return this.request<{ success: boolean; data: any }>('/cashback/top-earners');
   }
 }
 
