@@ -410,8 +410,9 @@ const BillingIntegration = () => {
       
       // The backend will now find the user and store based on QR code data
       // We'll use placeholder values that will be replaced by the backend
-      let userId = 'placeholder-user-id';
-      let storeId = 'placeholder-store-id';
+      // These will be ignored if the backend finds matches from OCR/QR data
+      let userId = '68cd4a32867355608b36f722'; // Default admin user ID
+      let storeId = '68cd4bc3ae38650719747a69'; // Default store ID
 
       console.log('Using placeholder IDs - backend will find actual user/store from QR code data');
 
