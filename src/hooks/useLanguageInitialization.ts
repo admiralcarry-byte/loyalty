@@ -52,8 +52,8 @@ export const useLanguageInitialization = () => {
           setLocalIsInitialized(true);
         } catch (error) {
           console.error('Error initializing language:', error);
-          // Fallback to Portuguese if there's an error
-          translationService.setLanguage('Portuguese');
+          // Fallback to English if there's an error
+          translationService.setLanguage('English');
           isInitialized = true;
           setLocalIsInitialized(true);
         } finally {

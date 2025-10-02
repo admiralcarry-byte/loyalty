@@ -225,6 +225,31 @@ const translations: LanguageTranslations = {
     'system.active': 'System Active',
     'save.all': 'Save All',
     'refresh': 'Refresh',
+    'loading': 'Loading...',
+    'save': 'Save',
+    'cancel': 'Cancel',
+    'edit': 'Edit',
+    'delete': 'Delete',
+    'search': 'Search',
+    'filter': 'Filter',
+    'export': 'Export',
+    'import': 'Import',
+    'add': 'Add',
+    'create': 'Create',
+    'update': 'Update',
+    'view': 'View',
+    'details': 'Details',
+    'status': 'Status',
+    'active': 'Active',
+    'inactive': 'Inactive',
+    'enabled': 'Enabled',
+    'disabled': 'Disabled',
+    'yes': 'Yes',
+    'no': 'No',
+    'success': 'Success',
+    'warning': 'Warning',
+    'info': 'Info',
+    'error': 'Error',
     
     // Stats Cards
     'active.settings': 'Active Settings',
@@ -280,6 +305,18 @@ const translations: LanguageTranslations = {
     // Messages
     'settings.saved.successfully': 'Settings Saved Successfully!',
     'general.settings.updated': 'General settings have been updated and saved to database.',
+    'operation.successful': 'Operation completed successfully',
+    'operation.failed': 'Operation failed',
+    'data.loaded.successfully': 'Data loaded successfully',
+    'data.saved.successfully': 'Data saved successfully',
+    'data.updated.successfully': 'Data updated successfully',
+    'data.deleted.successfully': 'Data deleted successfully',
+    'please.try.again': 'Please try again',
+    'no.data.found': 'No data found',
+    'loading.data': 'Loading data...',
+    'saving.data': 'Saving data...',
+    'updating.data': 'Updating data...',
+    'deleting.data': 'Deleting data...',
     'error': 'Error',
     'failed.to.save.settings': 'Failed to save general settings',
     'failed.to.load.settings': 'Failed to load general settings'
@@ -394,7 +431,7 @@ const translations: LanguageTranslations = {
 };
 
 class TranslationService {
-  private currentLanguage: string = 'Portuguese';
+  private currentLanguage: string = 'English';
 
   setLanguage(language: string) {
     this.currentLanguage = language;

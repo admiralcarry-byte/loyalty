@@ -55,7 +55,7 @@ class GeneralSettingsService extends BaseService {
         currency: 'AOA',
         app_description: 'Premium Water Loyalty Program',
         timezone: 'Africa/Luanda',
-        language: 'Portuguese',
+        language: 'English',
         is_active: true
       };
       
