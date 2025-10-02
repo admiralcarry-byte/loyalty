@@ -14,7 +14,7 @@ const translations: LanguageTranslations = {
     'system.active': 'Sistema Ativo',
     'save.all': 'Salvar Tudo',
     'refresh': 'Atualizar',
-    'loading': 'Carregando...',
+    'loading': 'Loading...',
     'save': 'Salvar',
     'cancel': 'Cancelar',
     'edit': 'Editar',
@@ -117,8 +117,8 @@ const translations: LanguageTranslations = {
     'ready.for.promotion': 'Pronto para Promoção',
     'in.progress': 'Em Progresso',
     'no.promotion.candidates': 'Nenhum candidato à promoção encontrado',
-    'loading.level.requirements': 'Carregando requisitos de nível...',
-    'loading.promotion.candidates': 'Carregando candidatos à promoção...',
+    'loading.level.requirements': 'Loading level requirements...',
+    'loading.promotion.candidates': 'Loading promotion candidates...',
     'failed.to.load.influencer.data': 'Falha ao carregar dados de influenciadores. Tente novamente.',
     
     // Users
@@ -188,10 +188,10 @@ const translations: LanguageTranslations = {
     'data.deleted.successfully': 'Dados excluídos com sucesso',
     'please.try.again': 'Tente novamente',
     'no.data.found': 'Nenhum dado encontrado',
-    'loading.data': 'Carregando dados...',
-    'saving.data': 'Salvando dados...',
-    'updating.data': 'Atualizando dados...',
-    'deleting.data': 'Excluindo dados...',
+    'loading.data': 'Loading data...',
+    'saving.data': 'Saving data...',
+    'updating.data': 'Updating data...',
+    'deleting.data': 'Deleting data...',
     
     // Database Management
     'database.management': 'Gerenciamento de Banco de Dados',
@@ -201,7 +201,7 @@ const translations: LanguageTranslations = {
     'backup.database': 'Fazer Backup do Banco',
     'delete.database': 'Excluir Banco de Dados',
     'select.language': 'Selecionar Idioma',
-    'refreshing': 'Atualizando...',
+    'refreshing': 'Refreshing...',
     'join.status.checked': 'Status de Junção Verificado',
     'database.join.optimized': 'A estrutura de junção do banco de dados está otimizada',
     'cache.cleaned': 'Cache Limpo',
