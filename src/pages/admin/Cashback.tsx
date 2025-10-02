@@ -114,7 +114,7 @@ const Cashback = () => {
     const baseRate = cashbackSettings.base_cashback_rate || cashbackSettings.baseCashbackRate || 0;
     const tierBenefits = cashbackSettings.tier_benefits || cashbackSettings.tierBenefits;
     const multiplier = tierBenefits?.[tier as keyof typeof tierBenefits]?.multiplier || 1.0;
-    return (liters * baseRate * multiplier) / 100;
+    return (liters * baseRate * multiplier); // Amount per liter (not percentage)
   };
 
   // Fetch cashback stats and settings from API
@@ -602,16 +602,16 @@ const Cashback = () => {
                     </div>
                     <div className="space-y-2">
                       <div className="text-sm">
+                        <span className="text-muted-foreground">10L: </span>
+                        <span className="font-medium">${calculateCashback(10, tier).toFixed(2)}</span>
+                      </div>
+                      <div className="text-sm">
                         <span className="text-muted-foreground">25L: </span>
                         <span className="font-medium">${calculateCashback(25, tier).toFixed(2)}</span>
                       </div>
                       <div className="text-sm">
                         <span className="text-muted-foreground">50L: </span>
                         <span className="font-medium">${calculateCashback(50, tier).toFixed(2)}</span>
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">100L: </span>
-                        <span className="font-medium">${calculateCashback(100, tier).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

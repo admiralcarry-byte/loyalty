@@ -489,8 +489,8 @@ class WalletIntegrationService {
   }
 
   // Utility Methods
-  formatCurrency(amount: number, currency: string): string {
-    return new Intl.NumberFormat('en-US', {
+  formatCurrency(amount: number, currency: string = 'AOA'): string {
+    return new Intl.NumberFormat('pt-AO', {
       style: 'currency',
       currency: currency,
     }).format(amount);

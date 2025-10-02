@@ -3,6 +3,7 @@ import { ADMIN_CONFIG } from '@/config/adminConfig';
 export interface LoginCredentials {
   email: string;
   password: string;
+  influencerPhone?: string;
 }
 
 export interface User {
@@ -16,6 +17,7 @@ export interface User {
   phone?: string;
   referral_code?: string;
   referred_by?: string;
+  referred_by_phone?: string;
   loyalty_tier: 'lead' | 'silver' | 'gold' | 'platinum';
   points_balance: number;
   liter_balance: number;
@@ -160,6 +162,29 @@ class AuthService {
     });
   }
 
+  async checkAdminRegistrationStatus(): Promise<{ 
+    success: boolean; 
+    data: { enabled: boolean; message: string } 
+  }> {
+    return this.request<{ 
+      success: boolean; 
+      data: { enabled: boolean; message: string } 
+    }>('/auth/admin-registration-status');
+  }
+
+  async registerAdmin(userData: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+  }): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/register-admin', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
   async changePassword(data: {
     currentPassword: string;
     newPassword: string;
@@ -183,6 +208,17 @@ class AuthService {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
+
+  hasRole(role: string): boolean {
+    const user = this.getUser();
+    return user ? user.role === role : false;
+  }
+
+  hasAnyRole(roles: string[]): boolean {
+    const user = this.getUser();
+    return user ? roles.includes(user.role) : false;
+  }
+
 
   setAuthData(token: string, refreshToken: string, user: User): void {
     localStorage.setItem('token', token);

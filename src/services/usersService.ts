@@ -186,6 +186,42 @@ class UsersService {
   async getInfluencerPerformance(): Promise<{ success: boolean; data: any }> {
     return this.request<{ success: boolean; data: any }>('/users/influencer-performance');
   }
+
+  async getRecentUsers(limit: number = 4): Promise<{ success: boolean; data: any[] }> {
+    return this.request<{ success: boolean; data: any[] }>(`/users/recent?limit=${limit}`);
+  }
+
+  // Get influencer by phone number
+  async getInfluencerByPhone(phone: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await this.request(`/users/influencer-by-phone/${phone}`, {
+        method: 'GET',
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching influencer by phone:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch influencer data'
+      };
+    }
+  }
+
+  // Get user's level progress
+  async getMyLevelProgress(): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await this.request(`/auth/my-level-progress`, {
+        method: 'GET',
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching level progress:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch level progress'
+      };
+    }
+  }
 }
 
 export const usersService = new UsersService(); 

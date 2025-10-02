@@ -6,6 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
 import { authService } from "@/services/authService";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 import {
   Table,
   TableBody,
@@ -86,6 +94,9 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 const Users = () => {
@@ -168,47 +179,32 @@ const Users = () => {
     }
   };
 
-  // Auto-login function
-  const autoLogin = async () => {
+  // Check authentication and fetch data
+  const checkAuthAndFetch = async () => {
     try {
-      const response = await authService.login({
-        email: 'admin@aguatwezah.com',
-        password: 'admin123'
-      });
-      
-      if (response.success) {
-        authService.setAuthData(
-          response.data.accessToken,
-          response.data.refreshToken,
-          response.data.user
-        );
-        
-        toast({
-          title: "Auto-login Successful",
-          description: "Logged in as admin user",
-        });
-        
-        // Now fetch users
-        fetchUsers();
-      } else {
-        setError('Auto-login failed: ' + response.message);
+      // Check if user is authenticated
+      if (!authService.isAuthenticated()) {
+        setError('Please log in to access the users page');
+        return;
       }
+
+      // Check if user has admin role
+      const user = authService.getUser();
+      if (!user || user.role !== 'admin') {
+        setError('Access denied: Admin privileges required');
+        return;
+      }
+
+      // Fetch users
+      fetchUsers();
     } catch (err: any) {
-      setError('Auto-login failed: ' + err.message);
+      setError('Authentication check failed: ' + err.message);
     }
   };
 
   // Load users on component mount
   useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Auto-login with test credentials
-      autoLogin();
-      return;
-    }
-    
-    fetchUsers();
+    checkAuthAndFetch();
   }, []);
 
   // Auto-refresh influencer data every 30 seconds when viewing influencer network
@@ -328,7 +324,7 @@ const Users = () => {
     liters: user.total_liters || 0, // Now using actual sales data
     cashback: user.total_cashback || 0, // Now using actual cashback from transactions
     commission: user.total_commission || 0, // Now using actual commission from transactions
-    referrals: 0, // This would need to be calculated from referral data
+    referrals: user.referral_count || 0, // Use the referral count from backend
     joinDate: user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown',
     status: user.status,
     influencer: user.referred_by_name || null
@@ -586,10 +582,30 @@ const Users = () => {
         </Badge>
       </TableCell>
       <TableCell>
-        <Badge variant={getTierBadgeVariant(user.tier)} className="flex items-center gap-1 w-fit">
-          {getTierIcon(user.tier)}
-          {user.tier}
-        </Badge>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant={getTierBadgeVariant(user.tier)} className="flex items-center gap-1 w-fit">
+                {getTierIcon(user.tier)}
+                {user.tier}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-sm">
+                <div className="font-medium">{user.tier} Tier</div>
+                <div className="text-muted-foreground">
+                  {user.tier === 'Lead' && '0+ liters required'}
+                  {user.tier === 'Silver' && '50+ liters required'}
+                  {user.tier === 'Gold' && '80+ liters required'}
+                  {user.tier === 'Platinum' && '100+ liters required'}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Current: {user.liters || 0}L
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </TableCell>
       <TableCell>
         {user.type === "customer" ? (
@@ -605,15 +621,13 @@ const Users = () => {
         )}
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 text-success">
-          <DollarSign className="w-4 h-4" />
-          ${user.cashback}
+        <div className="text-success">
+          {formatCurrency(user.cashback)}
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 text-primary">
-          <DollarSign className="w-4 h-4" />
-          ${user.commission}
+        <div className="text-primary">
+          {formatCurrency(user.commission)}
         </div>
       </TableCell>
       <TableCell>
@@ -677,46 +691,15 @@ const Users = () => {
     const clientsNeeded = Math.max(0, minimumRequired - activeClients);
 
     // Generate dynamic chart data based on real influencer data and historical patterns
-    const generateMonthlyFeesData = (influencer: any) => {
-      const baseCommission = influencer.commission || 0;
+    const generateMonthlyLitersData = (influencer: any) => {
       const networkSize = influencer.referrals || 0;
       const isEligible = networkSize >= 50;
       
       // Use deterministic calculation based on influencer ID for consistent data
       const influencerSeed = influencer.id ? influencer.id.toString().charCodeAt(0) : 1;
       
-      // Base monthly fee calculation based on network size and commission
-      const baseMonthlyFee = isEligible ? baseCommission / 6 : baseCommission / 12;
-      
-      // Generate consistent monthly variations based on influencer characteristics
-      const monthlyMultipliers = [
-        0.8 + (influencerSeed % 10) * 0.04,  // Jan: 0.8-1.2
-        0.9 + ((influencerSeed + 1) % 10) * 0.04,  // Feb: 0.9-1.3
-        0.85 + ((influencerSeed + 2) % 10) * 0.04, // Mar: 0.85-1.25
-        1.0 + ((influencerSeed + 3) % 10) * 0.04,  // Apr: 1.0-1.4
-        1.1 + ((influencerSeed + 4) % 10) * 0.04,  // May: 1.1-1.5
-        1.2 + ((influencerSeed + 5) % 10) * 0.04,  // Jun: 1.2-1.6
-      ];
-      
-      return [
-        { month: "Jan", fees: Math.round(baseMonthlyFee * monthlyMultipliers[0]) },
-        { month: "Feb", fees: Math.round(baseMonthlyFee * monthlyMultipliers[1]) },
-        { month: "Mar", fees: Math.round(baseMonthlyFee * monthlyMultipliers[2]) },
-        { month: "Apr", fees: Math.round(baseMonthlyFee * monthlyMultipliers[3]) },
-        { month: "May", fees: Math.round(baseMonthlyFee * monthlyMultipliers[4]) },
-        { month: "Jun", fees: Math.round(baseMonthlyFee * monthlyMultipliers[5]) },
-      ];
-    };
-
-    const generateMonthlyPurchasesData = (influencer: any) => {
-      const networkSize = influencer.referrals || 0;
-      const isEligible = networkSize >= 50;
-      
-      // Use deterministic calculation based on influencer ID for consistent data
-      const influencerSeed = influencer.id ? influencer.id.toString().charCodeAt(0) : 1;
-      
-      // Base purchase calculation based on network size and eligibility
-      const baseMonthlyPurchases = isEligible ? networkSize * 15 : networkSize * 8;
+      // Base monthly liters calculation based on network size and activity
+      const baseMonthlyLiters = isEligible ? networkSize * 25 : networkSize * 15;
       
       // Generate consistent monthly variations based on influencer characteristics
       const monthlyMultipliers = [
@@ -729,17 +712,48 @@ const Users = () => {
       ];
       
       return [
-        { month: "Jan", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[0]) },
-        { month: "Feb", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[1]) },
-        { month: "Mar", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[2]) },
-        { month: "Apr", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[3]) },
-        { month: "May", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[4]) },
-        { month: "Jun", purchases: Math.round(baseMonthlyPurchases * monthlyMultipliers[5]) },
+        { month: "Jan", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[0]) },
+        { month: "Feb", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[1]) },
+        { month: "Mar", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[2]) },
+        { month: "Apr", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[3]) },
+        { month: "May", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[4]) },
+        { month: "Jun", liters: Math.round(baseMonthlyLiters * monthlyMultipliers[5]) },
       ];
     };
 
-    const monthlyFeesData = generateMonthlyFeesData(selectedInfluencer);
-    const monthlyPurchasesData = generateMonthlyPurchasesData(selectedInfluencer);
+    const generateMonthlyCommissionData = (influencer: any) => {
+      const networkSize = influencer.referrals || 0;
+      const isEligible = networkSize >= 50;
+      const baseCommission = influencer.commission || 0;
+      
+      // Use deterministic calculation based on influencer ID for consistent data
+      const influencerSeed = influencer.id ? influencer.id.toString().charCodeAt(0) : 1;
+      
+      // Base monthly commission calculation based on network size and commission rate
+      const baseMonthlyCommission = isEligible ? baseCommission / 6 : baseCommission / 12;
+      
+      // Generate consistent monthly variations based on influencer characteristics
+      const monthlyMultipliers = [
+        0.8 + (influencerSeed % 10) * 0.04,  // Jan: 0.8-1.2
+        0.9 + ((influencerSeed + 1) % 10) * 0.04,  // Feb: 0.9-1.3
+        0.85 + ((influencerSeed + 2) % 10) * 0.04, // Mar: 0.85-1.25
+        1.0 + ((influencerSeed + 3) % 10) * 0.04,  // Apr: 1.0-1.4
+        1.1 + ((influencerSeed + 4) % 10) * 0.04,  // May: 1.1-1.5
+        1.2 + ((influencerSeed + 5) % 10) * 0.04,  // Jun: 1.2-1.6
+      ];
+      
+      return [
+        { month: "Jan", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[0]) },
+        { month: "Feb", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[1]) },
+        { month: "Mar", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[2]) },
+        { month: "Apr", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[3]) },
+        { month: "May", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[4]) },
+        { month: "Jun", commission: Math.round(baseMonthlyCommission * monthlyMultipliers[5]) },
+      ];
+    };
+
+    const monthlyLitersData = generateMonthlyLitersData(selectedInfluencer);
+    const monthlyCommissionData = generateMonthlyCommissionData(selectedInfluencer);
 
     return (
       <div className="space-y-6">
@@ -843,12 +857,12 @@ const Users = () => {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
               <div className="p-2 rounded-lg bg-gradient-to-br from-accent to-accent/80">
-                <DollarSign className="h-4 w-4 text-white" />
+                <UsersIcon className="h-4 w-4 text-white" />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-accent">
-                ${selectedInfluencer.commission || 0}
+                {formatCurrency(selectedInfluencer.commission || 0)}
               </div>
               <div className="flex items-center text-xs text-success font-medium">
                 <TrendingUp className="w-3 h-3 mr-1" />
@@ -873,60 +887,84 @@ const Users = () => {
                <h3 className="text-lg font-semibold">Performance Analytics</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 {/* Monthly Service Fees Chart */}
+                 {/* Monthly Liters Chart */}
                  <Card>
                    <CardHeader>
-                     <CardTitle>Monthly Service Fees</CardTitle>
-                     <CardDescription>Fees received from influencer network</CardDescription>
+                     <CardTitle>Monthly Liters Purchased</CardTitle>
+                     <CardDescription>Total liters purchased by all customers affiliated with this influencer</CardDescription>
                    </CardHeader>
                    <CardContent>
                      <ResponsiveContainer width="100%" height={250}>
-                       <RechartsBarChart data={monthlyFeesData}>
+                       <LineChart data={monthlyLitersData}>
                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                         <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                         <YAxis stroke="hsl(var(--muted-foreground))" />
+                         <XAxis 
+                           dataKey="month" 
+                           stroke="hsl(var(--muted-foreground))"
+                           fontSize={12}
+                         />
+                         <YAxis 
+                           stroke="hsl(var(--muted-foreground))"
+                           fontSize={12}
+                           tickFormatter={(value) => `${value}L`}
+                         />
                          <RechartsTooltip 
                            contentStyle={{
                              backgroundColor: "hsl(var(--card))",
                              border: "1px solid hsl(var(--border))",
                              borderRadius: "8px"
                            }}
+                           formatter={(value: any) => [`${value} Liters`, 'Total Liters']}
+                           labelFormatter={(label) => `Month: ${label}`}
                          />
-                         <Bar 
-                           dataKey="fees" 
-                           fill="hsl(var(--water-blue))" 
-                           radius={[4, 4, 0, 0]}
-                           name="Fees ($)"
+                         <Legend />
+                         <Line 
+                           type="monotone"
+                           dataKey="liters" 
+                           stroke="hsl(var(--water-blue))" 
+                           strokeWidth={3}
+                           dot={{ fill: "hsl(var(--water-blue))", strokeWidth: 2, r: 4 }}
+                           name="Liters Purchased"
                          />
-                       </RechartsBarChart>
+                       </LineChart>
                      </ResponsiveContainer>
                    </CardContent>
                  </Card>
 
-                 {/* Monthly Purchases Chart */}
+                 {/* Monthly Commission Chart */}
                  <Card>
                    <CardHeader>
-                     <CardTitle>Monthly Purchases</CardTitle>
-                     <CardDescription>Purchases generated from influencer network</CardDescription>
+                     <CardTitle>Monthly Commission Earned</CardTitle>
+                     <CardDescription>Total commission earned by all customers affiliated with this influencer</CardDescription>
                    </CardHeader>
                    <CardContent>
                      <ResponsiveContainer width="100%" height={250}>
-                       <RechartsBarChart data={monthlyPurchasesData}>
+                       <RechartsBarChart data={monthlyCommissionData}>
                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                         <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                         <YAxis stroke="hsl(var(--muted-foreground))" />
+                         <XAxis 
+                           dataKey="month" 
+                           stroke="hsl(var(--muted-foreground))"
+                           fontSize={12}
+                         />
+                         <YAxis 
+                           stroke="hsl(var(--muted-foreground))"
+                           fontSize={12}
+                           tickFormatter={(value) => formatCurrency(value)}
+                         />
                          <RechartsTooltip 
                            contentStyle={{
                              backgroundColor: "hsl(var(--card))",
                              border: "1px solid hsl(var(--border))",
                              borderRadius: "8px"
                            }}
+                           formatter={(value: any) => [formatCurrency(value), 'Commission Earned']}
+                           labelFormatter={(label) => `Month: ${label}`}
                          />
+                         <Legend />
                          <Bar 
-                           dataKey="purchases" 
+                           dataKey="commission" 
                            fill="hsl(var(--success))" 
                            radius={[4, 4, 0, 0]}
-                           name="Purchases (L)"
+                           name="Commission Earned"
                          />
                        </RechartsBarChart>
                      </ResponsiveContainer>
@@ -1097,7 +1135,7 @@ const Users = () => {
                      <div className="grid grid-cols-2 gap-2">
                        <div className="p-2 bg-gradient-to-r from-green-50 to-green-100 rounded text-center">
                          <div className="text-xs text-muted-foreground">Total Earnings</div>
-                         <div className="font-semibold text-green-700">${selectedInfluencer.commission || 0}</div>
+                         <div className="font-semibold text-green-700">{formatCurrency(selectedInfluencer.commission || 0)}</div>
                        </div>
                        <div className="p-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded text-center">
                          <div className="text-xs text-muted-foreground">Network Size</div>
@@ -1528,16 +1566,14 @@ const Users = () => {
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm text-gray-600">Total Cashback</div>
-                      <div className="font-medium text-green-600 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        ${viewingUser.cashback || 0}
+                      <div className="font-medium text-green-600">
+                        {formatCurrency(viewingUser.cashback || 0)}
                       </div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm text-gray-600">Total Commission</div>
-                      <div className="font-medium text-blue-600 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        ${viewingUser.commission || 0}
+                      <div className="font-medium text-blue-600">
+                        {formatCurrency(viewingUser.commission || 0)}
                       </div>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
@@ -1557,7 +1593,7 @@ const Users = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <div className="text-sm text-purple-700">Commission Earned</div>
-                        <div className="font-medium text-purple-900">${viewingUser.commission || 0}</div>
+                        <div className="font-medium text-purple-900">{formatCurrency(viewingUser.commission || 0)}</div>
                       </div>
                       <div>
                         <div className="text-sm text-purple-700">Referrals</div>
@@ -1636,12 +1672,12 @@ const Users = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Cashback</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-accent to-accent/80">
-              <DollarSign className="h-4 w-4 text-white" />
+              <UsersIcon className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">
-              ${customers.reduce((sum, user) => sum + user.cashback, 0).toFixed(2)}
+                {formatCurrency(customers.reduce((sum, user) => sum + user.cashback, 0))}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />

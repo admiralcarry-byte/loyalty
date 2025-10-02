@@ -3,6 +3,14 @@ import { salesService, Sale } from "@/services/salesService";
 import { dashboardService } from "@/services/dashboardService";
 import { formatDateTime } from "@/utils/dateUtils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +52,7 @@ import {
   Droplets,
   DollarSign,
   Users,
+  Users as UsersIcon,
   AlertCircle,
   CheckCircle,
   XCircle,
@@ -261,21 +270,18 @@ const Sales = () => {
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 font-medium text-green-600">
-          <DollarSign className="w-4 h-4" />
-          {sale.amount.toFixed(2)}
+        <div className="font-medium text-green-600">
+          {formatCurrency(sale.amount)}
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 text-sm">
-          <DollarSign className="w-4 h-4 text-primary" />
-          {sale.cashback.toFixed(2)}
+        <div className="text-sm">
+          {formatCurrency(sale.cashback)}
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 text-sm">
-          <DollarSign className="w-4 h-4 text-accent" />
-          {sale.commission.toFixed(2)}
+        <div className="text-sm">
+          {formatCurrency(sale.commission)}
         </div>
       </TableCell>
       <TableCell>
@@ -405,7 +411,7 @@ const Sales = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">${totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalRevenue)}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
               +0.0% this month
@@ -433,11 +439,11 @@ const Sales = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Cashback</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
-              <DollarSign className="h-4 w-4 text-white" />
+              <UsersIcon className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">${totalCashback.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-purple-600">{formatCurrency(totalCashback)}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
               +0.0% this month
@@ -453,7 +459,7 @@ const Sales = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">${totalCommission.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-orange-600">{formatCurrency(totalCommission)}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
               +0.0% this month
@@ -703,15 +709,15 @@ const Sales = () => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Amount</Label>
-                    <div className="font-medium">${viewingSale.amount.toFixed(2)}</div>
+                    <div className="font-medium">{formatCurrency(viewingSale.amount)}</div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Cashback Earned</Label>
-                    <div className="font-medium text-green-600">${viewingSale.cashback.toFixed(2)}</div>
+                    <div className="font-medium text-green-600">{formatCurrency(viewingSale.cashback)}</div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Commission</Label>
-                    <div className="font-medium text-purple-600">${viewingSale.commission.toFixed(2)}</div>
+                    <div className="font-medium text-purple-600">{formatCurrency(viewingSale.commission)}</div>
                   </div>
                 </div>
               </div>

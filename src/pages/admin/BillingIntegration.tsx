@@ -17,12 +17,20 @@ import {
   Phone,
   Mail,
   ShoppingCart,
-  DollarSign,
+  Coins,
   Building,
   TestTube
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 
 interface InvoiceFormData {
   purchaserName: string;
@@ -363,7 +371,7 @@ const BillingIntegration = () => {
             <p><strong>Phone:</strong> ${invoiceData.phoneNumber}</p>
             <p><strong>Email:</strong> ${invoiceData.email}</p>
             <p><strong>Liters Purchased:</strong> ${invoiceData.litersPurchased}</p>
-            <p><strong>Amount:</strong> R$ ${invoiceData.amount.toFixed(2)}</p>
+                <p><strong>Amount:</strong> {formatCurrency(invoiceData.amount)}</p>
             <p><strong>Store Number:</strong> ${invoiceData.storeNumber}</p>
           </div>
           <div class="qr-code">
@@ -678,7 +686,7 @@ const BillingIntegration = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="amount">Amount (R$) *</Label>
+                          <Label htmlFor="amount">Amount (Kz) *</Label>
                           <Input
                             id="amount"
                             type="number"
@@ -899,10 +907,13 @@ const BillingIntegration = () => {
                                   <p><strong>Email:</strong> {receiptAnalysis.ocrData.extractedData.email}</p>
                                   <p><strong>Invoice #:</strong> {receiptAnalysis.ocrData.extractedData.invoiceNumber}</p>
                                   <p><strong>Liters:</strong> {receiptAnalysis.ocrData.extractedData.litersPurchased}</p>
-                                  <p><strong>Amount:</strong> R$ {receiptAnalysis.ocrData.extractedData.amount.toFixed(2)}</p>
+                                  <p><strong>Amount:</strong> {formatCurrency(receiptAnalysis.ocrData.extractedData.amount)}</p>
                                   <p><strong>Store:</strong> {receiptAnalysis.ocrData.extractedData.storeNumber}</p>
                                   <p><strong>Date:</strong> {receiptAnalysis.ocrData.extractedData.date}</p>
                                   <p><strong>Payment:</strong> {receiptAnalysis.ocrData.extractedData.paymentMethod}</p>
+                                  {receiptAnalysis.ocrData.extractedData.cashback > 0 && (
+                                    <p><strong>Cashback:</strong> {formatCurrency(receiptAnalysis.ocrData.extractedData.cashback)}</p>
+                                  )}
                                 </div>
                                 <div className="mt-3 pt-2 border-t border-blue-200">
                                   <p className="text-xs text-blue-600">
@@ -933,11 +944,14 @@ const BillingIntegration = () => {
                                   <div className="grid grid-cols-2 gap-2">
                                     <p><strong>Receipt ID:</strong> {receiptAnalysis.qrData.extractedFields.receiptId}</p>
                                     <p><strong>Store #:</strong> {receiptAnalysis.qrData.extractedFields.storeNumber}</p>
-                                    <p><strong>Amount:</strong> R$ {receiptAnalysis.qrData.extractedFields.amount.toFixed(2)}</p>
+                                    <p><strong>Amount:</strong> {formatCurrency(receiptAnalysis.qrData.extractedFields.amount)}</p>
                                     <p><strong>Date:</strong> {receiptAnalysis.qrData.extractedFields.date}</p>
                                     <p><strong>Verification:</strong> {receiptAnalysis.qrData.extractedFields.verificationCode}</p>
                                     <p><strong>Customer Name:</strong> {receiptAnalysis.qrData.extractedFields.customerName}</p>
                                     <p><strong>Transaction:</strong> {receiptAnalysis.qrData.extractedFields.transactionId}</p>
+                                    {receiptAnalysis.qrData.extractedFields.cashback > 0 && (
+                                      <p><strong>Cashback:</strong> {formatCurrency(receiptAnalysis.qrData.extractedFields.cashback)}</p>
+                                    )}
                                   </div>
                                   <div className="mt-3 pt-2 border-t border-green-200">
                                     <p className="text-xs text-green-600">
@@ -991,10 +1005,9 @@ const BillingIntegration = () => {
                 </Dialog>
               </CardContent>
             </Card>
-              </div>
-            </CardContent>
-          </Card>
-
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,16 @@ const AdminLogin = () => {
       const response = await authService.login(credentials);
       
       if (response.success) {
+        // Check if user has admin role
+        if (response.data.user.role !== 'admin') {
+          toast({
+            title: "Access Denied",
+            description: "Only administrators can access the admin panel",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Store authentication data
         authService.setAuthData(
           response.data.accessToken,
@@ -113,10 +123,16 @@ const AdminLogin = () => {
             </Button>
           </form>
           
-          <div className="mt-4 text-center">
+          <div className="mt-4 text-center space-y-2">
             <Button variant="link" className="text-sm">
               Forgot password?
             </Button>
+            <div className="text-sm text-muted-foreground">
+              Don't have an account?{" "}
+              <Link to="/admin/register" className="text-water-blue hover:underline">
+                Register here
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

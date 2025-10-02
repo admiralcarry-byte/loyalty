@@ -13,6 +13,15 @@ export interface GeneralSettings {
   updatedAt?: string;
 }
 
+export interface SettingsStatistics {
+  activeSettings: number;
+  savedChanges: number;
+  systemStatus: number;
+  userGrowth: number;
+  changeGrowth: number;
+  lastUpdated: string;
+}
+
 class GeneralSettingsService extends BaseService {
   private cachedSettings: GeneralSettings | null = null;
   private cacheTimestamp: number = 0;
@@ -43,7 +52,7 @@ class GeneralSettingsService extends BaseService {
       const defaultSettings = {
         app_name: 'ÁGUA TWEZAH',
         support_email: 'support@aguatwezah.com',
-        currency: 'USD',
+        currency: 'AOA',
         app_description: 'Premium Water Loyalty Program',
         timezone: 'Africa/Luanda',
         language: 'Portuguese',
@@ -76,6 +85,24 @@ class GeneralSettingsService extends BaseService {
     } catch (error) {
       console.error('Error updating general settings:', error);
       throw error;
+    }
+  }
+
+  async getSettingsStatistics(): Promise<SettingsStatistics> {
+    try {
+      const response = await this.request<{ success: boolean; data: SettingsStatistics }>('/general-settings/statistics');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching settings statistics:', error);
+      // Return default values if API fails
+      return {
+        activeSettings: 0,
+        savedChanges: 0,
+        systemStatus: 0,
+        userGrowth: 0,
+        changeGrowth: 0,
+        lastUpdated: new Date().toISOString()
+      };
     }
   }
 }

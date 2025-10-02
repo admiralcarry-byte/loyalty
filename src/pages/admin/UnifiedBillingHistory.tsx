@@ -150,10 +150,10 @@ const UnifiedBillingHistory = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(amount);
+    return new Intl.NumberFormat('pt-AO', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount) + ' Kz';
   };
 
   return (

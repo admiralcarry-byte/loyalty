@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { reportsService, MonthlyStats, TierDistribution, TopInfluencer } from "@/services/reportsService";
+import { reportsService, MonthlyStats, TierDistribution } from "@/services/reportsService";
 import { dashboardService, DashboardStats } from "@/services/dashboardService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { 
   BarChart, 
   Bar, 
@@ -28,31 +28,38 @@ import {
 } from "recharts";
 import { 
   TrendingUp, 
-  Users, 
   DollarSign, 
   Droplets,
-  Calendar
+  Calendar,
+  RefreshCw,
+  Users as UsersIcon
 } from "lucide-react";
 
 const Reports = () => {
   // State for reports data
   const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
   const [tierDistribution, setTierDistribution] = useState<TierDistribution[]>([]);
-  const [topInfluencers, setTopInfluencers] = useState<TopInfluencer[]>([]);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fetch reports data
-  const fetchReportsData = async () => {
+  const fetchReportsData = async (isRefresh = false) => {
     try {
-      setIsLoading(true);
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
       
-      const [overviewResponse, loyaltyResponse, influencerResponse, dashboardResponse] = await Promise.all([
-        reportsService.getOverviewReport(),
-        reportsService.getLoyaltyReport(),
-        reportsService.getInfluencerReport(),
+      // Add timestamp to force fresh data and prevent caching
+      const timestamp = Date.now();
+      
+      const [overviewResponse, loyaltyResponse, dashboardResponse] = await Promise.all([
+        reportsService.getOverviewReport({ _t: timestamp }),
+        reportsService.getLoyaltyReport({ _t: timestamp }),
         dashboardService.getDashboardData()
       ]);
 
@@ -64,10 +71,6 @@ const Reports = () => {
         setTierDistribution(loyaltyResponse.data.tierDistribution || []);
       }
 
-      if (influencerResponse.success) {
-        setTopInfluencers(influencerResponse.data.topInfluencers || []);
-      }
-
       if (dashboardResponse.success) {
         setDashboardStats(dashboardResponse.data);
       }
@@ -75,12 +78,21 @@ const Reports = () => {
       setError(err.message || 'Failed to load reports data');
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   // Load reports data on component mount
   useEffect(() => {
     fetchReportsData();
+    
+    // Set up automatic refresh every 30 seconds
+    const refreshInterval = setInterval(() => {
+      fetchReportsData(true);
+    }, 30000); // 30 seconds
+    
+    // Cleanup interval on component unmount
+    return () => clearInterval(refreshInterval);
   }, []);
 
   // Show loading state
@@ -140,6 +152,15 @@ const Reports = () => {
           </h1>
           <p className="text-muted-foreground mt-1">Comprehensive insights into your loyalty program performance</p>
         </div>
+        <Button 
+          onClick={() => fetchReportsData(true)} 
+          variant="outline" 
+          disabled={isRefreshing}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+        </Button>
       </div>
 
       {/* Enhanced KPI Cards */}
@@ -148,12 +169,12 @@ const Reports = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
-              <DollarSign className="h-4 w-4 text-white" />
+              <UsersIcon className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {isLoading ? '...' : `$${typeof dashboardStats?.salesStats?.totalRevenue === 'number' ? dashboardStats.salesStats.totalRevenue.toFixed(2) : '0.00'}`}
+              {isLoading ? '...' : formatCurrency(typeof dashboardStats?.salesStats?.totalRevenue === 'number' ? dashboardStats.salesStats.totalRevenue : 0)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
@@ -168,7 +189,7 @@ const Reports = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
-              <Users className="h-4 w-4 text-white" />
+              <TrendingUp className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
@@ -211,7 +232,7 @@ const Reports = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {isLoading ? '...' : `$${typeof dashboardStats?.salesStats?.averageOrderValue === 'number' ? dashboardStats.salesStats.averageOrderValue.toFixed(2) : '0.00'}`}
+              {isLoading ? '...' : formatCurrency(typeof dashboardStats?.salesStats?.averageOrderValue === 'number' ? dashboardStats.salesStats.averageOrderValue : 0)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
@@ -338,50 +359,6 @@ const Reports = () => {
         </Card>
       </div>
 
-      {/* Enhanced Top Influencers Table */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" />
-            Top Influencers Performance
-          </CardTitle>
-          <CardDescription>Highest performing influencers this month</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50/50">
-                <TableHead className="font-semibold">Rank</TableHead>
-                <TableHead className="font-semibold">Influencer</TableHead>
-                <TableHead className="font-semibold">Network Size</TableHead>
-                <TableHead className="font-semibold">Total Sales</TableHead>
-                <TableHead className="font-semibold">Commission Earned</TableHead>
-                <TableHead className="font-semibold">Performance</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {topInfluencers.map((influencer, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Badge variant={index < 3 ? "default" : "secondary"}>
-                      #{index + 1}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">{influencer.name}</TableCell>
-                  <TableCell>{influencer.network} users</TableCell>
-                  <TableCell>{influencer.sales}</TableCell>
-                  <TableCell className="font-bold text-success">{influencer.commission}</TableCell>
-                  <TableCell>
-                    <Badge variant={index < 2 ? "default" : index < 4 ? "secondary" : "outline"}>
-                      {index < 2 ? "Excellent" : index < 4 ? "Good" : "Average"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 };

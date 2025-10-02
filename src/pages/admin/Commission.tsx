@@ -3,23 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,46 +11,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import {
-  DollarSign,
+  Coins,
   Settings,
-  Users,
-  TrendingUp,
-  Crown,
-  Medal,
-  Gem,
-  Star,
   Save,
   X,
-  AlertCircle,
-  CheckCircle,
-  Eye,
-  Calendar,
   Percent,
   Plus,
   Loader2,
   Droplets,
+  Users as UsersIcon,
 } from "lucide-react";
 import { commissionService, CommissionStats } from "@/services/commissionService";
-import { payoutRequestService, PayoutRequest } from "@/services/payoutRequestService";
+import { tierRequirementsService, TierRequirement } from "@/services/tierRequirementsService";
 import { toast } from "sonner";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 
 const Commission = () => {
   const [editingSettings, setEditingSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commissionStats, setCommissionStats] = useState<CommissionStats | null>(null);
-  const [influencers, setInfluencers] = useState<any[]>([]);
-  const [selectedInfluencer, setSelectedInfluencer] = useState<any>(null);
-  const [showInfluencerModal, setShowInfluencerModal] = useState(false);
-  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
-  const [selectedPayoutRequest, setSelectedPayoutRequest] = useState<any>(null);
-  const [showPayoutModal, setShowPayoutModal] = useState(false);
   
   // Commission settings loaded from database
   const [commissionSettings, setCommissionSettings] = useState({
     base_commission_rate: 5.0, // percentage
+    cashback_rate: 2.0, // cashback per liter
     tier_multipliers: {
       lead: 1.0,
       silver: 1.2,
@@ -84,16 +60,24 @@ const Commission = () => {
   // Store original settings to detect changes
   const [originalSettings, setOriginalSettings] = useState(commissionSettings);
 
+  // Tier requirements state
+  const [tierRequirements, setTierRequirements] = useState<TierRequirement[]>([
+    { tier: 'lead', minimum_liters: 0, display_name: 'Lead', is_active: true },
+    { tier: 'silver', minimum_liters: 50, display_name: 'Silver', is_active: true },
+    { tier: 'gold', minimum_liters: 80, display_name: 'Gold', is_active: true },
+    { tier: 'platinum', minimum_liters: 100, display_name: 'Platinum', is_active: true }
+  ]);
+  const [originalTierRequirements, setOriginalTierRequirements] = useState<TierRequirement[]>([]);
+
   // Fetch commission statistics, influencer performance, settings, and rules from the database
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [statsResponse, influencersResponse, settingsResponse, payoutRequestsResponse] = await Promise.all([
+        const [statsResponse, settingsResponse, tierRequirementsResponse] = await Promise.all([
           commissionService.getCommissionStats(),
-          commissionService.getInfluencerPerformance(),
           commissionService.getCommissionSettings(),
-          payoutRequestService.getPayoutRequests() // Get ALL payout requests, not just pending ones
+          tierRequirementsService.getTierRequirements()
         ]);
         
         if (statsResponse.success) {
@@ -102,11 +86,6 @@ const Commission = () => {
           console.error('Failed to load commission stats:', statsResponse);
         }
         
-        if (influencersResponse.success) {
-          setInfluencers(influencersResponse.data);
-        } else {
-          console.error('Failed to load influencer performance:', influencersResponse);
-        }
 
         if (settingsResponse.success) {
           setCommissionSettings(settingsResponse.data);
@@ -116,10 +95,13 @@ const Commission = () => {
         }
 
 
-        if (payoutRequestsResponse.success) {
-          setPayoutRequests(payoutRequestsResponse.data); // data is already an array of payout requests
+
+        if (tierRequirementsResponse.success) {
+          console.log('Tier requirements loaded:', tierRequirementsResponse.data);
+          setTierRequirements(tierRequirementsResponse.data);
+          setOriginalTierRequirements(tierRequirementsResponse.data);
         } else {
-          console.error('Failed to load payout requests:', payoutRequestsResponse);
+          console.error('Failed to load tier requirements:', tierRequirementsResponse);
         }
       } catch (error) {
         console.error('Error fetching commission data:', error);
@@ -137,59 +119,39 @@ const Commission = () => {
     return JSON.stringify(commissionSettings) !== JSON.stringify(originalSettings);
   };
 
+  // Check if tier requirements have changed
+  const hasTierRequirementsChanged = () => {
+    return JSON.stringify(tierRequirements) !== JSON.stringify(originalTierRequirements);
+  };
+
+  // Handle tier requirement changes
+  const handleTierRequirementChange = (tier: string, field: keyof TierRequirement, value: any) => {
+    setTierRequirements(prev => 
+      prev.map(req => 
+        req.tier === tier ? { ...req, [field]: value } : req
+      )
+    );
+  };
+
   // Function to cancel changes and reset to original settings
   const handleCancelChanges = () => {
     setCommissionSettings(originalSettings);
+    setTierRequirements(originalTierRequirements);
     setEditingSettings(false);
     toast.info('Changes cancelled. Settings restored to original values.');
   };
 
-  // Function to handle viewing influencer details
-  const handleViewInfluencer = (influencer: any) => {
-    setSelectedInfluencer(influencer);
-    setShowInfluencerModal(true);
-  };
 
 
 
-  // Function to handle approving payout request
-  const handleApprovePayout = async (requestId: string) => {
-    try {
-      setLoading(true);
-      const response = await payoutRequestService.approvePayoutRequest(requestId);
-      
-      if (response.success) {
-        // Update the payout request status in the local state
-        setPayoutRequests(prev => 
-          prev.map(request => 
-            request._id === requestId 
-              ? { ...request, status: 'approved' as const, approval: { ...request.approval, approved_date: new Date().toISOString() } }
-              : request
-          )
-        );
-        
-        toast.success('Payout request approved successfully!');
-      } else {
-        toast.error('Failed to approve payout request');
-      }
-    } catch (error) {
-      console.error('Error approving payout request:', error);
-      toast.error('Failed to approve payout request');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to handle viewing payout request details
-  const handleViewPayoutRequest = (request: any) => {
-    setSelectedPayoutRequest(request);
-    setShowPayoutModal(true);
-  };
 
   // Save commission settings to database
   const handleSaveSettings = async () => {
     // Check if there are any changes
-    if (!hasSettingsChanged()) {
+    const settingsChanged = hasSettingsChanged();
+    const tierRequirementsChanged = hasTierRequirementsChanged();
+    
+    if (!settingsChanged && !tierRequirementsChanged) {
       toast.info('No changes detected. Settings remain unchanged.');
       setEditingSettings(false);
       return;
@@ -197,23 +159,63 @@ const Commission = () => {
 
     try {
       setLoading(true);
-      const response = await commissionService.saveCommissionSettings(commissionSettings);
       
-      if (response.success) {
-        toast.success('Commission settings updated successfully!');
-        setEditingSettings(false);
-        // Reload settings to get the latest from database
-        const settingsResponse = await commissionService.getCommissionSettings();
-        if (settingsResponse.success) {
-          setCommissionSettings(settingsResponse.data);
-          setOriginalSettings(settingsResponse.data);
+      // Save commission settings if changed
+      if (settingsChanged) {
+        const response = await commissionService.saveCommissionSettings(commissionSettings);
+        
+        if (!response.success) {
+          toast.error('Failed to update commission settings');
+          return;
         }
-      } else {
-        toast.error('Failed to update commission settings');
       }
+      
+      // Save tier requirements if changed
+      if (tierRequirementsChanged) {
+        console.log('Saving tier requirements:', tierRequirements);
+        
+        // Clean the data - only send required fields
+        const cleanRequirements = tierRequirements.map(req => ({
+          tier: req.tier,
+          minimum_liters: req.minimum_liters,
+          display_name: req.display_name,
+          description: req.description || '',
+          color: req.color || '#6B7280',
+          icon: req.icon || 'star',
+          is_active: req.is_active !== undefined ? req.is_active : true
+        }));
+        
+        console.log('Clean requirements being sent:', cleanRequirements);
+        const tierResponse = await tierRequirementsService.updateTierRequirements(cleanRequirements);
+        
+        if (!tierResponse.success) {
+          toast.error('Failed to update tier requirements');
+          return;
+        }
+      }
+      
+      toast.success('Settings updated successfully!');
+      setEditingSettings(false);
+      
+      // Reload all data to get the latest from database
+      const [settingsResponse, tierRequirementsResponse] = await Promise.all([
+        commissionService.getCommissionSettings(),
+        tierRequirementsService.getTierRequirements()
+      ]);
+      
+      if (settingsResponse.success) {
+        setCommissionSettings(settingsResponse.data);
+        setOriginalSettings(settingsResponse.data);
+      }
+      
+      if (tierRequirementsResponse.success) {
+        setTierRequirements(tierRequirementsResponse.data);
+        setOriginalTierRequirements(tierRequirementsResponse.data);
+      }
+      
     } catch (error) {
-      console.error('Error updating commission settings:', error);
-      toast.error('Failed to update commission settings');
+      console.error('Error updating settings:', error);
+      toast.error('Failed to update settings');
     } finally {
       setLoading(false);
     }
@@ -221,42 +223,6 @@ const Commission = () => {
 
   // Commission rules loaded from database
 
-  const getTierIcon = (tier: string) => {
-    switch (tier) {
-      case "Platinum": return <Crown className="w-4 h-4 text-loyalty-platinum" />;
-      case "Gold": return <Medal className="w-4 h-4 text-loyalty-gold" />;
-      case "Silver": return <Gem className="w-4 h-4 text-loyalty-silver" />;
-      default: return <Star className="w-4 h-4 text-accent" />;
-    }
-  };
-
-  const getTierBadgeVariant = (tier: string) => {
-    switch (tier) {
-      case "Platinum": return "default";
-      case "Gold": return "secondary";
-      case "Silver": return "outline";
-      default: return "secondary";
-    }
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "inactive":
-        return "secondary";
-      case "suspended":
-        return "destructive";
-      default:
-        return "secondary";
-    }
-  };
-
-  const calculateCommission = (sales: number, tier: string) => {
-    const baseRate = commissionSettings.base_commission_rate;
-    const multiplier = commissionSettings.tier_multipliers[tier.toLowerCase() as keyof typeof commissionSettings.tier_multipliers];
-    return (sales * baseRate * multiplier) / 100;
-  };
 
   // Calculate stats from commission records (consistent data source)
   const totalCommissionPaid = commissionStats?.total_paid_commissions || 0;
@@ -291,7 +257,7 @@ const Commission = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Paid Commissions</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-primary/80">
-              <Users className="h-4 w-4 text-white" />
+              <UsersIcon className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
@@ -308,12 +274,12 @@ const Commission = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Commission Paid</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
-              <DollarSign className="h-4 w-4 text-white" />
+              <Coins className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${totalPaidPayouts.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(totalPaidPayouts)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <span>Total approved payouts</span>
@@ -325,12 +291,12 @@ const Commission = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-warning to-warning/80">
-              <DollarSign className="h-4 w-4 text-white" />
+              <Coins className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${totalPendingPayouts.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(totalPendingPayouts)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <span>{pendingPayoutCount} pending commissions</span>
@@ -347,7 +313,7 @@ const Commission = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${avgCommissionAmount.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(avgCommissionAmount)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <span>Average payout amount</span>
@@ -356,14 +322,7 @@ const Commission = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="settings" className="w-full">
-        <TabsList>
-          <TabsTrigger value="settings">Commission Settings</TabsTrigger>
-          <TabsTrigger value="performance">Influencer Performance</TabsTrigger>
-          <TabsTrigger value="payouts">Payout Requests</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="settings" className="space-y-6">
+      <div className="space-y-6">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -424,6 +383,21 @@ const Commission = () => {
                 </div>
                 
                 <div className="space-y-2">
+                  <Label htmlFor="cashbackRate">Cashback Rate (Kz per liter)</Label>
+                                     <Input
+                     id="cashbackRate"
+                     type="number"
+                     value={commissionSettings.cashback_rate || 2.0}
+                     onChange={(e) => setCommissionSettings(prev => ({ ...prev, cashback_rate: parseFloat(e.target.value) }))}
+                     disabled={!editingSettings}
+                     step="0.1"
+                   />
+                  <p className="text-xs text-muted-foreground">
+                    Cashback amount in Kz awarded per liter purchased
+                  </p>
+                </div>
+                
+                {/* <div className="space-y-2">
                   <Label htmlFor="minimumUsers">Minimum Active Users</Label>
                                      <Input
                      id="minimumUsers"
@@ -435,10 +409,10 @@ const Commission = () => {
                   <p className="text-xs text-muted-foreground">
                     Minimum users required to earn commission
                   </p>
-                </div>
+                </div> */}
 
-                <div className="space-y-2">
-                  <Label htmlFor="payoutThreshold">Payout Threshold ($)</Label>
+                {/* <div className="space-y-2">
+                  <Label htmlFor="payoutThreshold">Payout Threshold (Kz)</Label>
                                      <Input
                      id="payoutThreshold"
                      type="number"
@@ -448,12 +422,12 @@ const Commission = () => {
                      step="1"
                    />
                   <p className="text-xs text-muted-foreground">
-                    Minimum amount required for payout
+                    Minimum amount in Kz required for payout
                   </p>
-                </div>
+                </div> */}
 
-                <div className="space-y-2">
-                  <Label htmlFor="commissionCap">Monthly Commission Cap ($)</Label>
+                {/* <div className="space-y-2">
+                  <Label htmlFor="commissionCap">Monthly Commission Cap (Kz)</Label>
                                      <Input
                      id="commissionCap"
                      type="number"
@@ -463,9 +437,9 @@ const Commission = () => {
                      step="1"
                    />
                   <p className="text-xs text-muted-foreground">
-                    Maximum commission per influencer per month
+                    Maximum commission in Kz per influencer per month
                   </p>
-                </div>
+                </div> */}
               </div>
 
               <div className="space-y-4">
@@ -474,7 +448,6 @@ const Commission = () => {
                   {Object.entries(commissionSettings.tier_multipliers).map(([tier, multiplier]) => (
                     <div key={tier} className="space-y-2">
                       <Label className="flex items-center gap-2">
-                        {getTierIcon(tier)}
                         {tier.charAt(0).toUpperCase() + tier.slice(1)}
                       </Label>
                                              <Input
@@ -496,6 +469,64 @@ const Commission = () => {
               </div>
 
               <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Tier Progression Requirements</h3>
+                  {editingSettings && hasTierRequirementsChanged() && (
+                    <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Unsaved changes"></span>
+                  )}
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Users automatically progress through tiers based on total liters purchased:
+                  </p>
+                  {tierRequirements.length === 0 && (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ No tier requirements found. Loading from database...
+                      </p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {tierRequirements.map((requirement) => (
+                      <div key={requirement.tier} className="flex items-center gap-3 p-3 bg-white rounded-lg border">
+                        <div className="flex-1">
+                          <div className="font-medium">{requirement.display_name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {editingSettings ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="number"
+                                  value={requirement.minimum_liters}
+                                  onChange={(e) => handleTierRequirementChange(requirement.tier, 'minimum_liters', parseInt(e.target.value) || 0)}
+                                  className="w-20 h-8"
+                                  min="0"
+                                />
+                                <span>+ liters</span>
+                              </div>
+                            ) : (
+                              `${requirement.minimum_liters}+ liters`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Droplets className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <div className="text-sm">
+                        <div className="font-medium text-blue-900">Automatic Progression</div>
+                        <div className="text-blue-700">
+                          User tiers are automatically updated when they make purchases based on the requirements above. 
+                          Commission rates are calculated using the tier multipliers from Commission Settings.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* <div className="space-y-4">
                 <h3 className="text-lg font-medium">Payout Settings</h3>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -530,416 +561,12 @@ const Commission = () => {
                      </SelectContent>
                    </Select>
                 </div>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Influencer Performance</CardTitle>
-              <CardDescription>Track individual influencer metrics and commission earnings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Influencer</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead>Network Size</TableHead>
-                    <TableHead>Sales (L)</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Growth</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {influencers.map((influencer, index) => (
-                    <TableRow key={influencer.id || `influencer-${index}`}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{influencer.name}</div>
-                          <div className="text-sm text-muted-foreground">{influencer.phone}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getTierBadgeVariant(influencer.tier)} className="flex items-center gap-1 w-fit">
-                          {getTierIcon(influencer.tier)}
-                          {influencer.tier}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4 text-primary" />
-                          {influencer.activeUsers || 0}
-                          {(influencer.activeUsers || 0) < commissionSettings.minimum_active_users && (
-                            <AlertCircle className="w-4 h-4 text-warning ml-1" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{influencer.totalSales || 0}L</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-success">
-                          <DollarSign className="w-4 h-4" />
-                          ${(influencer.monthlyCommission || 0).toFixed(2)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className={`flex items-center gap-1 ${(influencer.networkGrowth || 0) > 0 ? 'text-success' : 'text-destructive'}`}>
-                          <TrendingUp className="w-4 h-4" />
-                          {(influencer.networkGrowth || 0) > 0 ? '+' : ''}{(influencer.networkGrowth || 0).toFixed(1)}%
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(influencer.status)}>
-                          {influencer.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleViewInfluencer(influencer)}
-                          title="View influencer details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+      </div>
 
 
-        <TabsContent value="payouts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payout Requests</CardTitle>
-              <CardDescription>Review and process influencer payout requests</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Influencer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Bank Details</TableHead>
-                    <TableHead>Request Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {payoutRequests.filter(request => request.status === 'pending').map((request, index) => (
-                    <TableRow key={request._id || `payout-${index}`}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {request.user ? `${request.user.first_name} ${request.user.last_name}` : 'Unknown User'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {request.user?.phone || 'No phone'}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 font-medium">
-                          <DollarSign className="w-4 h-4" />
-                          ${request.amount.toFixed(2)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm text-muted-foreground">
-                          {request.bank_details.bic || request.bank_details.account_number}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(request.approval.requested_date).toLocaleDateString()}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{request.status}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="default"
-                            onClick={() => handleApprovePayout(request._id)}
-                            title="Approve payout request"
-                            disabled={loading}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleViewPayoutRequest(request)}
-                            title="View payout request details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Influencer Details Modal */}
-      <Dialog open={showInfluencerModal} onOpenChange={setShowInfluencerModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Influencer Details
-            </DialogTitle>
-            <DialogDescription>
-              Detailed information about {selectedInfluencer?.name}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedInfluencer && (
-            <div className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                  <p className="text-lg font-semibold">{selectedInfluencer.name}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                  <p className="text-lg">{selectedInfluencer.phone}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Tier</Label>
-                  <Badge variant={getTierBadgeVariant(selectedInfluencer.tier)} className="flex items-center gap-1 w-fit">
-                    {getTierIcon(selectedInfluencer.tier)}
-                    {selectedInfluencer.tier}
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <Badge variant={getStatusBadgeVariant(selectedInfluencer.status)}>
-                    {selectedInfluencer.status}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Performance Metrics */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Performance Metrics</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Network Size</Label>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span className="text-2xl font-bold">{selectedInfluencer.activeUsers}</span>
-                      {selectedInfluencer.activeUsers < commissionSettings.minimum_active_users && (
-                        <AlertCircle className="w-4 h-4 text-warning" title="Below minimum requirement" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Total Sales</Label>
-                    <div className="flex items-center gap-2">
-                      <Droplets className="w-4 h-4 text-water-blue" />
-                      <span className="text-2xl font-bold">{selectedInfluencer.totalSales}L</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Monthly Commission</Label>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-600" />
-                      <span className="text-2xl font-bold text-green-600">${(selectedInfluencer.monthlyCommission || 0).toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Pending Payout</Label>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-orange-600" />
-                      <span className="text-2xl font-bold text-orange-600">${(selectedInfluencer.pendingPayout || 0).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Commission Calculation */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Commission Calculation</h3>
-                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Base Commission Rate:</span>
-                    <span className="font-medium">{commissionSettings.base_commission_rate}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Tier Multiplier ({selectedInfluencer.tier}):</span>
-                    <span className="font-medium">{commissionSettings.tier_multipliers[selectedInfluencer.tier.toLowerCase()] || 1.0}x</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Sales Amount:</span>
-                    <span className="font-medium">${((selectedInfluencer.totalSales || 0) * 10).toFixed(2)}</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between font-semibold">
-                    <span>Calculated Commission:</span>
-                    <span className="text-green-600">${calculateCommission((selectedInfluencer.totalSales || 0) * 10, selectedInfluencer.tier || 'lead').toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Join Date */}
-              {selectedInfluencer.joinDate && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Join Date</Label>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span>{new Date(selectedInfluencer.joinDate).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowInfluencerModal(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Payout Request Details Modal */}
-      <Dialog open={showPayoutModal} onOpenChange={setShowPayoutModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
-              Payout Request Details
-            </DialogTitle>
-            <DialogDescription>
-              Detailed information about the payout request
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedPayoutRequest && (
-            <div className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Influencer</Label>
-                  <p className="text-lg font-semibold">
-                    {selectedPayoutRequest.user ? `${selectedPayoutRequest.user.first_name} ${selectedPayoutRequest.user.last_name}` : 'Unknown User'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPayoutRequest.user?.phone || 'No phone'}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">Request Amount</Label>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-600" />
-                    <span className="text-2xl font-bold text-green-600">${selectedPayoutRequest.amount.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bank Details */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Banking Information</h3>
-                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Bank Account:</span>
-                    <span className="font-medium">{selectedPayoutRequest.bank_details.account_number}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Account Holder:</span>
-                    <span className="font-medium">{selectedPayoutRequest.bank_details.account_name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Bank Name:</span>
-                    <span className="font-medium">{selectedPayoutRequest.bank_details.bank_name}</span>
-                  </div>
-                  {selectedPayoutRequest.bank_details.bic && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">BIC:</span>
-                      <span className="font-medium">{selectedPayoutRequest.bank_details.bic}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Request Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Request Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Request Date</Label>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span>{new Date(selectedPayoutRequest.approval.requested_date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                    <Badge variant="secondary">{selectedPayoutRequest.status}</Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Commission Breakdown */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Commission Breakdown</h3>
-                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Total Commission Earned:</span>
-                    <span className="font-medium">${(selectedPayoutRequest.commission_breakdown?.total_commission_earned || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Previously Paid:</span>
-                    <span className="font-medium">${(selectedPayoutRequest.commission_breakdown?.previously_paid || 0).toFixed(2)}</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between font-semibold">
-                    <span>Pending Payout:</span>
-                    <span className="text-green-600">${(selectedPayoutRequest.commission_breakdown?.pending_payout || 0).toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPayoutModal(false)}>
-              Close
-            </Button>
-            <Button 
-              onClick={() => {
-                if (selectedPayoutRequest) {
-                  handleApprovePayout(selectedPayoutRequest._id);
-                  setShowPayoutModal(false);
-                }
-              }}
-              disabled={loading}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Approve Payout
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

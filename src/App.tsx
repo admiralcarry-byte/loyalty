@@ -4,9 +4,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useLanguageInitialization } from "@/hooks/useLanguageInitialization";
-// import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { AdminLayout } from "./components/AdminLayout";
+import { SellerLayout } from "./components/SellerLayout";
+import { UserLayout } from "./components/UserLayout";
+import { InfluencerLayout } from "./components/InfluencerLayout";
+import { AdminGuard } from "./components/guards/AdminGuard";
+import { SellerGuard } from "./components/guards/SellerGuard";
+import { UserGuard } from "./components/guards/UserGuard";
+import { InfluencerGuard } from "./components/guards/InfluencerGuard";
 import Dashboard from "./pages/admin/Dashboard";
 import Users from "./pages/admin/Users";
 import Sales from "./pages/admin/Sales";
@@ -22,6 +29,7 @@ import AdminProfile from "./pages/admin/Profile";
 import AdminSettings from "./pages/admin/Settings";
 // import AIIntegration from "./pages/admin/AIIntegration";
 import BillingIntegration from "./pages/admin/BillingIntegration";
+import AdminRegister from "./pages/admin/Register";
 // import InfluencerLevels from "./pages/admin/InfluencerLevels";
 // import LoyaltyLevels from "./pages/admin/LoyaltyLevels";
 // import ClientPoints from "./pages/admin/ClientPoints";
@@ -37,6 +45,25 @@ import BillingIntegration from "./pages/admin/BillingIntegration";
 // import ExternalInvoices from "./pages/admin/ExternalInvoices";
 // import UnifiedBillingHistory from "./pages/admin/UnifiedBillingHistory";
 // import ReconciliationDashboard from "./pages/admin/ReconciliationDashboard";
+
+// Seller pages
+import SellerLogin from "./pages/seller/Login";
+import SellerRegister from "./pages/seller/Register";
+import SellerDashboard from "./pages/seller/Dashboard";
+import SellerBilling from "./pages/seller/Billing";
+
+// User pages
+import UserLogin from "./pages/user/Login";
+import UserRegister from "./pages/user/Register";
+import UserDashboard from "./pages/user/Dashboard";
+import MyInfluencer from "./pages/user/MyInfluencer";
+import MyLevel from "./pages/user/MyLevel";
+
+// Influencer pages
+import InfluencerLogin from "./pages/influencer/Login";
+import InfluencerRegister from "./pages/influencer/Register";
+import InfluencerUsers from "./pages/influencer/Users";
+import InfluencerStatistics from "./pages/influencer/Statistics";
 
 
 
@@ -63,44 +90,49 @@ const App = () => {
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+          {/* Landing Page */}
+          <Route path="/" element={<Landing />} />
+          
+          {/* Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          {/* //const{<Route path="/admin-welcome" element={<AdminWelcome />} />} */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
-          <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>} />
-          <Route path="/admin/sales" element={<AdminLayout><Sales /></AdminLayout>} />
-          <Route path="/admin/commission" element={<AdminLayout><Commission /></AdminLayout>} />
-          {/* //const{<Route path="/admin/cashback" element={<AdminLayout><Cashback /></AdminLayout>} />} */}
-          <Route path="/admin/reports" element={<AdminLayout><Reports /></AdminLayout>} />
-          {/* //const{<Route path="/admin/notifications" element={<AdminLayout><Notifications /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/campaigns" element={<AdminLayout><Campaigns /></AdminLayout>} />} */}
-          <Route path="/admin/stores" element={<AdminLayout><Stores /></AdminLayout>} />
-          <Route path="/admin/profile" element={<AdminLayout><AdminProfile /></AdminLayout>} />
-          <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
-          {/* //const{<Route path="/admin/ai-integration" element={<AdminLayout><AIIntegration /></AdminLayout>} />} */}
-          <Route path="/admin/billing-integration" element={<AdminLayout><BillingIntegration /></AdminLayout>} />
-          {/* <Route path="/admin/influencer-levels" element={<AdminLayout><InfluencerLevels /></AdminLayout>} /> */}
-          {/* <Route path="/admin/loyalty-levels" element={<AdminLayout><LoyaltyLevels /></AdminLayout>} /> */}
+          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/dashboard" element={<AdminGuard><AdminLayout><Dashboard /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/users" element={<AdminGuard><AdminLayout><Users /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/sales" element={<AdminGuard><AdminLayout><Sales /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/commission" element={<AdminGuard><AdminLayout><Commission /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/reports" element={<AdminGuard><AdminLayout><Reports /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/stores" element={<AdminGuard><AdminLayout><Stores /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/profile" element={<AdminGuard><AdminLayout><AdminProfile /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/settings" element={<AdminGuard><AdminLayout><AdminSettings /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/billing-integration" element={<AdminGuard><AdminLayout><BillingIntegration /></AdminLayout></AdminGuard>} />
           <Route path="/admin/influencer-levels" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/loyalty-levels" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/qr-analysis" element={<Navigate to="/admin/billing-integration" replace />} />
-          {/* //const{<Route path="/admin/client-points" element={<AdminLayout><ClientPoints /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/purchase-history" element={<AdminLayout><PurchaseHistory /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/network-switching" element={<AdminLayout><NetworkSwitching /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/purchase-entry" element={<AdminLayout><PurchaseEntry /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/bank-details" element={<AdminLayout><BankDetails /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/commission-request" element={<AdminLayout><CommissionRequest /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/online-purchases" element={<AdminLayout><OnlinePurchases /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/wallet-integration" element={<AdminLayout><WalletIntegration /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/receipt-upload" element={<AdminLayout><ReceiptUpload /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/scan-uploads" element={<AdminLayout><ScanUploads /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/external-invoices" element={<AdminLayout><ExternalInvoices /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/unified-billing-history" element={<AdminLayout><UnifiedBillingHistory /></AdminLayout>} />} */}
-          {/* //const{<Route path="/admin/reconciliation-dashboard" element={<AdminLayout><ReconciliationDashboard /></AdminLayout>} />} */}
 
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Seller Routes */}
+          <Route path="/seller" element={<Navigate to="/seller/dashboard" replace />} />
+          <Route path="/seller/register" element={<SellerRegister />} />
+          <Route path="/seller/login" element={<SellerLogin />} />
+          <Route path="/seller/dashboard" element={<SellerGuard><SellerLayout><SellerDashboard /></SellerLayout></SellerGuard>} />
+          <Route path="/seller/billing" element={<SellerGuard><SellerLayout><SellerBilling /></SellerLayout></SellerGuard>} />
+
+          {/* User Routes */}
+          <Route path="/user" element={<Navigate to="/user/dashboard" replace />} />
+          <Route path="/user/register" element={<UserRegister />} />
+          <Route path="/user/login" element={<UserLogin />} />
+          <Route path="/user/dashboard" element={<UserGuard><UserLayout><UserDashboard /></UserLayout></UserGuard>} />
+          <Route path="/user/my-level" element={<UserGuard><UserLayout><MyLevel /></UserLayout></UserGuard>} />
+          <Route path="/user/my-influencer" element={<UserGuard><UserLayout><MyInfluencer /></UserLayout></UserGuard>} />
+
+        {/* Influencer Routes */}
+        <Route path="/influencer" element={<Navigate to="/influencer/users" replace />} />
+        <Route path="/influencer/register" element={<InfluencerRegister />} />
+        <Route path="/influencer/login" element={<InfluencerLogin />} />
+        <Route path="/influencer/users" element={<InfluencerGuard><InfluencerLayout><InfluencerUsers /></InfluencerLayout></InfluencerGuard>} />
+        <Route path="/influencer/statistics" element={<InfluencerGuard><InfluencerLayout><InfluencerStatistics /></InfluencerLayout></InfluencerGuard>} />
+
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         </BrowserRouter>

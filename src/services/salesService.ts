@@ -1,124 +1,155 @@
 import { BaseService } from './baseService';
 
-export interface Sale {
-  id: string;
-  customer: string;
-  customerPhone: string;
-  liters: number;
-  amount: number;
-  cashback: number;
-  date: string;
-  time: string;
-  status: 'verified' | 'pending' | 'rejected';
-  verifiedBy?: string;
-  verifiedDate?: string;
-  location: string;
-  influencer?: string;
-  commission?: number;
+export interface Purchase {
+  _id: string;
+  sale_number?: string;
+  transaction_id?: string;
+  quantity: number;
+  total_amount: number;
+  liters_purchased?: number;
+  cashback_earned: number;
+  payment_method: string;
+  status: string;
+  order_status?: string;
+  purchaser_name?: string;
+  store_id?: {
+    _id: string;
+    name: string;
+    address: string;
+  };
+  product_id?: {
+    _id: string;
+    name: string;
+  };
+  created_at: string;
+  updated_at?: string;
 }
 
-export interface SalesResponse {
+export interface PurchaseSummary {
+  totalPurchases: number;
+  totalAmount: number;
+  totalLiters: number;
+  totalCashback: number;
+}
+
+export interface MyPurchasesResponse {
   success: boolean;
-  data: Sale[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
+  data: {
+    purchases: Purchase[];
+    summary: PurchaseSummary;
   };
 }
 
-export interface SalesStats {
-  total_sales: number;
-  completed_sales: number;
-  pending_sales: number;
-  cancelled_sales: number;
-  refunded_sales: number;
-  total_revenue: number;
-  total_liters_sold: number;
-  total_points_earned: number;
-  total_cashback_earned: number;
-  average_sale_amount: number;
-  average_liters_per_sale: number;
-  revenue_growth_percentage?: string;
-  liters_growth_percentage?: string;
-  cashback_growth_percentage?: string;
-  commission_growth_percentage?: string;
+export interface SalesListResponse {
+  success: boolean;
+  data: Purchase[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 class SalesService extends BaseService {
-  async getSales(params: {
+  /**
+   * Get current user's purchase history (Customer Portal)
+   */
+  async getMyPurchases(limit: number = 50): Promise<MyPurchasesResponse> {
+    try {
+      return await this.request<MyPurchasesResponse>(`/sales/my-purchases?limit=${limit}`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.error('Error fetching purchases:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all sales with pagination (Admin/Manager)
+   */
+  async getSales(params?: {
     page?: number;
     limit?: number;
-    search?: string;
     status?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  } = {}): Promise<SalesResponse> {
-    const searchParams = new URLSearchParams();
-    
-    if (params.page) searchParams.append('page', params.page.toString());
-    if (params.limit) searchParams.append('limit', params.limit.toString());
-    if (params.search) searchParams.append('search', params.search);
-    if (params.status) searchParams.append('status', params.status);
-    if (params.dateFrom) searchParams.append('dateFrom', params.dateFrom);
-    if (params.dateTo) searchParams.append('dateTo', params.dateTo);
+    startDate?: string;
+    endDate?: string;
+  }): Promise<SalesListResponse> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append('page', params.page.toString());
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.status) queryParams.append('status', params.status);
+      if (params?.startDate) queryParams.append('start_date', params.startDate);
+      if (params?.endDate) queryParams.append('end_date', params.endDate);
 
-    const queryString = searchParams.toString();
-    const endpoint = `/sales${queryString ? `?${queryString}` : ''}`;
-
-    return this.request<SalesResponse>(endpoint);
+      const queryString = queryParams.toString();
+      return await this.request<SalesListResponse>(`/sales${queryString ? '?' + queryString : ''}`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.error('Error fetching sales:', error);
+      throw error;
+    }
   }
 
-  async getSaleById(id: string): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}`);
+  /**
+   * Get purchase by ID
+   */
+  async getPurchaseById(id: string): Promise<{ success: boolean; data: { sale: Purchase } }> {
+    try {
+      return await this.request<{ success: boolean; data: { sale: Purchase } }>(`/sales/${id}`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.error('Error fetching purchase:', error);
+      throw error;
+    }
   }
 
-  async createSale(saleData: Partial<Sale>): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>('/sales', {
-      method: 'POST',
-      body: JSON.stringify(saleData),
-    });
+  /**
+   * Create a new sale (Admin/Manager)
+   */
+  async createSale(saleData: any): Promise<{ success: boolean; data: { sale: Purchase } }> {
+    try {
+      return await this.request<{ success: boolean; data: { sale: Purchase } }>('/sales', {
+        method: 'POST',
+        body: JSON.stringify(saleData),
+      });
+    } catch (error) {
+      console.error('Error creating sale:', error);
+      throw error;
+    }
   }
 
-  async updateSale(id: string, saleData: Partial<Sale>): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(saleData),
-    });
+  /**
+   * Update a sale (Admin/Manager)
+   */
+  async updateSale(id: string, saleData: any): Promise<{ success: boolean; data: { sale: Purchase } }> {
+    try {
+      return await this.request<{ success: boolean; data: { sale: Purchase } }>(`/sales/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(saleData),
+      });
+    } catch (error) {
+      console.error('Error updating sale:', error);
+      throw error;
+    }
   }
 
+  /**
+   * Delete a sale (Admin/Manager)
+   */
   async deleteSale(id: string): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/sales/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async updateSaleStatus(id: string, status: string): Promise<{ success: boolean; data: { sale: Sale } }> {
-    return this.request<{ success: boolean; data: { sale: Sale } }>(`/sales/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status }),
-    });
-  }
-
-  async getSalesStats(): Promise<{ success: boolean; data: SalesStats }> {
-    return this.request<{ success: boolean; data: SalesStats }>('/sales/stats/overview');
-  }
-
-  async getAllSalesStats(): Promise<{ success: boolean; data: any }> {
-    return this.request<{ success: boolean; data: any }>('/sales/stats');
-  }
-
-  async getSalesByUser(userId: string): Promise<{ success: boolean; data: Sale[] }> {
-    return this.request<{ success: boolean; data: Sale[] }>(`/sales/user/${userId}`);
-  }
-
-  async getSalesByStore(storeId: string): Promise<{ success: boolean; data: Sale[] }> {
-    return this.request<{ success: boolean; data: Sale[] }>(`/sales/store/${storeId}`);
-  }
-
-  async getTopSellingProducts(): Promise<{ success: boolean; data: any }> {
-    return this.request<{ success: boolean; data: any }>('/sales/top-selling-products');
+    try {
+      return await this.request<{ success: boolean; message: string }>(`/sales/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+      throw error;
+    }
   }
 }
 

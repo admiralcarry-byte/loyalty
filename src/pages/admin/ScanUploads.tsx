@@ -24,6 +24,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
+
 import { 
   FileText, 
   Search, 
@@ -36,7 +44,7 @@ import {
   Download,
   AlertTriangle,
   Calendar,
-  DollarSign,
+  Coins,
   User,
   Store,
   Loader2
@@ -305,8 +313,8 @@ const ScanUploads = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-muted-foreground" />
-                          R$ {upload.amount.toFixed(2)}
+                          <Coins className="w-4 h-4 text-muted-foreground" />
+                          {formatCurrency(upload.amount)}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -418,7 +426,7 @@ const ScanUploads = () => {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Amount</Label>
-                  <p className="text-sm text-muted-foreground">R$ {selectedUpload.amount.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">{formatCurrency(selectedUpload.amount)}</p>
                 </div>
               </div>
               

@@ -5,6 +5,8 @@ export class BaseService {
 
   constructor() {
     this.baseUrl = ADMIN_CONFIG.global.apiBaseUrl;
+    console.log('BaseService constructor - Base URL:', this.baseUrl);
+    console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
   }
 
   protected async request<T>(

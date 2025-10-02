@@ -93,47 +93,32 @@ const Stores = () => {
     }
   };
 
-  // Auto-login function
-  const autoLogin = async () => {
+  // Check authentication and fetch data
+  const checkAuthAndFetch = async () => {
     try {
-      const response = await authService.login({
-        email: 'admin@aguatwezah.com',
-        password: 'admin123'
-      });
-      
-      if (response.success) {
-        authService.setAuthData(
-          response.data.accessToken,
-          response.data.refreshToken,
-          response.data.user
-        );
-        
-        toast({
-          title: "Auto-login Successful",
-          description: "Logged in as admin user",
-        });
-        
-        // Now fetch stores
-        fetchStores();
-      } else {
-        setError('Auto-login failed: ' + response.message);
+      // Check if user is authenticated
+      if (!authService.isAuthenticated()) {
+        setError('Please log in to access the stores page');
+        return;
       }
+
+      // Check if user has admin role
+      const user = authService.getUser();
+      if (!user || user.role !== 'admin') {
+        setError('Access denied: Admin privileges required');
+        return;
+      }
+
+      // Fetch stores
+      fetchStores();
     } catch (err: any) {
-      setError('Auto-login failed: ' + err.message);
+      setError('Authentication check failed: ' + err.message);
     }
   };
 
   // Load stores on component mount only
   useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Auto-login with test credentials
-      autoLogin();
-      return;
-    }
-    
-    fetchStores();
+    checkAuthAndFetch();
   }, []); // Empty dependency array - only run on mount
 
   // Handle search with debouncing - separate from allStores dependency
@@ -231,7 +216,6 @@ const Stores = () => {
     }
   });
 
-  const cities = ["Luanda", "Benguela", "Huambo", "Lobito", "Lubango", "Namibe", "Malanje", "Kuito"];
 
 
   const handleAddStore = async () => {
@@ -501,16 +485,13 @@ const Stores = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="storeCity" className="text-sm font-medium">City *</Label>
-                  <Select value={newStore.address.city} onValueChange={(value) => setNewStore({...newStore, address: {...newStore.address, city: value}})}>
-                    <SelectTrigger className="border-border focus:ring-2 focus:ring-primary/20">
-                      <SelectValue placeholder="Select city" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map(city => (
-                        <SelectItem key={city} value={city}>{city}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="storeCity"
+                    placeholder="Enter city name"
+                    value={newStore.address.city}
+                    onChange={(e) => setNewStore({...newStore, address: {...newStore.address, city: e.target.value}})}
+                    className="border-border focus:ring-2 focus:ring-primary/20"
+                  />
                 </div>
               </div>
               
@@ -598,7 +579,7 @@ const Stores = () => {
       </div>
 
       {/* Enhanced Stats Cards with Gradients */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-water-mist">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Stores</CardTitle>
@@ -627,40 +608,6 @@ const Stores = () => {
             </div>
             <p className="text-xs text-muted-foreground">
               Currently operating
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-blue-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Cities Covered</CardTitle>
-            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10">
-              <MapPin className="h-4 w-4 text-blue-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {new Set(stores.map(store => store.city)).size}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Different cities
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-cyan-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Stores</CardTitle>
-            <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500/10 to-teal-500/10">
-              <Building2 className="h-4 w-4 text-cyan-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {stores.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Registered stores
             </p>
           </CardContent>
         </Card>
@@ -850,16 +797,13 @@ const Stores = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="editStoreCity" className="text-sm font-medium">City</Label>
-                  <Select value={selectedStore.address?.city || ''} onValueChange={(value) => setSelectedStore({...selectedStore, address: {...(selectedStore.address || {}), city: value}})}>
-                    <SelectTrigger className="border-border focus:ring-2 focus:ring-primary/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map(city => (
-                        <SelectItem key={city} value={city}>{city}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="editStoreCity"
+                    placeholder="Enter city name"
+                    value={selectedStore.address?.city || ''}
+                    onChange={(e) => setSelectedStore({...selectedStore, address: {...(selectedStore.address || {}), city: e.target.value}})}
+                    className="border-border focus:ring-2 focus:ring-primary/20"
+                  />
                 </div>
               </div>
               

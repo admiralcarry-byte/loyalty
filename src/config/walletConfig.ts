@@ -33,21 +33,21 @@ export const WALLET_CONFIG = {
     pix: {
       name: 'PIX',
       type: 'digital_wallet',
-      supportedCurrencies: ['BRL', 'USD'],
+      supportedCurrencies: ['AOA'],
       commissionRate: 2.5,
       status: 'planned' // planned | active | inactive
     },
     mobileMoney: {
       name: 'Mobile Money',
       type: 'mobile_money',
-      supportedCurrencies: ['AOA', 'USD'],
+      supportedCurrencies: ['AOA'],
       commissionRate: 3.0,
       status: 'planned'
     },
     bankTransfer: {
       name: 'Bank Transfer',
       type: 'bank_wallet',
-      supportedCurrencies: ['AOA', 'USD', 'EUR'],
+      supportedCurrencies: ['AOA'],
       commissionRate: 1.8,
       status: 'planned'
     },

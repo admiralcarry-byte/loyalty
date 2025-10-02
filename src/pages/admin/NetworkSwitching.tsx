@@ -30,6 +30,14 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
+
 const NetworkSwitching = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -170,7 +178,7 @@ const NetworkSwitching = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">
-              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : `$${networkStats.totalCommission.toFixed(2)}`}
+              {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(networkStats.totalCommission)}
             </div>
             <div className="flex items-center text-xs text-muted-foreground font-medium">
               <span>No backend implementation yet</span>
@@ -303,7 +311,7 @@ const NetworkSwitching = () => {
                     <TableCell>
                       <div className="flex items-center gap-1 font-medium text-green-600">
                         <DollarSign className="w-4 h-4" />
-                        {(switchData.commission || 0).toFixed(2)}
+                        {formatCurrency(switchData.commission || 0)}
                       </div>
                     </TableCell>
                     <TableCell>

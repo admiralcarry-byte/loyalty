@@ -93,11 +93,13 @@ class ReportsService extends BaseService {
   async getLoyaltyReport(params: {
     start_date?: string;
     end_date?: string;
+    _t?: number;
   } = {}): Promise<ReportsResponse> {
     const searchParams = new URLSearchParams();
     
     if (params.start_date) searchParams.append('start_date', params.start_date);
     if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params._t) searchParams.append('_t', params._t.toString());
 
     const queryString = searchParams.toString();
     const endpoint = `/reports/loyalty${queryString ? `?${queryString}` : ''}`;
@@ -108,11 +110,13 @@ class ReportsService extends BaseService {
   async getInfluencerReport(params: {
     start_date?: string;
     end_date?: string;
+    _t?: number;
   } = {}): Promise<ReportsResponse> {
     const searchParams = new URLSearchParams();
     
     if (params.start_date) searchParams.append('start_date', params.start_date);
     if (params.end_date) searchParams.append('end_date', params.end_date);
+    if (params._t) searchParams.append('_t', params._t.toString());
 
     const queryString = searchParams.toString();
     const endpoint = `/reports/influencers${queryString ? `?${queryString}` : ''}`;
@@ -120,8 +124,13 @@ class ReportsService extends BaseService {
     return this.request<ReportsResponse>(endpoint);
   }
 
-  async getOverviewReport(): Promise<ReportsResponse> {
-    return this.request<ReportsResponse>('/reports/overview');
+  async getOverviewReport(params: { _t?: number } = {}): Promise<ReportsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params._t) searchParams.append('_t', params._t.toString());
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/reports/overview${queryString ? `?${queryString}` : ''}`;
+    return this.request<ReportsResponse>(endpoint);
   }
 
   async getProductsReport(params: {

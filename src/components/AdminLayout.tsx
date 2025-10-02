@@ -1,14 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   LayoutDashboard,
   Users,
@@ -21,7 +14,6 @@ import {
   Menu,
   LogOut,
   Settings,
-  User,
   Droplets,
   Crown,
   Medal,
@@ -94,6 +86,11 @@ const navigationItems = [
     href: "/admin/billing-integration",
     icon: CreditCard,
   },
+  {
+    name: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
+  },
   // {
   //   name: "Influencer Levels",
   //   href: "/admin/influencer-levels",
@@ -116,7 +113,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      // Clear authentication data
+      authService.logout();
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
@@ -125,9 +123,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, clear local storage and redirect
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      authService.logout();
       toast({
         title: "Logged Out",
         description: "You have been logged out.",
@@ -253,34 +249,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 Live System
               </Badge>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-                      <AvatarFallback>AD</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/profile" className="flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/settings" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={handleLogout}
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-all duration-200"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </header>

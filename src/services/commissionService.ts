@@ -35,6 +35,7 @@ export interface CommissionStats {
 
 export interface CommissionSettings {
   base_commission_rate: number;
+  cashback_rate: number;
   tier_multipliers: {
     lead: number;
     silver: number;

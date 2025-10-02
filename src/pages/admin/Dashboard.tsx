@@ -26,6 +26,7 @@ import {
 } from "recharts";
 import {
   Users,
+  Users as UsersIcon,
   Droplets,
   DollarSign,
   TrendingUp,
@@ -47,8 +48,17 @@ import { dashboardService, DashboardStats, SalesChartData } from "@/services/das
 import { storesService, Store } from "@/services/storesService";
 import { translationService } from "@/services/translationService";
 import { authService } from "@/services/authService";
+import { usersService } from "@/services/usersService";
+
+// Currency formatting function for AOA (Angolan Kwanza)
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('pt-AO', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount) + ' Kz';
+};
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -64,33 +74,26 @@ const Dashboard = () => {
   const [currentStorePage, setCurrentStorePage] = useState(1);
   const storesPerPage = 3;
 
-  // Auto-login function
-  const autoLogin = async () => {
+  // Check authentication and fetch data
+  const checkAuthAndFetch = async () => {
     try {
-      const response = await authService.login({
-        email: 'admin@aguatwezah.com',
-        password: 'admin123'
-      });
-      
-      if (response.success) {
-        authService.setAuthData(
-          response.data.accessToken,
-          response.data.refreshToken,
-          response.data.user
-        );
-        
-        toast({
-          title: "Auto-login Successful",
-          description: "Logged in as admin user",
-        });
-        
-        // Now fetch dashboard data
-        fetchDashboardData();
-      } else {
-        setError('Auto-login failed: ' + response.message);
+      // Check if user is authenticated
+      if (!authService.isAuthenticated()) {
+        setError('Please log in to access the dashboard');
+        return;
       }
+
+      // Check if user has admin role
+      const user = authService.getUser();
+      if (!user || user.role !== 'admin') {
+        setError('Access denied: Admin privileges required');
+        return;
+      }
+
+      // Fetch dashboard data
+      fetchDashboardData();
     } catch (err: any) {
-      setError('Auto-login failed: ' + err.message);
+      setError('Authentication check failed: ' + err.message);
     }
   };
 
@@ -152,67 +155,110 @@ const Dashboard = () => {
 
   // Load data on component mount
   useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Auto-login with test credentials
-      autoLogin();
-      return;
-    }
-    
-    fetchDashboardData();
+    checkAuthAndFetch();
   }, []);
 
-  // Transform loyalty distribution data for charts with safe access
+  // Transform loyalty distribution data for bar chart (customer counts)
   const loyaltyDistribution = (() => {
     if (!dashboardData?.userStats?.loyaltyDistribution) {
       return [
-        { name: "Lead", value: 0, color: "hsl(var(--accent))", gradient: "url(#leadGradient)" },
-        { name: "Silver", value: 0, color: "hsl(var(--loyalty-silver))", gradient: "url(#silverGradient)" },
-        { name: "Gold", value: 0, color: "hsl(var(--loyalty-gold))", gradient: "url(#goldGradient)" },
-        { name: "Platinum", value: 0, color: "hsl(var(--loyalty-platinum))", gradient: "url(#platinumGradient)" },
+        { name: "Lead", value: 0, color: "hsl(var(--accent))" },
+        { name: "Silver", value: 0, color: "hsl(var(--loyalty-silver))" },
+        { name: "Gold", value: 0, color: "hsl(var(--loyalty-gold))" },
+        { name: "Platinum", value: 0, color: "hsl(var(--loyalty-platinum))" },
       ];
     }
 
-    const totalUsers = dashboardData.userStats.totalUsers || 0;
     const distribution = dashboardData.userStats.loyaltyDistribution;
     
-    // Calculate percentages based on total users
+    // Use actual customer counts instead of percentages
     const leadCount = distribution.lead || 0;
     const silverCount = distribution.silver || 0;
     const goldCount = distribution.gold || 0;
     const platinumCount = distribution.platinum || 0;
-    
-    const leadPercentage = totalUsers > 0 ? Math.round((leadCount / totalUsers) * 100) : 0;
-    const silverPercentage = totalUsers > 0 ? Math.round((silverCount / totalUsers) * 100) : 0;
-    const goldPercentage = totalUsers > 0 ? Math.round((goldCount / totalUsers) * 100) : 0;
-    const platinumPercentage = totalUsers > 0 ? Math.round((platinumCount / totalUsers) * 100) : 0;
 
     return [
-      { name: "Lead", value: leadPercentage, color: "hsl(var(--accent))", gradient: "url(#leadGradient)" },
-      { name: "Silver", value: silverPercentage, color: "hsl(var(--loyalty-silver))", gradient: "url(#silverGradient)" },
-      { name: "Gold", value: goldPercentage, color: "hsl(var(--loyalty-gold))", gradient: "url(#goldGradient)" },
-      { name: "Platinum", value: platinumPercentage, color: "hsl(var(--loyalty-platinum))", gradient: "url(#platinumGradient)" },
+      { name: "Lead", value: leadCount, color: "hsl(var(--accent))" },
+      { name: "Silver", value: silverCount, color: "hsl(var(--loyalty-silver))" },
+      { name: "Gold", value: goldCount, color: "hsl(var(--loyalty-gold))" },
+      { name: "Platinum", value: platinumCount, color: "hsl(var(--loyalty-platinum))" },
     ];
   })();
 
-  // Transform recent users data with safe access
-  const recentUsers = dashboardData?.recentActivity?.filter(activity => activity?.type === 'user')?.slice(0, 4)?.map(activity => ({
-    id: activity?.id || 'unknown',
-    name: `${activity?.first_name || 'Unknown'} ${activity?.last_name || 'User'}`,
-    phone: activity?.phone || 'N/A',
-    tier: activity?.loyalty_tier || 'Lead',
-    liters: activity?.total_liters || 0,
-    joined: activity?.timestamp ? new Date(activity.timestamp).toLocaleDateString() : new Date().toLocaleDateString()
-  })) || [];
+  // Transform recent users data with safe access using useMemo
+  const recentUsers = useMemo(() => {
+    return dashboardData?.recentActivity?.filter(activity => activity?.type === 'user')?.slice(0, 4)?.map(activity => ({
+      id: activity?.id || 'unknown',
+      name: `${activity?.first_name || 'Unknown'} ${activity?.last_name || 'User'}`,
+      phone: activity?.phone || 'N/A',
+      tier: activity?.loyalty_tier || 'Lead',
+      role: activity?.role || 'customer',
+      liters: activity?.total_liters || 0,
+      referrals: activity?.referral_count || 0,
+      joined: activity?.timestamp ? new Date(activity.timestamp).toLocaleDateString() : new Date().toLocaleDateString()
+    })) || [];
+  }, [dashboardData?.recentActivity]);
 
-  // Transform top influencers data with safe access
-  const topInfluencers = dashboardData?.commissionStats?.topInfluencers?.map(influencer => ({
-    name: influencer?.name || 'Unknown Influencer',
-    network: influencer?.network || 'Unknown Network',
-    commission: `$${(influencer?.commission || 0).toLocaleString()}`,
-    tier: influencer?.tier || 'Unknown'
-  })) || [];
+  // Fallback data when no real data is available
+  const fallbackUsers = useMemo(() => [
+    {
+      id: 'fallback-1',
+      name: 'No Recent Users',
+      phone: 'Database Empty',
+      tier: 'Lead',
+      role: 'customer',
+      liters: 0,
+      referrals: 0,
+      joined: new Date().toLocaleDateString()
+    }
+  ], []);
+
+  // Calculate display users using useMemo
+  const displayUsers = useMemo(() => {
+    return recentUsers.length > 0 ? recentUsers : fallbackUsers;
+  }, [recentUsers, fallbackUsers]);
+
+  // Try to fetch recent users directly if dashboard data doesn't have them
+  useEffect(() => {
+    const fetchRecentUsers = async () => {
+      if (!dashboardData?.recentActivity || dashboardData.recentActivity.length === 0) {
+        try {
+          const response = await usersService.getRecentUsers(4);
+          if (response.success && response.data.length > 0) {
+            // Update dashboard data with the fetched users
+            const userActivities = response.data.map(user => ({
+              type: 'user',
+              id: user.id,
+              first_name: user.first_name,
+              last_name: user.last_name,
+              email: user.email,
+              phone: user.phone,
+              role: user.role,
+              loyalty_tier: user.loyalty_tier,
+              total_liters: user.total_liters,
+              referral_count: user.referral_count,
+              timestamp: user.created_at,
+              description: 'Recent user from direct fetch'
+            }));
+            
+            // Update dashboard data with the new activity
+            setDashboardData(prev => ({
+              ...prev,
+              recentActivity: [...(prev?.recentActivity || []), ...userActivities]
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching recent users directly:', error);
+        }
+      }
+    };
+
+    // Only fetch if we have dashboard data but no recent activity
+    if (dashboardData && (!dashboardData.recentActivity || dashboardData.recentActivity.length === 0)) {
+      fetchRecentUsers();
+    }
+  }, [dashboardData?.recentActivity]); // Only depend on recentActivity, not the entire dashboardData
+
 
   // Transform stores data for dashboard display
   const storeLocations = stores.map(store => ({
@@ -354,11 +400,11 @@ const Dashboard = () => {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Commission Paid</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
-              <DollarSign className="h-4 w-4 text-white" />
+              <UsersIcon className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">${dashboardData?.commissionStats?.total_paid_commissions?.toLocaleString() || 0}</div>
+            <div className="text-2xl font-bold text-success">{formatCurrency(dashboardData?.commissionStats?.total_paid_commissions || 0)}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
               {dashboardData?.commissionStats?.pendingCommissions || 0} pending
@@ -381,6 +427,7 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
       </div>
 
       {/* Charts Section */}
@@ -427,62 +474,44 @@ const Dashboard = () => {
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
               Loyalty Tier Distribution
             </CardTitle>
-            <CardDescription>User distribution across loyalty levels</CardDescription>
+            <CardDescription>Customer distribution across loyalty levels</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={320}>
-              <PieChart>
-                <defs>
-                  <radialGradient id="leadGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0.7} />
-                  </radialGradient>
-                  <radialGradient id="silverGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="hsl(var(--loyalty-silver))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--loyalty-silver))" stopOpacity={0.7} />
-                  </radialGradient>
-                  <radialGradient id="goldGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="hsl(var(--loyalty-gold))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--loyalty-gold))" stopOpacity={0.7} />
-                  </radialGradient>
-                  <radialGradient id="platinumGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="hsl(var(--loyalty-platinum))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--loyalty-platinum))" stopOpacity={0.7} />
-                  </radialGradient>
-                  <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="2" dy="4" stdDeviation="3" floodOpacity="0.3"/>
-                  </filter>
-                </defs>
-                <Pie
-                  data={loyaltyDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={130}
-                  paddingAngle={8}
-                  dataKey="value"
-                  stroke="#ffffff"
-                  strokeWidth={3}
-                  filter="url(#shadow)"
-                >
-                  {loyaltyDistribution.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.gradient}
-                      className="hover:opacity-80 transition-opacity duration-200"
-                    />
-                  ))}
-                </Pie>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={loyaltyDistribution}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                  label={{ value: 'Number of Customers', angle: -90, position: 'insideLeft' }}
+                />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 30px -5px rgba(0,0,0,0.1)",
-                    fontWeight: "500"
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
                   }}
+                  formatter={(value, name) => [`${value} customers`, 'Count']}
                 />
-              </PieChart>
+                <Bar 
+                  dataKey="value" 
+                  radius={[4, 4, 0, 0]}
+                  className="hover:opacity-80 transition-opacity duration-200"
+                >
+                  {loyaltyDistribution.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.color}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-4 mt-4">
               {loyaltyDistribution.map((item) => (
@@ -492,7 +521,7 @@ const Dashboard = () => {
                     style={{ backgroundColor: item.color }}
                   />
                   <span className="text-sm text-muted-foreground">
-                    {item.name} ({item.value}%)
+                    {item.name} ({item.value} customers)
                   </span>
                 </div>
               ))}
@@ -523,7 +552,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">${store.sales.toLocaleString()}</div>
+                    <div className="text-sm font-medium">{formatCurrency(store.sales)}</div>
                     <div className="text-xs text-muted-foreground">
                       {store.latitude.toFixed(4)}, {store.longitude.toFixed(4)}
                     </div>
@@ -627,7 +656,7 @@ const Dashboard = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentUsers.map((user) => (
+                {displayUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
@@ -641,7 +670,19 @@ const Dashboard = () => {
                         {user.tier}
                       </Badge>
                     </TableCell>
-                    <TableCell>{user.liters}L</TableCell>
+                    <TableCell>
+                      {user.role === "influencer" ? (
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4 text-primary" />
+                          {user.referrals} users
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <Droplets className="w-4 h-4 text-water-blue" />
+                          {user.liters}L
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{user.joined}</TableCell>
                   </TableRow>
                 ))}
@@ -650,38 +691,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Influencers</CardTitle>
-            <CardDescription>Highest performing influencers this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {topInfluencers.map((influencer, index) => (
-                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <div className="font-medium">{influencer.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {influencer.network} users in network
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-success">{influencer.commission}</div>
-                    <Badge variant={getTierBadgeVariant(influencer.tier)} className="flex items-center gap-1">
-                      {getTierIcon(influencer.tier)}
-                      {influencer.tier}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
     </div>
