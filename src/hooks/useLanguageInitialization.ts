@@ -43,10 +43,8 @@ export const useLanguageInitialization = () => {
           // Get the language setting from the database
           const settings = await generalSettingsService.getGeneralSettings();
           
-          // Set the language in the translation service
-          if (settings.language) {
-            translationService.setLanguage(settings.language);
-          }
+          // Force English language regardless of database settings
+          translationService.setLanguage('English');
           
           isInitialized = true;
           setLocalIsInitialized(true);
