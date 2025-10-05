@@ -12,8 +12,7 @@ const UserLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
-    password: "",
-    influencerPhone: ""
+    password: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,11 +23,9 @@ const UserLogin = () => {
     setIsLoading(true);
 
     try {
-      // Filter out empty influencer phone before sending
       const loginData = {
         email: credentials.email,
-        password: credentials.password,
-        ...(credentials.influencerPhone && { influencerPhone: credentials.influencerPhone })
+        password: credentials.password
       };
       
       const response = await authService.login(loginData);
@@ -98,20 +95,6 @@ const UserLogin = () => {
                 onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
                 required
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="influencerPhone">Influencer's Phone Number (Optional)</Label>
-              <Input
-                id="influencerPhone"
-                type="tel"
-                placeholder="+244 987 654 321"
-                value={credentials.influencerPhone}
-                onChange={(e) => setCredentials(prev => ({ ...prev, influencerPhone: e.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter the phone number of the influencer who referred you
-              </p>
             </div>
             
             <div className="space-y-2">

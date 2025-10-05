@@ -222,6 +222,31 @@ class UsersService {
       };
     }
   }
+
+  // Get all influencers for dropdown selection
+  async getInfluencers(): Promise<{ success: boolean; data?: any[]; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/users/influencers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching influencers:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch influencers'
+      };
+    }
+  }
 }
 
 export const usersService = new UsersService(); 

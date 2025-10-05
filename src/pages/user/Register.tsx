@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Droplets, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { usersService } from "@/services/usersService";
 
 const UserRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,15 +18,45 @@ const UserRegister = () => {
     phone: "",
     influencerPhone: ""
   });
+  const [influencers, setInfluencers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingInfluencers, setIsLoadingInfluencers] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Fetch influencers on component mount
+  useEffect(() => {
+    const fetchInfluencers = async () => {
+      setIsLoadingInfluencers(true);
+      try {
+        const response = await usersService.getInfluencers();
+        if (response.success && response.data) {
+          setInfluencers(response.data);
+        } else {
+          console.error('Failed to fetch influencers:', response.error);
+        }
+      } catch (error) {
+        console.error('Error fetching influencers:', error);
+      } finally {
+        setIsLoadingInfluencers(false);
+      }
+    };
+
+    fetchInfluencers();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleInfluencerSelect = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      influencerPhone: value
     }));
   };
 
@@ -139,16 +171,30 @@ const UserRegister = () => {
 
             <div className="space-y-2">
               <Label htmlFor="influencerPhone">Influencer's Phone Number (Optional)</Label>
-              <Input
-                id="influencerPhone"
-                name="influencerPhone"
-                type="tel"
-                placeholder="+244 987 654 321"
-                value={formData.influencerPhone}
-                onChange={handleInputChange}
-              />
+              <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an influencer who referred you" />
+                </SelectTrigger>
+                <SelectContent>
+                  {isLoadingInfluencers ? (
+                    <SelectItem value="" disabled>
+                      Loading influencers...
+                    </SelectItem>
+                  ) : influencers.length > 0 ? (
+                    influencers.map((influencer) => (
+                      <SelectItem key={influencer.id} value={influencer.phone}>
+                        {influencer.name} - {influencer.phone}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>
+                      No influencers available
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
-                Enter the phone number of the influencer who referred you
+                Select the influencer who referred you from the dropdown
               </p>
             </div>
             

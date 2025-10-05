@@ -90,6 +90,7 @@ const BillingIntegration = () => {
     amount: 0,
     storeNumber: ''
   });
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
   const [generatedInvoice, setGeneratedInvoice] = useState<any>(null);
@@ -225,6 +226,108 @@ const BillingIntegration = () => {
     setInvoiceFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Fetch customer data by phone number
+  const fetchCustomerByPhone = async (phoneNumber: string) => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      // Clear customer data if phone number is too short
+      setInvoiceFormData(prev => ({
+        ...prev,
+        purchaserName: '',
+        email: ''
+      }));
+      return;
+    }
+
+    setIsLoadingCustomer(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/users/customer-by-phone/${phoneNumber}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Auto-populate customer data
+          setInvoiceFormData(prev => ({
+            ...prev,
+            purchaserName: result.data.name,
+            email: result.data.email
+          }));
+          toast({
+            title: "Customer Found",
+            description: `Customer: ${result.data.name}`,
+          });
+        } else {
+          // Clear customer data if not found
+          setInvoiceFormData(prev => ({
+            ...prev,
+            purchaserName: '',
+            email: ''
+          }));
+          toast({
+            title: "Customer Not Found",
+            description: "No customer found with this phone number",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Clear customer data on error
+        setInvoiceFormData(prev => ({
+          ...prev,
+          purchaserName: '',
+          email: ''
+        }));
+        toast({
+          title: "Error",
+          description: "Failed to fetch customer data",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      // Clear customer data on error
+      setInvoiceFormData(prev => ({
+        ...prev,
+        purchaserName: '',
+        email: ''
+      }));
+      toast({
+        title: "Error",
+        description: "Failed to fetch customer data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCustomer(false);
+    }
+  };
+
+  // Handle phone number change
+  const handlePhoneNumberChange = (value: string) => {
+    setInvoiceFormData(prev => ({ ...prev, phoneNumber: value }));
+  };
+
+  // Debounced effect for fetching customer data
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (invoiceFormData.phoneNumber && invoiceFormData.phoneNumber.length >= 10) {
+        fetchCustomerByPhone(invoiceFormData.phoneNumber);
+      } else if (invoiceFormData.phoneNumber.length === 0) {
+        // Clear customer data if phone number is empty
+        setInvoiceFormData(prev => ({
+          ...prev,
+          purchaserName: '',
+          email: ''
+        }));
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [invoiceFormData.phoneNumber]);
+
   const generateInvoice = async () => {
     // Validate required fields
     if (!invoiceFormData.purchaserName || !invoiceFormData.litersPurchased || !invoiceFormData.amount) {
@@ -276,6 +379,7 @@ const BillingIntegration = () => {
         amount: 0,
         storeNumber: ''
       });
+      setIsLoadingCustomer(false);
       setIsInvoiceDialogOpen(false);
       setSelectedStore(null);
     } catch (error) {
@@ -646,21 +750,26 @@ const BillingIntegration = () => {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
+                          <Label htmlFor="phoneNumber">Phone Number *</Label>
+                          <Input
+                            id="phoneNumber"
+                            placeholder="Enter customer phone number"
+                            value={invoiceFormData.phoneNumber}
+                            onChange={(e) => handlePhoneNumberChange(e.target.value)}
+                            disabled={isLoadingCustomer}
+                          />
+                          {isLoadingCustomer && (
+                            <p className="text-xs text-muted-foreground">Loading customer data...</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
                           <Label htmlFor="purchaserName">Purchaser Name *</Label>
                           <Input
                             id="purchaserName"
-                            placeholder="Enter purchaser name"
+                            placeholder="Auto-filled from phone number"
                             value={invoiceFormData.purchaserName}
-                            onChange={(e) => handleInvoiceFormChange('purchaserName', e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="phoneNumber">Phone Number</Label>
-                          <Input
-                            id="phoneNumber"
-                            placeholder="Enter phone number"
-                            value={invoiceFormData.phoneNumber}
-                            onChange={(e) => handleInvoiceFormChange('phoneNumber', e.target.value)}
+                            disabled={true}
+                            className="bg-muted"
                           />
                         </div>
                       </div>
@@ -669,9 +778,10 @@ const BillingIntegration = () => {
                         <Input
                           id="email"
                           type="email"
-                          placeholder="Enter email address"
+                          placeholder="Auto-filled from phone number"
                           value={invoiceFormData.email}
-                          onChange={(e) => handleInvoiceFormChange('email', e.target.value)}
+                          disabled={true}
+                          className="bg-muted"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
