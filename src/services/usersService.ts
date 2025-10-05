@@ -223,7 +223,7 @@ class UsersService {
     }
   }
 
-  // Get all influencers for dropdown selection
+  // Get all influencers for dropdown selection (public endpoint)
   async getInfluencers(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/users/influencers`, {

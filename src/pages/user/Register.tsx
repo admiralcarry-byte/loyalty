@@ -54,6 +54,10 @@ const UserRegister = () => {
   };
 
   const handleInfluencerSelect = (value: string) => {
+    // Filter out special values that are not actual phone numbers
+    if (value === "loading" || value === "no-influencers") {
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       influencerPhone: value
@@ -177,7 +181,7 @@ const UserRegister = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingInfluencers ? (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="loading" disabled>
                       Loading influencers...
                     </SelectItem>
                   ) : influencers.length > 0 ? (
@@ -187,7 +191,7 @@ const UserRegister = () => {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="no-influencers" disabled>
                       No influencers available
                     </SelectItem>
                   )}
