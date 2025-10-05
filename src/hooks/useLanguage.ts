@@ -20,11 +20,16 @@ export const useLanguage = () => {
 
   const changeLanguage = async (language: string) => {
     setIsLoading(true);
+    const previousLanguage = currentLanguage;
+    
     try {
+      // Update the language immediately for better UX
       translationService.setLanguage(language);
       // The language change will be handled by the listener
     } catch (error) {
       console.error('Error changing language:', error);
+      // Revert to previous language if there was an error
+      translationService.setLanguage(previousLanguage);
     } finally {
       setIsLoading(false);
     }

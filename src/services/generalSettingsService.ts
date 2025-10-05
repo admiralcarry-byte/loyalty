@@ -88,6 +88,38 @@ class GeneralSettingsService extends BaseService {
     }
   }
 
+  async updateLanguage(language: string): Promise<GeneralSettings> {
+    try {
+      // Get current settings first
+      const currentSettings = await this.getGeneralSettings();
+      
+      // Update only the language field
+      const updatedSettings = {
+        ...currentSettings,
+        language: language
+      };
+      
+      // Remove fields that shouldn't be sent to API
+      const { _id, is_active, createdAt, updatedAt, __v, ...filteredSettings } = updatedSettings;
+      
+      console.log('Updating language to:', language);
+      
+      const response = await this.request<{ success: boolean; data: GeneralSettings; message: string }>('/general-settings', {
+        method: 'PUT',
+        body: JSON.stringify(filteredSettings)
+      });
+      
+      // Clear cache after successful update
+      this.cachedSettings = null;
+      this.cacheTimestamp = 0;
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error updating language:', error);
+      throw error;
+    }
+  }
+
   async getSettingsStatistics(): Promise<SettingsStatistics> {
     try {
       const response = await this.request<{ success: boolean; data: SettingsStatistics }>('/general-settings/statistics');

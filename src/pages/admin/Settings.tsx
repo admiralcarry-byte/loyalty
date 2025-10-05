@@ -203,12 +203,14 @@ const Settings = () => {
   };
 
   const handleLanguageChange = async (language: string) => {
+    const previousLanguage = currentLanguage;
+    
     try {
-      // Change language using the hook
+      // Change language using the hook (this updates the UI immediately)
       await changeLanguage(language);
       
-      // Save the language preference to the database
-      await generalSettingsService.updateGeneralSettings({ language });
+      // Save the language preference to the database using the dedicated method
+      await generalSettingsService.updateLanguage(language);
       
       toast({
         title: translate('language.changed'),
@@ -216,6 +218,10 @@ const Settings = () => {
       });
     } catch (error) {
       console.error('Error changing language:', error);
+      
+      // Revert the language change if backend update failed
+      await changeLanguage(previousLanguage);
+      
       toast({
         title: translate('error'),
         description: translate('failed.to.save.settings'),
