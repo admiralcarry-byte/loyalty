@@ -561,10 +561,10 @@ const Sales = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
-              Add New Sale
+              {translate('add.new.sale')}
             </DialogTitle>
             <DialogDescription>
-              Create a new sales transaction
+              {translate('create.a.new.sales.transaction')}
             </DialogDescription>
           </DialogHeader>
           
@@ -574,7 +574,7 @@ const Sales = () => {
                 <Label htmlFor="customer">{translate('customer.name')}</Label>
                 <Input
                   id="customer"
-                  placeholder="Enter customer name"
+                  placeholder={translate('enter.customer.name')}
                   value={newSaleData.customer}
                   onChange={(e) => setNewSaleData({...newSaleData, customer: e.target.value})}
                 />
@@ -596,7 +596,7 @@ const Sales = () => {
                 <Input
                   id="liters"
                   type="number"
-                  placeholder="Enter liters"
+                  placeholder={translate('enter.liters')}
                   value={newSaleData.liters}
                   onChange={(e) => setNewSaleData({...newSaleData, liters: e.target.value})}
                 />
@@ -606,7 +606,7 @@ const Sales = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="Enter amount"
+                  placeholder={translate('enter.amount')}
                   value={newSaleData.amount}
                   onChange={(e) => setNewSaleData({...newSaleData, amount: e.target.value})}
                 />
@@ -617,22 +617,22 @@ const Sales = () => {
               <Label htmlFor="location">{translate('location')}</Label>
               <Input
                 id="location"
-                placeholder="Enter store location"
+                placeholder={translate('enter.store.location')}
                 value={newSaleData.location}
                 onChange={(e) => setNewSaleData({...newSaleData, location: e.target.value})}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="payment">Payment Method</Label>
+              <Label htmlFor="payment">{translate('payment.method')}</Label>
               <Select value={newSaleData.paymentMethod} onValueChange={(value) => setNewSaleData({...newSaleData, paymentMethod: value})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="credit_card">Credit Card</SelectItem>
-                  <SelectItem value="debit_card">Debit Card</SelectItem>
+                  <SelectItem value="cash">{translate('cash')}</SelectItem>
+                  <SelectItem value="credit_card">{translate('credit.card')}</SelectItem>
+                  <SelectItem value="debit_card">{translate('debit.card')}</SelectItem>
                   <SelectItem value="mobile_money">Mobile Money</SelectItem>
                   <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                   <SelectItem value="points">Points</SelectItem>
@@ -643,14 +643,14 @@ const Sales = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddSaleModal(false)}>
-              Cancel
+              {translate('cancel')}
             </Button>
             <Button 
               onClick={handleCreateSale} 
               disabled={isCreatingSale}
               className="bg-gradient-to-r from-primary to-water-blue"
             >
-              {isCreatingSale ? 'Creating...' : 'Create Sale'}
+              {isCreatingSale ? translate('creating') : translate('create.sale')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -662,10 +662,10 @@ const Sales = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />
-              Sale Details
+              {translate('sale.details')}
             </DialogTitle>
             <DialogDescription>
-              View detailed information about sale {viewingSale?.id}
+              {translate('view.detailed.information.about.sale')} {viewingSale?.id}
             </DialogDescription>
           </DialogHeader>
           
@@ -758,7 +758,7 @@ const Sales = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewingSale(null)}>
-              Close
+              {translate('close')}
             </Button>
           </DialogFooter>
         </DialogContent>

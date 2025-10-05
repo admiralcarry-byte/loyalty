@@ -655,29 +655,29 @@ const Users = () => {
              {user.type === "influencer" && (
                <DropdownMenuItem onClick={() => handleViewInfluencerNetwork(user)}>
                  <Network className="mr-2 h-4 w-4" />
-                 View Network
+                 {translate('view.network')}
                </DropdownMenuItem>
              )}
              <DropdownMenuItem onClick={() => handleViewDetails(user)}>
                <Eye className="mr-2 h-4 w-4" />
-               View Details
+               {translate('view.details')}
              </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEditUser(user)}>
               <Edit className="mr-2 h-4 w-4" />
-              Edit User Info
+              {translate('edit.user.info')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setEditingUser({ ...user, passwordMode: true })}>
               <Key className="mr-2 h-4 w-4" />
-              Change Password
+              {translate('change.password')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleBlockUser(user)} className="text-warning">
               <Ban className="mr-2 h-4 w-4" />
-              {user.status === "active" ? "Block User" : "Unblock User"}
+              {user.status === "active" ? translate('block.user') : translate('unblock.user')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleDeleteUser(user)} className="text-destructive">
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete User
+              {translate('delete.user')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -1244,23 +1244,23 @@ const Users = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">{translate('phone')}</Label>
                   <Input
                     id="phone"
                     value={newUserPhone}
                     onChange={(e) => setNewUserPhone(e.target.value)}
-                    placeholder="Enter phone number"
+                    placeholder={translate('enter.phone.number')}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{translate('email')}</Label>
                   <Input
                     id="email"
                     type="email"
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    placeholder="Enter email address"
+                    placeholder={translate('enter.email.address')}
                     required
                   />
                 </div>
@@ -1340,7 +1340,7 @@ const Users = () => {
                     className="col-span-3" 
                     value={newUserPhone}
                     onChange={(e) => setNewUserPhone(e.target.value)}
-                    placeholder="Enter phone number"
+                    placeholder={translate('enter.phone.number')}
                     required
                   />
                 </div>
@@ -1352,7 +1352,7 @@ const Users = () => {
                     className="col-span-3" 
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    placeholder="Enter email address"
+                    placeholder={translate('enter.email.address')}
                     required
                   />
                 </div>
@@ -1386,19 +1386,19 @@ const Users = () => {
                 {editingUser?.passwordMode ? (
                   <>
                     <Key className="w-5 h-5" />
-                    Change Password for {editingUser?.name}
+                    {translate('change.password.for')} {editingUser?.name}
                   </>
                 ) : (
                   <>
                     <UserCog className="w-5 h-5" />
-                    Edit User Information
+                    {translate('edit.user.info')}rmation
                   </>
                 )}
               </DialogTitle>
               <DialogDescription>
                 {editingUser?.passwordMode 
-                  ? "Set a new password for this user account."
-                  : "Update the user's personal information and settings."
+                  ? translate('set.a.new.password.for.this.user.account')
+                  : translate('update.the.users.personal.information.and.settings')
                 }
               </DialogDescription>
             </DialogHeader>
@@ -1412,18 +1412,18 @@ const Users = () => {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
+                    placeholder={translate('enter.new.password')}
                   />
                 </div>
                 <div className="bg-info/10 text-info-foreground p-3 rounded-lg text-sm">
-                  <strong>Note:</strong> The user will need to use this new password for their next login.
+                  <strong>{translate('note')}:</strong> {translate('the.user.will.need.to.use.this.new.password.for.their.next.login')}
                 </div>
               </div>
             ) : (
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="editName">Full Name</Label>
+                    <Label htmlFor="editName">{translate('full.name')}</Label>
                     <Input
                       id="editName"
                       value={editFormData.name}
@@ -1496,7 +1496,7 @@ const Users = () => {
                   : handleUpdateUser(editingUser)
                 }
               >
-                {editingUser?.passwordMode ? "Change Password" : "Update User"}
+                {editingUser?.passwordMode ? translate('change.password') : translate('update.user')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1508,10 +1508,10 @@ const Users = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
-                User Details
+                {translate('user.details')}
               </DialogTitle>
               <DialogDescription>
-                View detailed information about {viewingUser?.name}
+                {translate('view.detailed.information.about')} {viewingUser?.name}
               </DialogDescription>
             </DialogHeader>
             

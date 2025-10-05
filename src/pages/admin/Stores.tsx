@@ -462,14 +462,14 @@ const Stores = () => {
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-primary to-water-blue hover:from-primary/90 hover:to-water-blue/90 shadow-lg hover:shadow-xl transition-all duration-200">
               <Plus className="w-4 h-4 mr-2" />
-              Add New Store
+              {translate('add.new.store')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
             <DialogHeader className="flex-shrink-0">
-              <DialogTitle className="text-xl font-semibold">Add New Store</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">{translate('add.new.store')}</DialogTitle>
               <DialogDescription>
-                Add a new store location to the system with complete information.
+                {translate('add.a.new.store.location.to.the.system.with.complete.information')}
               </DialogDescription>
             </DialogHeader>
             <div className="flex-1 overflow-y-auto px-1">
@@ -479,7 +479,7 @@ const Stores = () => {
                   <Label htmlFor="storeName" className="text-sm font-medium">{translate('store.name')} *</Label>
                   <Input
                     id="storeName"
-                    placeholder="Enter store name"
+                    placeholder={translate('enter.store.name')}
                     value={newStore.name}
                     onChange={(e) => setNewStore({...newStore, name: e.target.value})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
@@ -489,7 +489,7 @@ const Stores = () => {
                   <Label htmlFor="storeCity" className="text-sm font-medium">City *</Label>
                   <Input
                     id="storeCity"
-                    placeholder="Enter city name"
+                    placeholder={translate('enter.city.name')}
                     value={newStore.address.city}
                     onChange={(e) => setNewStore({...newStore, address: {...newStore.address, city: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
@@ -501,7 +501,7 @@ const Stores = () => {
                 <Label htmlFor="storeAddress" className="text-sm font-medium">Street Address *</Label>
                 <Input
                   id="storeAddress"
-                  placeholder="Enter street address"
+                  placeholder={translate('enter.street.address')}
                   value={newStore.address.street}
                   onChange={(e) => setNewStore({...newStore, address: {...newStore.address, street: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
@@ -511,7 +511,7 @@ const Stores = () => {
                 <Label htmlFor="storeState" className="text-sm font-medium">State *</Label>
                 <Input
                   id="storeState"
-                  placeholder="Enter state"
+                  placeholder={translate('enter.state')}
                   value={newStore.address.state}
                   onChange={(e) => setNewStore({...newStore, address: {...newStore.address, state: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
@@ -522,7 +522,7 @@ const Stores = () => {
                 <Input
                   id="storePostalCode"
                   type="number"
-                  placeholder="Enter store number (numbers only)"
+                  placeholder={translate('enter.store.number.numbers.only')}
                   value={newStore.address.postal_code}
                   onChange={(e) => setNewStore({...newStore, address: {...newStore.address, postal_code: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
@@ -558,7 +558,7 @@ const Stores = () => {
                 <Label htmlFor="storeManager" className="text-sm font-medium">Store Manager</Label>
                 <Input
                   id="storeManager"
-                  placeholder="Manager name"
+                  placeholder={translate('manager.name')}
                   value={newStore.manager?.name || ''}
                   onChange={(e) => setNewStore({...newStore, manager: {...newStore.manager, name: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"
@@ -569,7 +569,7 @@ const Stores = () => {
             </div>
             <DialogFooter className="flex-shrink-0">
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
+                {translate('cancel')}
               </Button>
               <Button onClick={handleAddStore} className="bg-gradient-to-r from-primary to-water-blue hover:from-primary/90 hover:to-water-blue/90">
                 <Plus className="w-4 h-4 mr-2" />
@@ -801,7 +801,7 @@ const Stores = () => {
                   <Label htmlFor="editStoreCity" className="text-sm font-medium">City</Label>
                   <Input
                     id="editStoreCity"
-                    placeholder="Enter city name"
+                    placeholder={translate('enter.city.name')}
                     value={selectedStore.address?.city || ''}
                     onChange={(e) => setSelectedStore({...selectedStore, address: {...(selectedStore.address || {}), city: e.target.value}})}
                     className="border-border focus:ring-2 focus:ring-primary/20"
@@ -832,7 +832,7 @@ const Stores = () => {
                 <Input
                   id="editStorePostalCode"
                   type="number"
-                  placeholder="Enter store number (numbers only)"
+                  placeholder={translate('enter.store.number.numbers.only')}
                   value={selectedStore.address?.postal_code || ''}
                   onChange={(e) => setSelectedStore({...selectedStore, address: {...(selectedStore.address || {}), postal_code: e.target.value}})}
                   className="border-border focus:ring-2 focus:ring-primary/20"

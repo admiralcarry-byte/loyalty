@@ -150,9 +150,9 @@ const Reports = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            Reports & Analytics
+            {translate('reports.and.analytics')}
           </h1>
-          <p className="text-muted-foreground mt-1">Comprehensive insights into your loyalty program performance</p>
+          <p className="text-muted-foreground mt-1">{translate('comprehensive.insights.into.your.loyalty.program.performance')}</p>
         </div>
         <Button 
           onClick={() => fetchReportsData(true)} 
