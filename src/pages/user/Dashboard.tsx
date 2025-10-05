@@ -43,9 +43,11 @@ import {
 } from "recharts";
 import { authService, User as UserType } from "@/services/authService";
 import { salesService, Purchase } from "@/services/salesService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const { translate } = useLanguageContext();
   const [user, setUser] = useState<UserType | null>(null);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -203,9 +205,9 @@ const UserDashboard = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">
-            Welcome, {user?.first_name || 'Customer'}!
+            {translate('welcome')}, {user?.first_name || translate('customer')}!
           </h1>
-          <p className="text-muted-foreground">Track your purchases and earnings</p>
+          <p className="text-muted-foreground">{translate('track.your.purchases.and.earnings')}</p>
         </div>
         <div className="flex items-center gap-2">
           <User className="w-6 h-6 text-success" />
@@ -217,7 +219,7 @@ const UserDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="hover:shadow-water transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Liters Purchased</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.liters.purchased')}</CardTitle>
             <Droplets className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

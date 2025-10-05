@@ -23,6 +23,7 @@ import {
 import { useState, useEffect } from "react";
 import { sellerDashboardService, SellerDashboardStats } from "@/services/sellerDashboardService";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ComposedChart } from 'recharts';
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -33,6 +34,7 @@ const formatCurrency = (amount: number) => {
 };
 
 const SellerDashboard = () => {
+  const { translate } = useLanguageContext();
   // Animation states
   const [animatedStats, setAnimatedStats] = useState({
     totalSales: 0,
@@ -161,9 +163,9 @@ const SellerDashboard = () => {
       <div className="flex items-center justify-between animate-slide-down">
         <div className="animate-slide-left">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-loyalty-gold to-loyalty-lead bg-clip-text text-transparent animate-pulse">
-            Seller Dashboard
+            {translate('seller.dashboard')}
           </h1>
-          <p className="text-muted-foreground animate-fade-in-delay">Manage your store and track sales performance</p>
+          <p className="text-muted-foreground animate-fade-in-delay">{translate('manage.your.store.and.track.sales.performance')}</p>
         </div>
         <div className="flex items-center gap-2 animate-slide-right">
           <Store className="w-6 h-6 text-loyalty-gold" />
@@ -175,7 +177,7 @@ const SellerDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-water transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-slide-up-delay-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.sales')}</CardTitle>
             <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -188,7 +190,7 @@ const SellerDashboard = () => {
 
         <Card className="hover:shadow-water transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-slide-up-delay-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commissions</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.commissions')}</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -201,7 +203,7 @@ const SellerDashboard = () => {
 
         <Card className="hover:shadow-water transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-slide-up-delay-3">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Liters</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.liters')}</CardTitle>
             <Droplets className="h-4 w-4 text-muted-foreground animate-pulse" />
           </CardHeader>
           <CardContent>
@@ -214,7 +216,7 @@ const SellerDashboard = () => {
 
         <Card className="hover:shadow-water transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-slide-up-delay-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.customers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

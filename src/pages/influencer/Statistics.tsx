@@ -24,8 +24,10 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { influencerService } from "@/services/influencerService";
 import { authService } from "@/services/authService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const InfluencerStatistics = () => {
+  const { translate } = useLanguageContext();
   const [buyersData, setBuyersData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -183,7 +185,7 @@ const InfluencerStatistics = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Total Buyers</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">{translate('total.buyers')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Users className="h-4 w-4 text-white" />
             </div>
@@ -200,7 +202,7 @@ const InfluencerStatistics = () => {
 
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Total Liters Sold</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">{translate('total.liters.sold')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -242,7 +244,7 @@ const InfluencerStatistics = () => {
               <div className="p-2 rounded-lg bg-gradient-to-br from-water-blue to-blue-600">
                 <Droplets className="w-5 h-5 text-white" />
               </div>
-              Total Liters Purchased
+              {translate('total.liters.purchased')}
             </CardTitle>
             <CardDescription className="text-slate-600 font-medium">
               Volume purchased by affiliated customers over time

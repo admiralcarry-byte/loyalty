@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { reportsService, MonthlyStats, TierDistribution } from "@/services/reportsService";
 import { dashboardService, DashboardStats } from "@/services/dashboardService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Currency formatting function for AOA (Angolan Kwanza)
@@ -36,6 +37,7 @@ import {
 } from "lucide-react";
 
 const Reports = () => {
+  const { translate } = useLanguageContext();
   // State for reports data
   const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
   const [tierDistribution, setTierDistribution] = useState<TierDistribution[]>([]);
@@ -102,9 +104,9 @@ const Reports = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Reports & Analytics
+              {translate('reports.analytics')}
             </h1>
-            <p className="text-muted-foreground mt-1">Comprehensive insights into your loyalty program performance</p>
+            <p className="text-muted-foreground mt-1">{translate('comprehensive.insights.into.your.loyalty.program.performance')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -124,9 +126,9 @@ const Reports = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Reports & Analytics
+              {translate('reports.analytics')}
             </h1>
-            <p className="text-muted-foreground mt-1">Comprehensive insights into your loyalty program performance</p>
+            <p className="text-muted-foreground mt-1">{translate('comprehensive.insights.into.your.loyalty.program.performance')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">

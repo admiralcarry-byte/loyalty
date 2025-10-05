@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Droplets, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const AdminLogin = () => {
+  const { translate } = useLanguageContext();
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
@@ -29,8 +31,8 @@ const AdminLogin = () => {
         // Check if user has admin role
         if (response.data.user.role !== 'admin') {
           toast({
-            title: "Access Denied",
-            description: "Only administrators can access the admin panel",
+            title: translate('access.denied'),
+            description: translate('only.administrators.can.access.the.admin.panel'),
             variant: "destructive",
           });
           return;
@@ -44,22 +46,22 @@ const AdminLogin = () => {
         );
 
         toast({
-          title: "Login Successful",
-          description: "Welcome to ÁGUA TWEZAH Admin Panel",
+          title: translate('login.successful'),
+          description: translate('welcome.to.agua.twezah.admin.panel'),
         });
         navigate("/admin/users");
       } else {
         toast({
-          title: "Login Failed",
-          description: response.message || "Invalid credentials",
+          title: translate('login.failed'),
+          description: response.message || translate('invalid.credentials'),
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: "Login Failed",
-        description: error instanceof Error ? error.message : "An error occurred during login",
+        title: translate('login.failed'),
+        description: error instanceof Error ? error.message : translate('an.error.occurred.during.login'),
         variant: "destructive",
       });
     } finally {
@@ -75,12 +77,12 @@ const AdminLogin = () => {
             <Droplets className="w-12 h-12 text-water-blue" />
           </div>
           <CardTitle className="text-2xl">ÁGUA TWEZAH</CardTitle>
-          <CardDescription>Admin Panel Login</CardDescription>
+          <CardDescription>{translate('admin.panel.login')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{translate('email.address')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -92,7 +94,7 @@ const AdminLogin = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{translate('password')}</Label>
               <div className="relative">
                 <Input
                   id="password"

@@ -49,6 +49,7 @@ import { storesService, Store } from "@/services/storesService";
 import { translationService } from "@/services/translationService";
 import { authService } from "@/services/authService";
 import { usersService } from "@/services/usersService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -62,6 +63,7 @@ import { useState, useEffect, useMemo } from "react";
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
@@ -79,21 +81,21 @@ const Dashboard = () => {
     try {
       // Check if user is authenticated
       if (!authService.isAuthenticated()) {
-        setError('Please log in to access the dashboard');
+        setError(translate('please.log.in.to.access.dashboard'));
         return;
       }
 
       // Check if user has admin role
       const user = authService.getUser();
       if (!user || user.role !== 'admin') {
-        setError('Access denied: Admin privileges required');
+        setError(translate('access.denied.admin.privileges.required'));
         return;
       }
 
       // Fetch dashboard data
       fetchDashboardData();
     } catch (err: any) {
-      setError('Authentication check failed: ' + err.message);
+      setError(translate('authentication.check.failed') + ': ' + err.message);
     }
   };
 
@@ -142,7 +144,7 @@ const Dashboard = () => {
       }
     } catch (err: any) {
       console.error('Dashboard data fetch error:', err);
-      setError(err.message || 'Failed to load dashboard data');
+      setError(err.message || translate('failed.to.load.dashboard.data'));
       
       // Set default values to prevent crashes
       setDashboardData(null);
@@ -162,10 +164,10 @@ const Dashboard = () => {
   const loyaltyDistribution = (() => {
     if (!dashboardData?.userStats?.loyaltyDistribution) {
       return [
-        { name: "Lead", value: 0, color: "hsl(var(--accent))" },
-        { name: "Silver", value: 0, color: "hsl(var(--loyalty-silver))" },
-        { name: "Gold", value: 0, color: "hsl(var(--loyalty-gold))" },
-        { name: "Platinum", value: 0, color: "hsl(var(--loyalty-platinum))" },
+        { name: translate('lead'), value: 0, color: "hsl(var(--accent))" },
+        { name: translate('silver'), value: 0, color: "hsl(var(--loyalty-silver))" },
+        { name: translate('gold'), value: 0, color: "hsl(var(--loyalty-gold))" },
+        { name: translate('platinum'), value: 0, color: "hsl(var(--loyalty-platinum))" },
       ];
     }
 
@@ -178,10 +180,10 @@ const Dashboard = () => {
     const platinumCount = distribution.platinum || 0;
 
     return [
-      { name: "Lead", value: leadCount, color: "hsl(var(--accent))" },
-      { name: "Silver", value: silverCount, color: "hsl(var(--loyalty-silver))" },
-      { name: "Gold", value: goldCount, color: "hsl(var(--loyalty-gold))" },
-      { name: "Platinum", value: platinumCount, color: "hsl(var(--loyalty-platinum))" },
+      { name: translate('lead'), value: leadCount, color: "hsl(var(--accent))" },
+      { name: translate('silver'), value: silverCount, color: "hsl(var(--loyalty-silver))" },
+      { name: translate('gold'), value: goldCount, color: "hsl(var(--loyalty-gold))" },
+      { name: translate('platinum'), value: platinumCount, color: "hsl(var(--loyalty-platinum))" },
     ];
   })();
 
@@ -281,18 +283,18 @@ const Dashboard = () => {
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
-      case "Platinum": return <Crown className="w-4 h-4 text-loyalty-platinum" />;
-      case "Gold": return <Medal className="w-4 h-4 text-loyalty-gold" />;
-      case "Silver": return <Gem className="w-4 h-4 text-loyalty-silver" />;
+      case translate('platinum'): return <Crown className="w-4 h-4 text-loyalty-platinum" />;
+      case translate('gold'): return <Medal className="w-4 h-4 text-loyalty-gold" />;
+      case translate('silver'): return <Gem className="w-4 h-4 text-loyalty-silver" />;
       default: return <Star className="w-4 h-4 text-accent" />;
     }
   };
 
   const getTierBadgeVariant = (tier: string) => {
     switch (tier) {
-      case "Platinum": return "default";
-      case "Gold": return "secondary";
-      case "Silver": return "outline";
+      case translate('platinum'): return "default";
+      case translate('gold'): return "secondary";
+      case translate('silver'): return "outline";
       default: return "secondary";
     }
   };
@@ -366,7 +368,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-water-mist border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-water-blue">
               <Users className="h-4 w-4 text-white" />
             </div>
@@ -536,9 +538,9 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-primary" />
-              Store Locations
+              {translate('store.locations')}
             </CardTitle>
-            <CardDescription>Geographic distribution of our stores</CardDescription>
+            <CardDescription>{translate('geographic.distribution.of.our.stores')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -642,8 +644,8 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Users</CardTitle>
-            <CardDescription>Latest user registrations and activity</CardDescription>
+            <CardTitle>{translate('recent.users')}</CardTitle>
+            <CardDescription>{translate('latest.user.registrations.and.activity')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

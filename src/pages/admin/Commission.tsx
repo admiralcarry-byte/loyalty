@@ -26,6 +26,7 @@ import {
 import { commissionService, CommissionStats } from "@/services/commissionService";
 import { tierRequirementsService, TierRequirement } from "@/services/tierRequirementsService";
 import { toast } from "sonner";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -36,6 +37,7 @@ const formatCurrency = (amount: number) => {
 };
 
 const Commission = () => {
+  const { translate } = useLanguageContext();
   const [editingSettings, setEditingSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commissionStats, setCommissionStats] = useState<CommissionStats | null>(null);
@@ -245,9 +247,9 @@ const Commission = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            Commission Settings
+            {translate('commission.settings')}
           </h1>
-          <p className="text-muted-foreground mt-1">Manage influencer commission structure and payouts</p>
+          <p className="text-muted-foreground mt-1">{translate('manage.influencer.commission.structure.and.payouts')}</p>
         </div>
       </div>
 
@@ -328,7 +330,7 @@ const Commission = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    General Commission Settings
+                    {translate('general.commission.settings')}
                     {editingSettings && hasSettingsChanged() && (
                       <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Unsaved changes"></span>
                     )}
@@ -368,7 +370,7 @@ const Commission = () => {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="baseCommission">Base Commission Rate (%)</Label>
+                  <Label htmlFor="baseCommission">{translate('base.commission.rate')} (%)</Label>
                                      <Input
                      id="baseCommission"
                      type="number"
@@ -383,7 +385,7 @@ const Commission = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="cashbackRate">Cashback Rate (Kz per liter)</Label>
+                  <Label htmlFor="cashbackRate">{translate('cashback.rate')} (Kz per liter)</Label>
                                      <Input
                      id="cashbackRate"
                      type="number"
@@ -443,7 +445,7 @@ const Commission = () => {
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Tier Multipliers</h3>
+                <h3 className="text-lg font-medium">{translate('tier.multipliers')}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(commissionSettings.tier_multipliers).map(([tier, multiplier]) => (
                     <div key={tier} className="space-y-2">

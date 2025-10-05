@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { salesService, Sale } from "@/services/salesService";
 import { dashboardService } from "@/services/dashboardService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { formatDateTime } from "@/utils/dateUtils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -70,6 +71,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Sales = () => {
+  const { translate } = useLanguageContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   
@@ -343,9 +345,9 @@ const Sales = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Sales Management
+              {translate('sales.management')}
             </h1>
-            <p className="text-muted-foreground mt-1">Monitor and manage all sales transactions and revenue</p>
+            <p className="text-muted-foreground mt-1">{translate('monitor.and.manage.all.sales.transactions')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -365,9 +367,9 @@ const Sales = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Sales Management
+              {translate('sales.management')}
             </h1>
-            <p className="text-muted-foreground mt-1">Monitor and manage all sales transactions and revenue</p>
+            <p className="text-muted-foreground mt-1">{translate('monitor.and.manage.all.sales.transactions')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -481,7 +483,7 @@ const Sales = () => {
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="search">Search Sales</Label>
+              <Label htmlFor="search">{translate('search.sales')}</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -500,10 +502,10 @@ const Sales = () => {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="verified">Verified</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="all">{translate('all.status')}</SelectItem>
+                  <SelectItem value="pending">{translate('pending')}</SelectItem>
+                  <SelectItem value="verified">{translate('verified')}</SelectItem>
+                  <SelectItem value="rejected">{translate('rejected')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -513,7 +515,7 @@ const Sales = () => {
                 className="w-full bg-gradient-to-r from-primary to-water-blue hover:shadow-primary shadow-md"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Sale
+                {translate('add.sale')}
               </Button>
             </div>
           </div>

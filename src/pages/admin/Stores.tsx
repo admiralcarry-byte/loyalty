@@ -48,12 +48,14 @@ import {
   // Target
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 // import StoreMap from "@/components/StoreMap";
 // import { geolocationService, type StoreLocation } from "@/services/geolocation";
 
 
 const Stores = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -406,9 +408,9 @@ const Stores = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-water-mist border border-border shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Store Management
+              {translate('stores')}
             </h1>
-            <p className="text-muted-foreground mt-1">Manage all store locations and their information across Angola</p>
+            <p className="text-muted-foreground mt-1">{translate('manage.all.store.locations.and.their.information.across.angola')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -428,9 +430,9 @@ const Stores = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-water-mist border border-border shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Store Management
+              {translate('stores')}
             </h1>
-            <p className="text-muted-foreground mt-1">Manage all store locations and their information across Angola</p>
+            <p className="text-muted-foreground mt-1">{translate('manage.all.store.locations.and.their.information.across.angola')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -474,7 +476,7 @@ const Stores = () => {
               <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="storeName" className="text-sm font-medium">Store Name *</Label>
+                  <Label htmlFor="storeName" className="text-sm font-medium">{translate('store.name')} *</Label>
                   <Input
                     id="storeName"
                     placeholder="Enter store name"
@@ -571,7 +573,7 @@ const Stores = () => {
               </Button>
               <Button onClick={handleAddStore} className="bg-gradient-to-r from-primary to-water-blue hover:from-primary/90 hover:to-water-blue/90">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Store
+                {translate('add.store')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -618,7 +620,7 @@ const Stores = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="w-5 h-5 text-primary" />
-            Search Stores
+            {translate('search.stores')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -689,7 +691,7 @@ const Stores = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">
-                <TableHead className="font-semibold">Store Name</TableHead>
+                <TableHead className="font-semibold">{translate('store.name')}</TableHead>
                 <TableHead className="font-semibold">Location</TableHead>
                 <TableHead className="font-semibold">Store Code</TableHead>
                 <TableHead className="font-semibold">Contact</TableHead>
@@ -787,7 +789,7 @@ const Stores = () => {
               <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="editStoreName" className="text-sm font-medium">Store Name</Label>
+                  <Label htmlFor="editStoreName" className="text-sm font-medium">{translate('store.name')}</Label>
                   <Input
                     id="editStoreName"
                     value={selectedStore.name}

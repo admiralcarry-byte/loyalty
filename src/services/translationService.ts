@@ -208,6 +208,85 @@ const translations: LanguageTranslations = {
     'statistics': 'Estatísticas',
     'settings': 'Configurações',
     
+    // Dashboard
+    'total.users': 'Total de Usuários',
+    'store.locations': 'Localizações das Lojas',
+    'geographic.distribution.of.our.stores': 'Distribuição geográfica das nossas lojas',
+    'recent.users': 'Usuários Recentes',
+    'latest.user.registrations.and.activity': 'Últimos registros de usuários e atividade',
+    'please.log.in.to.access.dashboard': 'Por favor, faça login para acessar o painel',
+    'access.denied.admin.privileges.required': 'Acesso negado: Privilégios de administrador necessários',
+    'authentication.check.failed': 'Verificação de autenticação falhou',
+    'failed.to.load.dashboard.data': 'Falha ao carregar dados do painel',
+    'lead': 'Iniciante',
+    'silver': 'Prata',
+    'gold': 'Ouro',
+    'platinum': 'Platina',
+    
+    // Users Management
+    'manage.customers.and.influencers': 'Gerenciar clientes e influenciadores',
+    'add.user': 'Adicionar Usuário',
+    'all.users': 'Todos os Usuários',
+    'customers': 'Clientes',
+    'influencers': 'Influenciadores',
+    
+    // Receipt Upload
+    'receipt.upload': 'Upload de Recibos',
+    'upload.receipts.for.ocr.processing': 'Faça upload de recibos para processamento OCR e extração automática de dados',
+    
+    // Sales Management
+    'monitor.and.manage.all.sales.transactions': 'Monitore e gerencie todas as transações de vendas e receita',
+    'search.sales': 'Pesquisar Vendas',
+    'all.status': 'Todos os Status',
+    'pending': 'Pendente',
+    'verified': 'Verificado',
+    'rejected': 'Rejeitado',
+    'add.sale': 'Adicionar Venda',
+    
+    // Commission Settings
+    'manage.influencer.commission.structure.and.payouts': 'Gerenciar estrutura de comissões de influenciadores e pagamentos',
+    'general.commission.settings': 'Configurações Gerais de Comissão',
+    'base.commission.rate': 'Taxa de Comissão Base',
+    'cashback.rate': 'Taxa de Cashback',
+    'tier.multipliers': 'Multiplicadores de Nível',
+    
+    // Reports & Analytics
+    'comprehensive.insights.into.your.loyalty.program.performance': 'Insights abrangentes sobre o desempenho do seu programa de fidelidade',
+    
+    // Store Management
+    'manage.all.store.locations.and.their.information.across.angola': 'Gerenciar todos os locais de lojas e suas informações em Angola',
+    'store.name': 'Nome da Loja',
+    'add.store': 'Adicionar Loja',
+    'search.stores': 'Pesquisar Lojas',
+    
+    // Login & Authentication
+    'admin.panel.login': 'Login do Painel Admin',
+    'only.administrators.can.access.the.admin.panel': 'Apenas administradores podem acessar o painel admin',
+    'login.successful': 'Login Bem-sucedido',
+    'welcome.to.agua.twezah.admin.panel': 'Bem-vindo ao Painel Admin da ÁGUA TWEZAH',
+    'login.failed': 'Login Falhou',
+    'invalid.credentials': 'Credenciais inválidas',
+    'an.error.occurred.during.login': 'Ocorreu um erro durante o login',
+    
+    // User Dashboard
+    'welcome': 'Bem-vindo',
+    'customer': 'Cliente',
+    'track.your.purchases.and.earnings': 'Acompanhe suas compras e ganhos',
+    'total.liters.purchased': 'Total de Litros Comprados',
+    
+    // Seller Dashboard
+    'seller.dashboard': 'Painel do Vendedor',
+    'manage.your.store.and.track.sales.performance': 'Gerencie sua loja e acompanhe o desempenho das vendas',
+    'total.sales': 'Total de Vendas',
+    'total.commissions': 'Total de Comissões',
+    'total.customers': 'Total de Clientes',
+    'total.liters': 'Total de Litros',
+    
+    // Influencer Statistics
+    'total.buyers': 'Total de Compradores',
+    'total.liters.sold': 'Total de Litros Vendidos',
+    'total.liters.purchased': 'Total de Litros Comprados',
+    
     // User Registration
     'full.name': 'Nome Completo',
     'email.address': 'Endereço de Email',
@@ -381,6 +460,85 @@ const translations: LanguageTranslations = {
     'statistics': 'Statistics',
     'settings': 'Settings',
     
+    // Dashboard
+    'total.users': 'Total Users',
+    'store.locations': 'Store Locations',
+    'geographic.distribution.of.our.stores': 'Geographic distribution of our stores',
+    'recent.users': 'Recent Users',
+    'latest.user.registrations.and.activity': 'Latest user registrations and activity',
+    'please.log.in.to.access.dashboard': 'Please log in to access the dashboard',
+    'access.denied.admin.privileges.required': 'Access denied: Admin privileges required',
+    'authentication.check.failed': 'Authentication check failed',
+    'failed.to.load.dashboard.data': 'Failed to load dashboard data',
+    'lead': 'Lead',
+    'silver': 'Silver',
+    'gold': 'Gold',
+    'platinum': 'Platinum',
+    
+    // Users Management
+    'manage.customers.and.influencers': 'Manage customers and influencers',
+    'add.user': 'Add User',
+    'all.users': 'All Users',
+    'customers': 'Customers',
+    'influencers': 'Influencers',
+    
+    // Receipt Upload
+    'receipt.upload': 'Receipt Upload',
+    'upload.receipts.for.ocr.processing': 'Upload receipts for OCR processing and automatic data extraction',
+    
+    // Sales Management
+    'monitor.and.manage.all.sales.transactions': 'Monitor and manage all sales transactions and revenue',
+    'search.sales': 'Search Sales',
+    'all.status': 'All Status',
+    'pending': 'Pending',
+    'verified': 'Verified',
+    'rejected': 'Rejected',
+    'add.sale': 'Add Sale',
+    
+    // Commission Settings
+    'manage.influencer.commission.structure.and.payouts': 'Manage influencer commission structure and payouts',
+    'general.commission.settings': 'General Commission Settings',
+    'base.commission.rate': 'Base Commission Rate',
+    'cashback.rate': 'Cashback Rate',
+    'tier.multipliers': 'Tier Multipliers',
+    
+    // Reports & Analytics
+    'comprehensive.insights.into.your.loyalty.program.performance': 'Comprehensive insights into your loyalty program performance',
+    
+    // Store Management
+    'manage.all.store.locations.and.their.information.across.angola': 'Manage all store locations and their information across Angola',
+    'store.name': 'Store Name',
+    'add.store': 'Add Store',
+    'search.stores': 'Search Stores',
+    
+    // Login & Authentication
+    'admin.panel.login': 'Admin Panel Login',
+    'only.administrators.can.access.the.admin.panel': 'Only administrators can access the admin panel',
+    'login.successful': 'Login Successful',
+    'welcome.to.agua.twezah.admin.panel': 'Welcome to ÁGUA TWEZAH Admin Panel',
+    'login.failed': 'Login Failed',
+    'invalid.credentials': 'Invalid credentials',
+    'an.error.occurred.during.login': 'An error occurred during login',
+    
+    // User Dashboard
+    'welcome': 'Welcome',
+    'customer': 'Customer',
+    'track.your.purchases.and.earnings': 'Track your purchases and earnings',
+    'total.liters.purchased': 'Total Liters Purchased',
+    
+    // Seller Dashboard
+    'seller.dashboard': 'Seller Dashboard',
+    'manage.your.store.and.track.sales.performance': 'Manage your store and track sales performance',
+    'total.sales': 'Total Sales',
+    'total.commissions': 'Total Commissions',
+    'total.customers': 'Total Customers',
+    'total.liters': 'Total Liters',
+    
+    // Influencer Statistics
+    'total.buyers': 'Total Buyers',
+    'total.liters.sold': 'Total Liters Sold',
+    'total.liters.purchased': 'Total Liters Purchased',
+    
     // User Registration
     'full.name': 'Full Name',
     'email.address': 'Email Address',
@@ -504,6 +662,85 @@ const translations: LanguageTranslations = {
     'my.buyers': 'Mis Compradores',
     'statistics': 'Estadísticas',
     'settings': 'Configuraciones',
+    
+    // Dashboard
+    'total.users': 'Total de Usuarios',
+    'store.locations': 'Ubicaciones de Tiendas',
+    'geographic.distribution.of.our.stores': 'Distribución geográfica de nuestras tiendas',
+    'recent.users': 'Usuarios Recientes',
+    'latest.user.registrations.and.activity': 'Últimos registros de usuarios y actividad',
+    'please.log.in.to.access.dashboard': 'Por favor, inicie sesión para acceder al panel',
+    'access.denied.admin.privileges.required': 'Acceso denegado: Se requieren privilegios de administrador',
+    'authentication.check.failed': 'La verificación de autenticación falló',
+    'failed.to.load.dashboard.data': 'Error al cargar datos del panel',
+    'lead': 'Principiante',
+    'silver': 'Plata',
+    'gold': 'Oro',
+    'platinum': 'Platino',
+    
+    // Users Management
+    'manage.customers.and.influencers': 'Gestionar clientes e influenciadores',
+    'add.user': 'Agregar Usuario',
+    'all.users': 'Todos los Usuarios',
+    'customers': 'Clientes',
+    'influencers': 'Influenciadores',
+    
+    // Receipt Upload
+    'receipt.upload': 'Subida de Recibos',
+    'upload.receipts.for.ocr.processing': 'Subir recibos para procesamiento OCR y extracción automática de datos',
+    
+    // Sales Management
+    'monitor.and.manage.all.sales.transactions': 'Monitorear y gestionar todas las transacciones de ventas e ingresos',
+    'search.sales': 'Buscar Ventas',
+    'all.status': 'Todos los Estados',
+    'pending': 'Pendiente',
+    'verified': 'Verificado',
+    'rejected': 'Rechazado',
+    'add.sale': 'Agregar Venta',
+    
+    // Commission Settings
+    'manage.influencer.commission.structure.and.payouts': 'Gestionar estructura de comisiones de influenciadores y pagos',
+    'general.commission.settings': 'Configuración General de Comisiones',
+    'base.commission.rate': 'Tasa de Comisión Base',
+    'cashback.rate': 'Tasa de Cashback',
+    'tier.multipliers': 'Multiplicadores de Nivel',
+    
+    // Reports & Analytics
+    'comprehensive.insights.into.your.loyalty.program.performance': 'Insights integrales sobre el rendimiento de tu programa de fidelidad',
+    
+    // Store Management
+    'manage.all.store.locations.and.their.information.across.angola': 'Gestionar todas las ubicaciones de tiendas y su información en Angola',
+    'store.name': 'Nombre de la Tienda',
+    'add.store': 'Agregar Tienda',
+    'search.stores': 'Buscar Tiendas',
+    
+    // Login & Authentication
+    'admin.panel.login': 'Inicio de Sesión del Panel Admin',
+    'only.administrators.can.access.the.admin.panel': 'Solo los administradores pueden acceder al panel admin',
+    'login.successful': 'Inicio de Sesión Exitoso',
+    'welcome.to.agua.twezah.admin.panel': 'Bienvenido al Panel Admin de ÁGUA TWEZAH',
+    'login.failed': 'Inicio de Sesión Fallido',
+    'invalid.credentials': 'Credenciales inválidas',
+    'an.error.occurred.during.login': 'Ocurrió un error durante el inicio de sesión',
+    
+    // User Dashboard
+    'welcome': 'Bienvenido',
+    'customer': 'Cliente',
+    'track.your.purchases.and.earnings': 'Rastrea tus compras y ganancias',
+    'total.liters.purchased': 'Total de Litros Comprados',
+    
+    // Seller Dashboard
+    'seller.dashboard': 'Panel del Vendedor',
+    'manage.your.store.and.track.sales.performance': 'Gestiona tu tienda y rastrea el rendimiento de ventas',
+    'total.sales': 'Total de Ventas',
+    'total.commissions': 'Total de Comisiones',
+    'total.customers': 'Total de Clientes',
+    'total.liters': 'Total de Litros',
+    
+    // Influencer Statistics
+    'total.buyers': 'Total de Compradores',
+    'total.liters.sold': 'Total de Litros Vendidos',
+    'total.liters.purchased': 'Total de Litros Comprados',
     
     // User Registration
     'full.name': 'Nombre Completo',
@@ -726,6 +963,85 @@ const translations: LanguageTranslations = {
     'my.buyers': 'Mes Acheteurs',
     'statistics': 'Statistiques',
     'settings': 'Paramètres',
+    
+    // Dashboard
+    'total.users': 'Total des Utilisateurs',
+    'store.locations': 'Emplacements des Magasins',
+    'geographic.distribution.of.our.stores': 'Distribution géographique de nos magasins',
+    'recent.users': 'Utilisateurs Récents',
+    'latest.user.registrations.and.activity': 'Dernières inscriptions d\'utilisateurs et activité',
+    'please.log.in.to.access.dashboard': 'Veuillez vous connecter pour accéder au tableau de bord',
+    'access.denied.admin.privileges.required': 'Accès refusé: Privilèges d\'administrateur requis',
+    'authentication.check.failed': 'La vérification d\'authentification a échoué',
+    'failed.to.load.dashboard.data': 'Échec du chargement des données du tableau de bord',
+    'lead': 'Débutant',
+    'silver': 'Argent',
+    'gold': 'Or',
+    'platinum': 'Platine',
+    
+    // Users Management
+    'manage.customers.and.influencers': 'Gérer les clients et les influenceurs',
+    'add.user': 'Ajouter un Utilisateur',
+    'all.users': 'Tous les Utilisateurs',
+    'customers': 'Clients',
+    'influencers': 'Influenceurs',
+    
+    // Receipt Upload
+    'receipt.upload': 'Téléchargement de Reçus',
+    'upload.receipts.for.ocr.processing': 'Téléchargez des reçus pour le traitement OCR et l\'extraction automatique de données',
+    
+    // Sales Management
+    'monitor.and.manage.all.sales.transactions': 'Surveiller et gérer toutes les transactions de vente et les revenus',
+    'search.sales': 'Rechercher les Ventes',
+    'all.status': 'Tous les États',
+    'pending': 'En Attente',
+    'verified': 'Vérifié',
+    'rejected': 'Rejeté',
+    'add.sale': 'Ajouter une Vente',
+    
+    // Commission Settings
+    'manage.influencer.commission.structure.and.payouts': 'Gérer la structure des commissions d\'influenceurs et les paiements',
+    'general.commission.settings': 'Paramètres Généraux de Commission',
+    'base.commission.rate': 'Taux de Commission de Base',
+    'cashback.rate': 'Taux de Cashback',
+    'tier.multipliers': 'Multiplicateurs de Niveau',
+    
+    // Reports & Analytics
+    'comprehensive.insights.into.your.loyalty.program.performance': 'Insights complets sur les performances de votre programme de fidélité',
+    
+    // Store Management
+    'manage.all.store.locations.and.their.information.across.angola': 'Gérer tous les emplacements de magasins et leurs informations en Angola',
+    'store.name': 'Nom du Magasin',
+    'add.store': 'Ajouter un Magasin',
+    'search.stores': 'Rechercher des Magasins',
+    
+    // Login & Authentication
+    'admin.panel.login': 'Connexion au Panneau Admin',
+    'only.administrators.can.access.the.admin.panel': 'Seuls les administrateurs peuvent accéder au panneau admin',
+    'login.successful': 'Connexion Réussie',
+    'welcome.to.agua.twezah.admin.panel': 'Bienvenue au Panneau Admin ÁGUA TWEZAH',
+    'login.failed': 'Échec de la Connexion',
+    'invalid.credentials': 'Identifiants invalides',
+    'an.error.occurred.during.login': 'Une erreur s\'est produite pendant la connexion',
+    
+    // User Dashboard
+    'welcome': 'Bienvenue',
+    'customer': 'Client',
+    'track.your.purchases.and.earnings': 'Suivez vos achats et gains',
+    'total.liters.purchased': 'Total de Litres Achetés',
+    
+    // Seller Dashboard
+    'seller.dashboard': 'Tableau de Bord du Vendeur',
+    'manage.your.store.and.track.sales.performance': 'Gérez votre magasin et suivez les performances de vente',
+    'total.sales': 'Total des Ventes',
+    'total.commissions': 'Total des Commissions',
+    'total.customers': 'Total des Clients',
+    'total.liters': 'Total des Litres',
+    
+    // Influencer Statistics
+    'total.buyers': 'Total des Acheteurs',
+    'total.liters.sold': 'Total des Litres Vendus',
+    'total.liters.purchased': 'Total des Litres Achetés',
     
     // User Registration
     'full.name': 'Nom Complet',

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
 import { authService } from "@/services/authService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -101,6 +102,7 @@ import {
 
 const Users = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterTier, setFilterTier] = useState("all");
   const [filterType, setFilterType] = useState("all");
@@ -1159,9 +1161,9 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              User Management
+              {translate('user.management')}
             </h1>
-            <p className="text-muted-foreground mt-1">Manage customers and influencers</p>
+            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -1181,9 +1183,9 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              User Management
+              {translate('user.management')}
             </h1>
-            <p className="text-muted-foreground mt-1">Manage customers and influencers</p>
+            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -1212,15 +1214,15 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              User Management
+              {translate('user.management')}
             </h1>
-            <p className="text-muted-foreground mt-1">Manage customers and influencers</p>
+            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
           </div>
           <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <UserPlus className="w-4 h-4 mr-2" />
-                Add User
+                {translate('add.user')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -1732,9 +1734,9 @@ const Users = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList>
-              <TabsTrigger value="all">All Users ({filteredUsers.length})</TabsTrigger>
-              <TabsTrigger value="customers">Customers ({customers.length})</TabsTrigger>
-              <TabsTrigger value="influencers">Influencers ({influencers.length})</TabsTrigger>
+              <TabsTrigger value="all">{translate('all.users')} ({filteredUsers.length})</TabsTrigger>
+              <TabsTrigger value="customers">{translate('customers')} ({customers.length})</TabsTrigger>
+              <TabsTrigger value="influencers">{translate('influencers')} ({influencers.length})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="all" className="space-y-4">

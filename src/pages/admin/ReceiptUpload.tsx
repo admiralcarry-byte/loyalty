@@ -20,6 +20,7 @@ import {
   Download
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 import { billingService } from '@/services/billingService';
 import { usersService } from '@/services/usersService';
 import { storesService } from '@/services/storesService';
@@ -34,6 +35,7 @@ interface ExtractedData {
 
 const ReceiptUpload = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -235,9 +237,9 @@ const ReceiptUpload = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Receipt Upload</h1>
+          <h1 className="text-3xl font-bold">{translate('receipt.upload')}</h1>
           <p className="text-muted-foreground">
-            Upload receipts for OCR processing and automatic data extraction
+            {translate('upload.receipts.for.ocr.processing')}
           </p>
         </div>
       </div>
