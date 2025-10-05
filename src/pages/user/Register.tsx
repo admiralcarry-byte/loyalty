@@ -72,10 +72,10 @@ const UserRegister = () => {
 
     try {
       // Validate form data
-      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
+      if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.influencerPhone) {
         toast({
           title: "Validation Error",
-          description: "Please fill in all required fields",
+          description: "Please fill in all required fields including selecting an influencer",
           variant: "destructive",
         });
         return;
@@ -93,7 +93,7 @@ const UserRegister = () => {
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
-          ...(formData.influencerPhone && { influencerPhone: formData.influencerPhone })
+          influencerPhone: formData.influencerPhone
         }),
       });
 
@@ -176,8 +176,8 @@ const UserRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="influencerPhone">{translate('influencer.phone.optional')}</Label>
-              <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone}>
+              <Label htmlFor="influencerPhone">{translate('influencer.phone')} *</Label>
+              <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone} required>
                 <SelectTrigger>
                   <SelectValue placeholder={translate('select.influencer')} />
                 </SelectTrigger>
