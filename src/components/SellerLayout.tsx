@@ -20,6 +20,7 @@ import {
   User
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { sellerAuthService } from "@/services/sellerAuthService";
 
 interface SellerLayoutProps {
@@ -33,6 +34,7 @@ const SellerLayout = ({ children }: SellerLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
 
   // Fetch seller information
   const fetchSellerInfo = async () => {
@@ -80,8 +82,8 @@ const SellerLayout = ({ children }: SellerLayoutProps) => {
   };
 
   const navigation = [
-    { name: "Dashboard", href: "/seller/dashboard", icon: Home },
-    { name: "Billing", href: "/seller/billing", icon: BarChart3 },
+    { name: translate('dashboard'), href: "/seller/dashboard", icon: Home },
+    { name: translate('billing'), href: "/seller/billing", icon: BarChart3 },
   ];
 
   const isActive = (path: string) => {

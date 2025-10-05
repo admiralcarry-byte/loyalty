@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Droplets, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const UserRegister = () => {
-  const { translate } = useLanguage();
+  const { translate } = useLanguageContext();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",

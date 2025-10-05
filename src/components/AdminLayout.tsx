@@ -39,63 +39,54 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { authService } from "@/services/authService";
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
-const navigationItems = [
+const getNavigationItems = (translate: (key: string) => string) => [
   {
-    name: "Dashboard",
+    name: translate('dashboard'),
     href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
   {
-    name: "User Management",
+    name: translate('user.management'),
     href: "/admin/users",
     icon: UserCheck,
   },
   {
-    name: "Sales Management",
+    name: translate('sales.management'),
     href: "/admin/sales",
     icon: TrendingUp,
   },
   {
-    name: "Commission Settings",
+    name: translate('commission.settings'),
     href: "/admin/commission",
     icon: Wallet,
   },
   {
-    name: "Reports & Analytics",
+    name: translate('reports.analytics'),
     href: "/admin/reports",
     icon: FileText,
   },
   {
-    name: "Stores",
+    name: translate('stores'),
     href: "/admin/stores",
     icon: Building2,
   },
-  // {
-  //   name: "Loyalty Levels",
-  //   href: "/admin/loyalty-levels",
-  //   icon: Award,
-  // },
   {
-    name: "Billing Integration",
+    name: translate('billing.integration'),
     href: "/admin/billing-integration",
     icon: CreditCard,
   },
   {
-    name: "Settings",
+    name: translate('settings'),
     href: "/admin/settings",
     icon: Settings,
   },
-  // {
-  //   name: "Influencer Levels",
-  //   href: "/admin/influencer-levels",
-  //   icon: TrendingUp,
-  // },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
@@ -103,6 +94,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
+  
+  const navigationItems = getNavigationItems(translate);
 
   // Auto-hide sidebar when clicking on main content
   const handleMainContentClick = () => {

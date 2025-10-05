@@ -27,14 +27,14 @@ import {
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { generalSettingsService, SettingsStatistics } from "@/services/generalSettingsService";
 import { useLanguageInitialization } from "@/hooks/useLanguageInitialization";
 
 const Settings = () => {
   const { toast } = useToast();
   const { isInitialized, isLoading: isLanguageLoading } = useLanguageInitialization();
-  const { currentLanguage, changeLanguage, translate, isLoading: isChangingLanguage } = useLanguage();
+  const { currentLanguage, changeLanguage, translate, isLoading: isChangingLanguage } = useLanguageContext();
   const [animatedValues, setAnimatedValues] = useState({
     activeSettings: 0,
     savedChanges: 0,

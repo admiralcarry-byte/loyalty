@@ -193,6 +193,21 @@ const translations: LanguageTranslations = {
     'updating.data': 'Atualizando dados...',
     'deleting.data': 'Excluindo dados...',
     
+    // Navigation
+    'dashboard': 'Painel de Controle',
+    'user.management': 'Gerenciamento de Usuários',
+    'sales.management': 'Gerenciamento de Vendas',
+    'commission.settings': 'Configurações de Comissão',
+    'reports.analytics': 'Relatórios e Análises',
+    'stores': 'Lojas',
+    'billing.integration': 'Integração de Faturamento',
+    'billing': 'Faturamento',
+    'my.level': 'Meu Nível',
+    'my.influencer': 'Meu Influenciador',
+    'my.buyers': 'Meus Compradores',
+    'statistics': 'Estatísticas',
+    'settings': 'Configurações',
+    
     // User Registration
     'full.name': 'Nome Completo',
     'email.address': 'Endereço de Email',
@@ -351,6 +366,21 @@ const translations: LanguageTranslations = {
     'failed.to.save.settings': 'Failed to save general settings',
     'failed.to.load.settings': 'Failed to load general settings',
     
+    // Navigation
+    'dashboard': 'Dashboard',
+    'user.management': 'User Management',
+    'sales.management': 'Sales Management',
+    'commission.settings': 'Commission Settings',
+    'reports.analytics': 'Reports & Analytics',
+    'stores': 'Stores',
+    'billing.integration': 'Billing Integration',
+    'billing': 'Billing',
+    'my.level': 'My Level',
+    'my.influencer': 'My Influencer',
+    'my.buyers': 'My Buyers',
+    'statistics': 'Statistics',
+    'settings': 'Settings',
+    
     // User Registration
     'full.name': 'Full Name',
     'email.address': 'Email Address',
@@ -459,6 +489,21 @@ const translations: LanguageTranslations = {
     'saving.data': 'Guardando datos...',
     'updating.data': 'Actualizando datos...',
     'deleting.data': 'Eliminando datos...',
+    
+    // Navigation
+    'dashboard': 'Panel de Control',
+    'user.management': 'Gestión de Usuarios',
+    'sales.management': 'Gestión de Ventas',
+    'commission.settings': 'Configuración de Comisiones',
+    'reports.analytics': 'Informes y Análisis',
+    'stores': 'Tiendas',
+    'billing.integration': 'Integración de Facturación',
+    'billing': 'Facturación',
+    'my.level': 'Mi Nivel',
+    'my.influencer': 'Mi Influenciador',
+    'my.buyers': 'Mis Compradores',
+    'statistics': 'Estadísticas',
+    'settings': 'Configuraciones',
     
     // User Registration
     'full.name': 'Nombre Completo',
@@ -666,6 +711,21 @@ const translations: LanguageTranslations = {
     'saving.data': 'Sauvegarde des données...',
     'updating.data': 'Mise à jour des données...',
     'deleting.data': 'Suppression des données...',
+    
+    // Navigation
+    'dashboard': 'Tableau de Bord',
+    'user.management': 'Gestion des Utilisateurs',
+    'sales.management': 'Gestion des Ventes',
+    'commission.settings': 'Paramètres de Commission',
+    'reports.analytics': 'Rapports et Analyses',
+    'stores': 'Magasins',
+    'billing.integration': 'Intégration de Facturation',
+    'billing': 'Facturation',
+    'my.level': 'Mon Niveau',
+    'my.influencer': 'Mon Influenceur',
+    'my.buyers': 'Mes Acheteurs',
+    'statistics': 'Statistiques',
+    'settings': 'Paramètres',
     
     // User Registration
     'full.name': 'Nom Complet',

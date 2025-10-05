@@ -21,6 +21,7 @@ import {
   Megaphone
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { authService, User as UserType } from "@/services/authService";
 
 interface UserLayoutProps {
@@ -34,6 +35,7 @@ const UserLayout = ({ children }: UserLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
 
   // Fetch user data on component mount
   useEffect(() => {
@@ -82,14 +84,14 @@ const UserLayout = ({ children }: UserLayoutProps) => {
   // Get navigation items based on user's influencer status
   const getNavigation = () => {
     const baseNavigation = [
-      { name: "Dashboard", href: "/user/dashboard", icon: Home },
-      { name: "My Level", href: "/user/my-level", icon: Trophy },
+      { name: translate('dashboard'), href: "/user/dashboard", icon: Home },
+      { name: translate('my.level'), href: "/user/my-level", icon: Trophy },
     ];
 
     // Only show My Influencer link if user has referred_by_phone
     if (user?.referred_by_phone) {
       baseNavigation.push({
-        name: "My Influencer",
+        name: translate('my.influencer'),
         href: "/user/my-influencer",
         icon: Megaphone
       });

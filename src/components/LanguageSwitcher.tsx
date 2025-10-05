@@ -1,7 +1,7 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Globe } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 interface LanguageSwitcherProps {
   className?: string;
@@ -14,7 +14,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   showIcon = true,
   size = 'md'
 }) => {
-  const { currentLanguage, changeLanguage, getAvailableLanguages, translate } = useLanguage();
+  const { currentLanguage, changeLanguage, getAvailableLanguages, translate } = useLanguageContext();
 
   const sizeClasses = {
     sm: 'h-8 text-xs',

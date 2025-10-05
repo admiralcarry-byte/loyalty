@@ -20,6 +20,7 @@ import {
   Target
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { authService } from "@/services/authService";
 
 interface InfluencerLayoutProps {
@@ -32,6 +33,7 @@ const InfluencerLayout = ({ children }: InfluencerLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
 
   const handleLogout = () => {
     authService.logout();
@@ -70,8 +72,8 @@ const InfluencerLayout = ({ children }: InfluencerLayoutProps) => {
   }, []);
 
   const navigation = [
-    { name: "My Buyers", href: "/influencer/users", icon: Users },
-    { name: "Statistics", href: "/influencer/statistics", icon: BarChart3 },
+    { name: translate('my.buyers'), href: "/influencer/users", icon: Users },
+    { name: translate('statistics'), href: "/influencer/statistics", icon: BarChart3 },
   ];
 
   const isActive = (path: string) => {
