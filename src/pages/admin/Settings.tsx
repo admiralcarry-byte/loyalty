@@ -27,13 +27,14 @@ import {
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { translationService } from "@/services/translationService";
+import { useLanguage } from "@/hooks/useLanguage";
 import { generalSettingsService, SettingsStatistics } from "@/services/generalSettingsService";
 import { useLanguageInitialization } from "@/hooks/useLanguageInitialization";
 
 const Settings = () => {
   const { toast } = useToast();
   const { isInitialized, isLoading: isLanguageLoading } = useLanguageInitialization();
+  const { currentLanguage, changeLanguage, translate, isLoading: isChangingLanguage } = useLanguage();
   const [animatedValues, setAnimatedValues] = useState({
     activeSettings: 0,
     savedChanges: 0,
@@ -42,7 +43,6 @@ const Settings = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [joinStatus, setJoinStatus] = useState<number | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState(translationService.getLanguage());
   const [statistics, setStatistics] = useState<SettingsStatistics | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
@@ -58,8 +58,8 @@ const Settings = () => {
     } catch (error) {
       console.error('Error fetching statistics:', error);
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.load.statistics'),
+        title: translate('error'),
+        description: translate('failed.to.load.statistics'),
         variant: "destructive",
       });
     } finally {
@@ -119,13 +119,13 @@ const Settings = () => {
       const randomPercentage = Math.floor(Math.random() * 40) + 60; // 60-100%
       setJoinStatus(randomPercentage);
       toast({
-        title: translationService.translate('join.status.checked'),
-        description: `${translationService.translate('database.join.optimized')} ${randomPercentage}%`,
+        title: translate('join.status.checked'),
+        description: `${translate('database.join.optimized')} ${randomPercentage}%`,
       });
     } catch (error) {
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.check.join.status'),
+        title: translate('error'),
+        description: translate('failed.to.check.join.status'),
         variant: "destructive",
       });
     } finally {
@@ -139,13 +139,13 @@ const Settings = () => {
       // Simulate cache cleaning
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast({
-        title: translationService.translate('cache.cleaned'),
-        description: translationService.translate('cache.cleared.successfully'),
+        title: translate('cache.cleaned'),
+        description: translate('cache.cleared.successfully'),
       });
     } catch (error) {
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.clean.cache'),
+        title: translate('error'),
+        description: translate('failed.to.clean.cache'),
         variant: "destructive",
       });
     } finally {
@@ -167,14 +167,14 @@ const Settings = () => {
       // Simulate database deletion
       await new Promise(resolve => setTimeout(resolve, 3000));
       toast({
-        title: translationService.translate('database.deleted'),
-        description: translationService.translate('database.deleted.permanently'),
+        title: translate('database.deleted'),
+        description: translate('database.deleted.permanently'),
         variant: "destructive",
       });
     } catch (error) {
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.delete.database'),
+        title: translate('error'),
+        description: translate('failed.to.delete.database'),
         variant: "destructive",
       });
     } finally {
@@ -188,13 +188,13 @@ const Settings = () => {
       // Simulate database backup
       await new Promise(resolve => setTimeout(resolve, 2500));
       toast({
-        title: translationService.translate('backup.created'),
-        description: translationService.translate('backup.created.successfully'),
+        title: translate('backup.created'),
+        description: translate('backup.created.successfully'),
       });
     } catch (error) {
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.create.backup'),
+        title: translate('error'),
+        description: translate('failed.to.create.backup'),
         variant: "destructive",
       });
     } finally {
@@ -204,23 +204,21 @@ const Settings = () => {
 
   const handleLanguageChange = async (language: string) => {
     try {
-      setSelectedLanguage(language);
-      
-      // Update the translation service
-      translationService.setLanguage(language);
+      // Change language using the hook
+      await changeLanguage(language);
       
       // Save the language preference to the database
       await generalSettingsService.updateGeneralSettings({ language });
       
       toast({
-        title: translationService.translate('language.changed'),
-        description: `${translationService.translate('interface.language.changed')} ${language}`,
+        title: translate('language.changed'),
+        description: `${translate('interface.language.changed')} ${language}`,
       });
     } catch (error) {
       console.error('Error changing language:', error);
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.save.settings'),
+        title: translate('error'),
+        description: translate('failed.to.save.settings'),
         variant: "destructive",
       });
     }
@@ -241,9 +239,9 @@ const Settings = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            {translationService.translate('system.settings')}
+            {translate('system.settings')}
           </h1>
-          <p className="text-muted-foreground mt-1">{translationService.translate('system.settings.subtitle')}</p>
+          <p className="text-muted-foreground mt-1">{translate('system.settings.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button 
@@ -253,7 +251,7 @@ const Settings = () => {
             className="bg-gradient-to-r from-slate-50 to-slate-100 hover:shadow-md"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
-            {isLoadingStats ? translationService.translate('refreshing') : translationService.translate('refresh')}
+            {isLoadingStats ? translate('refreshing') : translate('refresh')}
           </Button>
           {/* <Button 
             onClick={() => toast({ title: "All Settings Saved", description: "All settings have been updated successfully." })}
@@ -269,7 +267,7 @@ const Settings = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 animate-fade-in">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('active.settings')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('active.settings')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <SettingsIcon className="h-4 w-4 text-white" />
             </div>
@@ -280,14 +278,14 @@ const Settings = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {statistics ? `+${statistics.userGrowth}% ${translationService.translate('from.last.month')}` : `+0% ${translationService.translate('from.last.month')}`}
+              {statistics ? `+${statistics.userGrowth}% ${translate('from.last.month')}` : `+0% ${translate('from.last.month')}`}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('saved.changes')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('saved.changes')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <CheckCircle className="h-4 w-4 text-white" />
             </div>
@@ -298,14 +296,14 @@ const Settings = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {statistics ? `+${statistics.changeGrowth}% ${translationService.translate('from.last.month')}` : `+0% ${translationService.translate('from.last.month')}`}
+              {statistics ? `+${statistics.changeGrowth}% ${translate('from.last.month')}` : `+0% ${translate('from.last.month')}`}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-purple-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('system.status')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('system.status')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <Shield className="h-4 w-4 text-white" />
             </div>
@@ -316,7 +314,7 @@ const Settings = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <CheckCircle className="w-3 h-3 mr-1" />
-              {translationService.translate('all.systems.operational')}
+              {translate('all.systems.operational')}
             </div>
           </CardContent>
         </Card>
@@ -327,9 +325,9 @@ const Settings = () => {
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
           <CardTitle className="flex items-center gap-2">
             <Database className="w-5 h-5 text-primary" />
-            {translationService.translate('database.management')}
+            {translate('database.management')}
           </CardTitle>
-          <CardDescription>{translationService.translate('database.management.subtitle')}</CardDescription>
+          <CardDescription>{translate('database.management.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -345,7 +343,7 @@ const Settings = () => {
                 <BarChart3 className="w-6 h-6" />
               )}
               <span className="text-sm font-medium">
-                {joinStatus ? `${translationService.translate('join.status.checked')}: ${joinStatus}%` : translationService.translate('check.join.status')}
+                {joinStatus ? `${translate('join.status.checked')}: ${joinStatus}%` : translate('check.join.status')}
               </span>
             </Button>
 
@@ -360,7 +358,7 @@ const Settings = () => {
               ) : (
                 <Zap className="w-6 h-6" />
               )}
-              <span className="text-sm font-medium">{translationService.translate('clean.cache')}</span>
+              <span className="text-sm font-medium">{translate('clean.cache')}</span>
             </Button>
 
             {/* Backup Database Button */}
@@ -374,7 +372,7 @@ const Settings = () => {
               ) : (
                 <Download className="w-6 h-6" />
               )}
-              <span className="text-sm font-medium">{translationService.translate('backup.database')}</span>
+              <span className="text-sm font-medium">{translate('backup.database')}</span>
             </Button>
 
             {/* Delete Database Button */}
@@ -388,14 +386,14 @@ const Settings = () => {
               ) : (
                 <Trash2 className="w-6 h-6" />
               )}
-              <span className="text-sm font-medium">{translationService.translate('delete.database')}</span>
+              <span className="text-sm font-medium">{translate('delete.database')}</span>
             </Button>
 
             {/* Language Selection */}
-            {/* <div className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-4">
+            <div className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-4">
               <Globe className="w-6 h-6 text-slate-600" />
-              <span className="text-sm font-medium text-slate-700 mb-1">{translationService.translate('select.language')}</span>
-              <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+              <span className="text-sm font-medium text-slate-700 mb-1">{translate('select.language')}</span>
+              <Select value={currentLanguage} onValueChange={handleLanguageChange}>
                 <SelectTrigger className="w-full h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
@@ -405,7 +403,7 @@ const Settings = () => {
                   <SelectItem value="Spanish">Español</SelectItem>
                 </SelectContent>
               </Select>
-            </div> */}
+            </div>
           </div>
         </CardContent>
       </Card>

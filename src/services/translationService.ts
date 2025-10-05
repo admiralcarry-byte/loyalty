@@ -188,10 +188,29 @@ const translations: LanguageTranslations = {
     'data.deleted.successfully': 'Dados excluídos com sucesso',
     'please.try.again': 'Tente novamente',
     'no.data.found': 'Nenhum dado encontrado',
-    'loading.data': 'Loading data...',
-    'saving.data': 'Saving data...',
-    'updating.data': 'Updating data...',
-    'deleting.data': 'Deleting data...',
+    'loading.data': 'Carregando dados...',
+    'saving.data': 'Salvando dados...',
+    'updating.data': 'Atualizando dados...',
+    'deleting.data': 'Excluindo dados...',
+    
+    // User Registration
+    'full.name': 'Nome Completo',
+    'email.address': 'Endereço de Email',
+    'phone.number': 'Número de Telefone',
+    'influencer.phone.optional': 'Telefone do Influenciador (Opcional)',
+    'password': 'Senha',
+    'enter.full.name': 'Digite seu nome completo',
+    'user.example.com': 'usuario@exemplo.com',
+    'enter.phone.number': 'Digite seu número de telefone',
+    'select.influencer': 'Selecione um influenciador que o indicou',
+    'enter.password': 'Digite sua senha',
+    'creating.account': 'Criando Conta...',
+    'register': 'Registrar',
+    'already.have.account': 'Já tem uma conta? Faça login',
+    'back.to.home': '← Voltar ao Início',
+    'select.influencer.helper': 'Selecione o influenciador que o indicou na lista suspensa',
+    'loading.influencers': 'Carregando influenciadores...',
+    'no.influencers.available': 'Nenhum influenciador disponível',
     
     // Database Management
     'database.management': 'Database Management',
@@ -277,6 +296,17 @@ const translations: LanguageTranslations = {
     'language': 'Language',
     'save.general.settings': 'Save General Settings',
     
+    // Dashboard
+    'dashboard': 'Dashboard',
+    'dashboard.subtitle': 'System overview and main statistics',
+    'total.users': 'Total Users',
+    'total.sales': 'Total Sales',
+    'total.commissions': 'Total Commissions',
+    'total.stores': 'Total Stores',
+    'recent.activity': 'Recent Activity',
+    'sales.overview': 'Sales Overview',
+    'top.performers': 'Top Performers',
+    
     // Database Management
     'database.management': 'Database Management',
     'database.management.subtitle': 'Manage database operations and maintenance',
@@ -317,9 +347,27 @@ const translations: LanguageTranslations = {
     'saving.data': 'Saving data...',
     'updating.data': 'Updating data...',
     'deleting.data': 'Deleting data...',
-    'error': 'Error',
     'failed.to.save.settings': 'Failed to save general settings',
-    'failed.to.load.settings': 'Failed to load general settings'
+    'failed.to.load.settings': 'Failed to load general settings',
+    
+    // User Registration
+    'full.name': 'Full Name',
+    'email.address': 'Email Address',
+    'phone.number': 'Phone Number',
+    'influencer.phone.optional': 'Influencer\'s Phone Number (Optional)',
+    'password': 'Password',
+    'enter.full.name': 'Enter your full name',
+    'user.example.com': 'user@example.com',
+    'enter.phone.number': 'Enter your phone number',
+    'select.influencer': 'Select an influencer who referred you',
+    'enter.password': 'Enter your password',
+    'creating.account': 'Creating Account...',
+    'register': 'Register',
+    'already.have.account': 'Already have an account? Sign in',
+    'back.to.home': '← Back to Home',
+    'select.influencer.helper': 'Select the influencer who referred you from the dropdown',
+    'loading.influencers': 'Loading influencers...',
+    'no.influencers.available': 'No influencers available'
   },
   Spanish: {
     // General
@@ -355,6 +403,17 @@ const translations: LanguageTranslations = {
     'language': 'Idioma',
     'save.general.settings': 'Guardar Configuraciones Generales',
     
+    // Dashboard
+    'dashboard': 'Panel de Control',
+    'dashboard.subtitle': 'Resumen del sistema y estadísticas principales',
+    'total.users': 'Total de Usuarios',
+    'total.sales': 'Total de Ventas',
+    'total.commissions': 'Total de Comisiones',
+    'total.stores': 'Total de Tiendas',
+    'recent.activity': 'Actividad Reciente',
+    'sales.overview': 'Resumen de Ventas',
+    'top.performers': 'Mejores Desempeños',
+    
     // Database Management
     'database.management': 'Gestión de Base de Datos',
     'database.management.subtitle': 'Gestionar operaciones y mantenimiento de la base de datos',
@@ -385,7 +444,38 @@ const translations: LanguageTranslations = {
     'general.settings.updated': 'Las configuraciones generales han sido actualizadas y guardadas en la base de datos.',
     'error': 'Error',
     'failed.to.save.settings': 'Error al guardar configuraciones generales',
-    'failed.to.load.settings': 'Error al cargar configuraciones generales'
+    'failed.to.load.settings': 'Error al cargar configuraciones generales',
+    'operation.successful': 'Operación completada exitosamente',
+    'operation.failed': 'Operación fallida',
+    'data.loaded.successfully': 'Datos cargados exitosamente',
+    'data.saved.successfully': 'Datos guardados exitosamente',
+    'data.updated.successfully': 'Datos actualizados exitosamente',
+    'data.deleted.successfully': 'Datos eliminados exitosamente',
+    'please.try.again': 'Por favor intente de nuevo',
+    'no.data.found': 'No se encontraron datos',
+    'loading.data': 'Cargando datos...',
+    'saving.data': 'Guardando datos...',
+    'updating.data': 'Actualizando datos...',
+    'deleting.data': 'Eliminando datos...',
+    
+    // User Registration
+    'full.name': 'Nombre Completo',
+    'email.address': 'Dirección de Email',
+    'phone.number': 'Número de Teléfono',
+    'influencer.phone.optional': 'Número de Teléfono del Influenciador (Opcional)',
+    'password': 'Contraseña',
+    'enter.full.name': 'Ingrese su nombre completo',
+    'user.example.com': 'usuario@ejemplo.com',
+    'enter.phone.number': 'Ingrese su número de teléfono',
+    'select.influencer': 'Seleccione un influenciador que lo refirió',
+    'enter.password': 'Ingrese su contraseña',
+    'creating.account': 'Creando Cuenta...',
+    'register': 'Registrar',
+    'already.have.account': '¿Ya tiene una cuenta? Inicie sesión',
+    'back.to.home': '← Volver al Inicio',
+    'select.influencer.helper': 'Seleccione el influenciador que lo refirió del menú desplegable',
+    'loading.influencers': 'Cargando influenciadores...',
+    'no.influencers.available': 'No hay influenciadores disponibles'
   },
   French: {
     // General
@@ -421,21 +511,77 @@ const translations: LanguageTranslations = {
     'language': 'Langue',
     'save.general.settings': 'Sauvegarder les Paramètres Généraux',
     
+    // Dashboard
+    'dashboard': 'Tableau de Bord',
+    'dashboard.subtitle': 'Aperçu du système et statistiques principales',
+    'total.users': 'Total des Utilisateurs',
+    'total.sales': 'Total des Ventes',
+    'total.commissions': 'Total des Commissions',
+    'total.stores': 'Total des Magasins',
+    'recent.activity': 'Activité Récente',
+    'sales.overview': 'Aperçu des Ventes',
+    'top.performers': 'Meilleurs Performeurs',
+    
     // Messages
     'settings.saved.successfully': 'Paramètres Sauvegardés avec Succès!',
     'general.settings.updated': 'Les paramètres généraux ont été mis à jour et sauvegardés dans la base de données.',
     'error': 'Erreur',
     'failed.to.save.settings': 'Échec de la sauvegarde des paramètres généraux',
-    'failed.to.load.settings': 'Échec du chargement des paramètres généraux'
+    'failed.to.load.settings': 'Échec du chargement des paramètres généraux',
+    'operation.successful': 'Opération terminée avec succès',
+    'operation.failed': 'Opération échouée',
+    'data.loaded.successfully': 'Données chargées avec succès',
+    'data.saved.successfully': 'Données sauvegardées avec succès',
+    'data.updated.successfully': 'Données mises à jour avec succès',
+    'data.deleted.successfully': 'Données supprimées avec succès',
+    'please.try.again': 'Veuillez réessayer',
+    'no.data.found': 'Aucune donnée trouvée',
+    'loading.data': 'Chargement des données...',
+    'saving.data': 'Sauvegarde des données...',
+    'updating.data': 'Mise à jour des données...',
+    'deleting.data': 'Suppression des données...',
+    
+    // User Registration
+    'full.name': 'Nom Complet',
+    'email.address': 'Adresse Email',
+    'phone.number': 'Numéro de Téléphone',
+    'influencer.phone.optional': 'Numéro de Téléphone de l\'Influenceur (Optionnel)',
+    'password': 'Mot de Passe',
+    'enter.full.name': 'Entrez votre nom complet',
+    'user.example.com': 'utilisateur@exemple.com',
+    'enter.phone.number': 'Entrez votre numéro de téléphone',
+    'select.influencer': 'Sélectionnez un influenceur qui vous a référé',
+    'enter.password': 'Entrez votre mot de passe',
+    'creating.account': 'Création du Compte...',
+    'register': 'S\'inscrire',
+    'already.have.account': 'Vous avez déjà un compte? Connectez-vous',
+    'back.to.home': '← Retour à l\'Accueil',
+    'select.influencer.helper': 'Sélectionnez l\'influenceur qui vous a référé dans la liste déroulante',
+    'loading.influencers': 'Chargement des influenceurs...',
+    'no.influencers.available': 'Aucun influenceur disponible'
   }
 };
 
 class TranslationService {
   private currentLanguage: string = 'English';
+  private listeners: Array<() => void> = [];
+
+  constructor() {
+    // Load language from localStorage on initialization
+    const savedLanguage = localStorage.getItem('aguatwezah_language');
+    if (savedLanguage && translations[savedLanguage]) {
+      this.currentLanguage = savedLanguage;
+    }
+  }
 
   setLanguage(language: string) {
-    // Force English for now - override any language setting
-    this.currentLanguage = 'English';
+    if (translations[language] && this.currentLanguage !== language) {
+      this.currentLanguage = language;
+      // Save to localStorage for persistence
+      localStorage.setItem('aguatwezah_language', language);
+      // Notify all listeners about language change
+      this.notifyListeners();
+    }
   }
 
   getLanguage(): string {
@@ -445,7 +591,9 @@ class TranslationService {
   translate(key: string): string {
     const languageTranslations = translations[this.currentLanguage];
     if (!languageTranslations) {
-      return key; // Fallback to key if language not found
+      // Fallback to English if current language not found
+      const englishTranslations = translations['English'];
+      return englishTranslations[key] || key;
     }
     
     return languageTranslations[key] || key; // Fallback to key if translation not found
@@ -453,6 +601,19 @@ class TranslationService {
 
   getAvailableLanguages(): string[] {
     return Object.keys(translations);
+  }
+
+  // Event system for language changes
+  addLanguageChangeListener(callback: () => void) {
+    this.listeners.push(callback);
+  }
+
+  removeLanguageChangeListener(callback: () => void) {
+    this.listeners = this.listeners.filter(listener => listener !== callback);
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach(listener => listener());
   }
 }
 
