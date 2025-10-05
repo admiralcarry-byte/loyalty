@@ -1629,7 +1629,7 @@ const Users = () => {
             <div className="text-2xl font-bold text-primary">{transformedUsers.length}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {customers.length} customers, {influencers.length} influencers
+              {customers.length} {translate('customers')}, {influencers.length} {translate('influencers')}
             </div>
           </CardContent>
         </Card>
@@ -1647,7 +1647,7 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {transformedUsers.length > 0 ? Math.round((transformedUsers.filter(u => u.status === "active").length / transformedUsers.length) * 100) : 0}% active rate
+              {transformedUsers.length > 0 ? Math.round((transformedUsers.filter(u => u.status === "active").length / transformedUsers.length) * 100) : 0}% {translate('active.rate')}
             </div>
           </CardContent>
         </Card>
@@ -1665,7 +1665,7 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              Highest tier members
+              {translate('highest.tier.members')}
             </div>
           </CardContent>
         </Card>
@@ -1683,7 +1683,7 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              Rewards distributed
+              {translate('rewards.distributed')}
             </div>
           </CardContent>
         </Card>
@@ -1692,8 +1692,8 @@ const Users = () => {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>Search and filter users by various criteria</CardDescription>
+          <CardTitle>{translate('users')}</CardTitle>
+          <CardDescription>{translate('search.and.filter.users.by.various.criteria')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-6">
@@ -1701,7 +1701,7 @@ const Users = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, phone, or email..."
+                  placeholder={translate('search.by.name.phone.or.email')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -1713,8 +1713,8 @@ const Users = () => {
                 <SelectValue placeholder="User Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="all">{translate('all.types')}</SelectItem>
+                <SelectItem value="customer">{translate('customer')}</SelectItem>
                 <SelectItem value="influencer">Influencer</SelectItem>
               </SelectContent>
             </Select>
@@ -1723,8 +1723,8 @@ const Users = () => {
                 <SelectValue placeholder="Loyalty Tier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tiers</SelectItem>
-                <SelectItem value="lead">Lead</SelectItem>
+                <SelectItem value="all">{translate('all.tiers')}</SelectItem>
+                <SelectItem value="lead">{translate('lead')}</SelectItem>
                 <SelectItem value="silver">Silver</SelectItem>
                 <SelectItem value="gold">Gold</SelectItem>
                 <SelectItem value="platinum">Platinum</SelectItem>
@@ -1743,15 +1743,15 @@ const Users = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead>Liters/Users</TableHead>
-                    <TableHead>Cashback</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{translate('user')}</TableHead>
+                    <TableHead>{translate('type')}</TableHead>
+                    <TableHead>{translate('tier')}</TableHead>
+                    <TableHead>{translate('liters.users')}</TableHead>
+                    <TableHead>{translate('cashback')}</TableHead>
+                    <TableHead>{translate('commission')}</TableHead>
+                    <TableHead>{translate('status')}</TableHead>
+                    <TableHead>{translate('joined')}</TableHead>
+                    <TableHead>{translate('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1766,15 +1766,15 @@ const Users = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead>Liters/Users</TableHead>
-                    <TableHead>Cashback</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{translate('customer')}</TableHead>
+                    <TableHead>{translate('type')}</TableHead>
+                    <TableHead>{translate('tier')}</TableHead>
+                    <TableHead>{translate('liters.users')}</TableHead>
+                    <TableHead>{translate('cashback')}</TableHead>
+                    <TableHead>{translate('commission')}</TableHead>
+                    <TableHead>{translate('status')}</TableHead>
+                    <TableHead>{translate('joined')}</TableHead>
+                    <TableHead>{translate('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1789,15 +1789,15 @@ const Users = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Influencer</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead>Network</TableHead>
-                    <TableHead>Cashback</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{translate('influencer')}</TableHead>
+                    <TableHead>{translate('type')}</TableHead>
+                    <TableHead>{translate('tier')}</TableHead>
+                    <TableHead>{translate('network')}</TableHead>
+                    <TableHead>{translate('cashback')}</TableHead>
+                    <TableHead>{translate('commission')}</TableHead>
+                    <TableHead>{translate('status')}</TableHead>
+                    <TableHead>{translate('joined')}</TableHead>
+                    <TableHead>{translate('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

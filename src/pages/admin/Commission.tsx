@@ -257,7 +257,7 @@ const Commission = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-primary/5 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paid Commissions</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('paid.commissions')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-primary/80">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -284,7 +284,7 @@ const Commission = () => {
               {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(totalPaidPayouts)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
-              <span>Total approved payouts</span>
+              <span>{translate('total.approved.payouts')}</span>
             </div>
           </CardContent>
         </Card>
@@ -318,7 +318,7 @@ const Commission = () => {
               {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : formatCurrency(avgCommissionAmount)}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
-              <span>Average payout amount</span>
+              <span>{translate('average.payout.amount')}</span>
             </div>
           </CardContent>
         </Card>
@@ -335,7 +335,7 @@ const Commission = () => {
                       <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Unsaved changes"></span>
                     )}
                   </CardTitle>
-                  <CardDescription>Configure how commissions are calculated and paid</CardDescription>
+                  <CardDescription>{translate('configure.how.commissions.are.calculated.and.paid')}</CardDescription>
                 </div>
                 {/* Action Buttons in upper right corner */}
                 <div className="flex gap-2">
@@ -380,7 +380,7 @@ const Commission = () => {
                      step="0.1"
                    />
                   <p className="text-xs text-muted-foreground">
-                    Base percentage of sales converted to commission
+                    {translate('base.percentage.of.sales.converted.to.commission')}
                   </p>
                 </div>
                 
@@ -395,7 +395,7 @@ const Commission = () => {
                      step="0.1"
                    />
                   <p className="text-xs text-muted-foreground">
-                    Cashback amount in Kz awarded per liter purchased
+                    {translate('cashback.amount.in.kz.awarded.per.liter.purchased')}
                   </p>
                 </div>
                 
@@ -472,14 +472,14 @@ const Commission = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">Tier Progression Requirements</h3>
+                  <h3 className="text-lg font-medium">{translate('tier.progression.requirements')}</h3>
                   {editingSettings && hasTierRequirementsChanged() && (
                     <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Unsaved changes"></span>
                   )}
                 </div>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-4">
-                    Users automatically progress through tiers based on total liters purchased:
+                    {translate('users.automatically.progress.through.tiers.based.on.total.liters.purchased')}:
                   </p>
                   {tierRequirements.length === 0 && (
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
@@ -517,10 +517,10 @@ const Commission = () => {
                     <div className="flex items-start gap-2">
                       <Droplets className="w-4 h-4 text-blue-600 mt-0.5" />
                       <div className="text-sm">
-                        <div className="font-medium text-blue-900">Automatic Progression</div>
+                        <div className="font-medium text-blue-900">{translate('automatic.progression')}</div>
                         <div className="text-blue-700">
-                          User tiers are automatically updated when they make purchases based on the requirements above. 
-                          Commission rates are calculated using the tier multipliers from Commission Settings.
+                          {translate('user.tiers.are.automatically.updated.when.they.make.purchases.based.on.the.requirements.above')}. 
+                          {translate('commission.rates.are.calculated.using.the.tier.multipliers.from.commission.settings')}.
                         </div>
                       </div>
                     </div>

@@ -377,7 +377,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold text-primary">{dashboardData?.userStats?.totalUsers?.toLocaleString() || 0}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              +{dashboardData?.userStats?.newUsersThisMonth || 0} this month
+              +{dashboardData?.userStats?.newUsersThisMonth || 0} {translate('this.month')}
             </div>
           </CardContent>
         </Card>
@@ -393,7 +393,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold text-water-blue">{dashboardData?.salesStats?.totalLiters?.toLocaleString() || 0}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {dashboardData?.salesStats?.salesGrowth || 0}% growth
+              {dashboardData?.salesStats?.salesGrowth || 0}% {translate('growth')}
             </div>
           </CardContent>
         </Card>
@@ -409,7 +409,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold text-success">{formatCurrency(dashboardData?.commissionStats?.total_paid_commissions || 0)}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {dashboardData?.commissionStats?.pendingCommissions || 0} pending
+              {dashboardData?.commissionStats?.pendingCommissions || 0} {translate('pending')}
             </div>
           </CardContent>
         </Card>
@@ -425,7 +425,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold text-accent">{dashboardData?.commissionStats?.topInfluencers?.length || 0}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {dashboardData?.campaignStats?.activeCampaigns || 0} active campaigns
+              {dashboardData?.campaignStats?.activeCampaigns || 0} {translate('active.campaigns')}
             </div>
           </CardContent>
         </Card>

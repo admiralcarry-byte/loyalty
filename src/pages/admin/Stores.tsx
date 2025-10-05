@@ -390,7 +390,7 @@ const Stores = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">{translate('active')}</Badge>;
       case "inactive":
         return <Badge variant="secondary">Inactive</Badge>;
       case "maintenance":
@@ -584,7 +584,7 @@ const Stores = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-water-mist">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Stores</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{translate('total.stores')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-r from-primary/10 to-water-blue/10">
               <Building2 className="h-4 w-4 text-primary" />
             </div>
@@ -592,14 +592,14 @@ const Stores = () => {
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{stores.length}</div>
             <p className="text-xs text-muted-foreground">
-              Store locations
+              {translate('store.locations')}
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-all duration-200 border-0 shadow-sm bg-gradient-to-br from-white to-green-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Stores</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{translate('active.stores')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10">
               <Star className="h-4 w-4 text-green-600" />
             </div>
@@ -609,7 +609,7 @@ const Stores = () => {
               {stores.filter(store => store.status === 'active').length}
             </div>
             <p className="text-xs text-muted-foreground">
-              Currently operating
+              {translate('currently.operating')}
             </p>
           </CardContent>
         </Card>
@@ -627,7 +627,7 @@ const Stores = () => {
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search stores by name, address, or manager..."
+              placeholder={translate('search.stores.by.name.address.or.manager')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 border-border focus:ring-2 focus:ring-primary/20"
@@ -683,20 +683,20 @@ const Stores = () => {
         <CardHeader className="bg-gradient-to-r from-white to-water-mist/20 rounded-t-lg">
           <CardTitle className="flex items-center gap-2">
             <Store className="w-5 h-5 text-primary" />
-            All Stores
+            {translate('all.stores')}
           </CardTitle>
-          <CardDescription>Manage store locations and their information</CardDescription>
+          <CardDescription>{translate('manage.store.locations.and.their.information')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">
                 <TableHead className="font-semibold">{translate('store.name')}</TableHead>
-                <TableHead className="font-semibold">Location</TableHead>
-                <TableHead className="font-semibold">Store Code</TableHead>
-                <TableHead className="font-semibold">Contact</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Actions</TableHead>
+                <TableHead className="font-semibold">{translate('location')}</TableHead>
+                <TableHead className="font-semibold">{translate('store.code')}</TableHead>
+                <TableHead className="font-semibold">{translate('contact')}</TableHead>
+                <TableHead className="font-semibold">{translate('status')}</TableHead>
+                <TableHead className="font-semibold">{translate('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -869,9 +869,9 @@ const Stores = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="active">{translate('active')}</SelectItem>
+                    <SelectItem value="inactive">{translate('inactive')}</SelectItem>
+                    <SelectItem value="suspended">{translate('suspended')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

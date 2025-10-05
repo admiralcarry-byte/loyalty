@@ -161,7 +161,7 @@ const Reports = () => {
           className="flex items-center gap-2"
         >
           <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          {isRefreshing ? translate('refreshing') : translate('refresh.data')}
         </Button>
       </div>
 
@@ -169,7 +169,7 @@ const Reports = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.revenue')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -182,14 +182,14 @@ const Reports = () => {
               <TrendingUp className="w-3 h-3 mr-1" />
               {dashboardStats?.salesStats?.salesGrowth && typeof dashboardStats.salesStats.salesGrowth === 'number' 
                 ? `+${dashboardStats.salesStats.salesGrowth.toFixed(1)}%` 
-                : '+0.0%'} from last month
+                : '+0.0%'} {translate('from.last.month')}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('active.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <TrendingUp className="h-4 w-4 text-white" />
             </div>
@@ -200,14 +200,14 @@ const Reports = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {dashboardStats?.userStats?.newUsersThisMonth ? `+${dashboardStats.userStats.newUsersThisMonth}` : '+0'} new this month
+              {dashboardStats?.userStats?.newUsersThisMonth ? `+${dashboardStats.userStats.newUsersThisMonth}` : '+0'} {translate('new.this.month')}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-purple-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Liters/Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.liters.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -220,14 +220,14 @@ const Reports = () => {
               <TrendingUp className="w-3 h-3 mr-1" />
               {dashboardStats?.salesStats?.salesGrowth && typeof dashboardStats.salesStats.salesGrowth === 'number' 
                 ? `+${dashboardStats.salesStats.salesGrowth.toFixed(1)}%` 
-                : '+0.0%'} from last month
+                : '+0.0%'} {translate('from.last.month')}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-orange-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('avg.order.value')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
               <Calendar className="h-4 w-4 text-white" />
             </div>
@@ -240,7 +240,7 @@ const Reports = () => {
               <TrendingUp className="w-3 h-3 mr-1" />
               {dashboardStats?.salesStats?.salesGrowth && typeof dashboardStats.salesStats.salesGrowth === 'number' 
                 ? `+${dashboardStats.salesStats.salesGrowth.toFixed(1)}%` 
-                : '+0.0%'} from last month
+                : '+0.0%'} {translate('from.last.month')}
             </div>
           </CardContent>
         </Card>
@@ -252,9 +252,9 @@ const Reports = () => {
           <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
             <CardTitle className="flex items-center gap-2">
               <BarChart className="w-5 h-5 text-primary" />
-              Monthly Performance
+              {translate('monthly.performance')}
             </CardTitle>
-            <CardDescription>Sales, users, and commission trends</CardDescription>
+            <CardDescription>{translate('sales.users.and.commission.trends')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -299,9 +299,9 @@ const Reports = () => {
           <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
             <CardTitle className="flex items-center gap-2">
               <BarChart className="w-5 h-5 text-primary" />
-              User Tier Distribution
+              {translate('user.tier.distribution')}
             </CardTitle>
-            <CardDescription>Breakdown of users by loyalty tier</CardDescription>
+            <CardDescription>{translate('breakdown.of.users.by.loyalty.tier')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>

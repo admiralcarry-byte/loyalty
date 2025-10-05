@@ -258,8 +258,8 @@ const BillingIntegration = () => {
             email: result.data.email
           }));
           toast({
-            title: "Customer Found",
-            description: `Customer: ${result.data.name}`,
+            title: translate('customer.found'),
+            description: `${translate('customer')}: ${result.data.name}`,
           });
         } else {
           // Clear customer data if not found
@@ -269,8 +269,8 @@ const BillingIntegration = () => {
             email: ''
           }));
           toast({
-            title: "Customer Not Found",
-            description: "No customer found with this phone number",
+            title: translate('customer.not.found'),
+            description: translate('no.customer.found.with.this.phone.number'),
             variant: "destructive",
           });
         }
@@ -366,8 +366,8 @@ const BillingIntegration = () => {
       await downloadInvoice(result.data);
       
         toast({
-        title: "Invoice Generated",
-        description: "Invoice has been generated and downloaded successfully",
+        title: translate('invoice.generated'),
+        description: translate('invoice.has.been.generated.and.downloaded.successfully'),
       });
       
       // Reset form and close dialog
@@ -384,8 +384,8 @@ const BillingIntegration = () => {
       setSelectedStore(null);
     } catch (error) {
       toast({
-        title: "Invoice Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate invoice. Please try again.",
+        title: translate('invoice.generation.failed'),
+        description: error instanceof Error ? error.message : translate('failed.to.generate.invoice.please.try.again'),
         variant: "destructive"
       });
     } finally {
@@ -711,8 +711,8 @@ const BillingIntegration = () => {
                     <FileText className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Invoice Generation</h3>
-                    <p className="text-sm text-muted-foreground">Create invoices with QR codes</p>
+                    <h3 className="font-semibold text-lg">{translate('invoice.generation')}</h3>
+                    <p className="text-sm text-muted-foreground">{translate('create.invoices.with.qr.codes')}</p>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -722,7 +722,7 @@ const BillingIntegration = () => {
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span>Customer information capture</span>
+                    <span>{translate('customer.information.capture')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-600" />
@@ -737,14 +737,14 @@ const BillingIntegration = () => {
                   <DialogTrigger asChild>
                     <Button className="w-full">
                       <FileText className="w-4 h-4 mr-2" />
-                      Create Invoice
+                      {translate('create.invoice')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>Create Invoice</DialogTitle>
+                      <DialogTitle>{translate('create.invoice')}</DialogTitle>
                       <DialogDescription>
-                        Enter customer and purchase information to generate an invoice
+                        {translate('enter.customer.and.purchase.information.to.generate.an.invoice')}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -759,7 +759,7 @@ const BillingIntegration = () => {
                             disabled={isLoadingCustomer}
                           />
                           {isLoadingCustomer && (
-                            <p className="text-xs text-muted-foreground">Loading customer data...</p>
+                            <p className="text-xs text-muted-foreground">{translate('loading.customer.data')}</p>
                           )}
                         </div>
                         <div className="space-y-2">
@@ -790,18 +790,18 @@ const BillingIntegration = () => {
                           <Input
                             id="litersPurchased"
                             type="number"
-                            placeholder="Enter liters"
+                            placeholder={translate('enter.liters')}
                             value={invoiceFormData.litersPurchased}
                             onChange={(e) => handleInvoiceFormChange('litersPurchased', parseFloat(e.target.value) || 0)}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="amount">Amount (Kz) *</Label>
+                          <Label htmlFor="amount">{translate('amount.currency')}</Label>
                           <Input
                             id="amount"
                             type="number"
                             step="0.01"
-                            placeholder="Enter amount"
+                            placeholder={translate('enter.amount')}
                             value={invoiceFormData.amount}
                             onChange={(e) => handleInvoiceFormChange('amount', parseFloat(e.target.value) || 0)}
                           />
@@ -891,7 +891,7 @@ const BillingIntegration = () => {
                           ) : (
                             <>
                               <FileText className="w-4 h-4 mr-2" />
-                              Create Invoice
+                              {translate('create.invoice')}
                             </>
                           )}
                 </Button>

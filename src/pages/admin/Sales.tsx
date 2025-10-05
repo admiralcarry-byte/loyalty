@@ -315,10 +315,10 @@ const Sales = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>{translate('actions')}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleViewDetails(sale)}>
               <Eye className="mr-2 h-4 w-4" />
-              View Details
+              {translate('view.details')}
             </DropdownMenuItem>
             {sale.status === "pending" && (
               <>
@@ -478,7 +478,7 @@ const Sales = () => {
             <Search className="w-5 h-5 text-primary" />
             Search & Filters
           </CardTitle>
-          <CardDescription>Find specific sales transactions</CardDescription>
+          <CardDescription>{translate('find.specific.sales.transactions')}</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -488,7 +488,7 @@ const Sales = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="search"
-                  placeholder="Search by customer, phone, or location..."
+                  placeholder={translate('search.by.customer.phone.or.location')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gradient-to-r from-slate-50 to-white"
@@ -535,15 +535,15 @@ const Sales = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50/50">
-                <TableHead className="font-semibold">Customer</TableHead>
-                <TableHead className="font-semibold">Water</TableHead>
-                <TableHead className="font-semibold">Amount</TableHead>
-                <TableHead className="font-semibold">Cashback</TableHead>
-                <TableHead className="font-semibold">Commission</TableHead>
-                <TableHead className="font-semibold">Date/Time</TableHead>
-                <TableHead className="font-semibold">Location</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Actions</TableHead>
+                <TableHead className="font-semibold">{translate('customer')}</TableHead>
+                <TableHead className="font-semibold">{translate('water')}</TableHead>
+                <TableHead className="font-semibold">{translate('amount')}</TableHead>
+                <TableHead className="font-semibold">{translate('cashback')}</TableHead>
+                <TableHead className="font-semibold">{translate('commission')}</TableHead>
+                <TableHead className="font-semibold">{translate('date.time')}</TableHead>
+                <TableHead className="font-semibold">{translate('location')}</TableHead>
+                <TableHead className="font-semibold">{translate('status')}</TableHead>
+                <TableHead className="font-semibold">{translate('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -571,7 +571,7 @@ const Sales = () => {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="customer">Customer Name</Label>
+                <Label htmlFor="customer">{translate('customer.name')}</Label>
                 <Input
                   id="customer"
                   placeholder="Enter customer name"
@@ -602,7 +602,7 @@ const Sales = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount ($)</Label>
+                <Label htmlFor="amount">{translate('amount.currency')}</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -614,7 +614,7 @@ const Sales = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{translate('location')}</Label>
               <Input
                 id="location"
                 placeholder="Enter store location"
