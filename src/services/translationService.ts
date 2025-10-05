@@ -274,6 +274,33 @@ const translations: LanguageTranslations = {
     'track.your.purchases.and.earnings': 'Acompanhe suas compras e ganhos',
     'total.liters.purchased': 'Total de Litros Comprados',
     
+    // Admin Layout
+    'admin.panel': 'Painel Admin',
+    'loyalty.tiers': 'Níveis de Fidelidade',
+    'live.system': 'Sistema Ativo',
+    
+    // Dashboard Stats
+    'total.liters.users': 'Total de Litros/Usuários',
+    'commission.paid': 'Comissão Paga',
+    'active.influencers': 'Influenciadores Ativos',
+    'sales.trend': 'Tendência de Vendas',
+    'monthly.liters.users.sold.and.revenue.generated': 'Litros/usuários vendidos mensalmente e receita gerada',
+    'loyalty.tier.distribution': 'Distribuição de Níveis de Fidelidade',
+    'customer.distribution.across.loyalty.levels': 'Distribuição de clientes por níveis de fidelidade',
+    
+    // User Management Stats
+    'registered.users': 'Usuários Registrados',
+    'active.users': 'Usuários Ativos',
+    'platinum.users': 'Usuários Platina',
+    'total.cashback': 'Total de Cashback',
+    
+    // Sales Management Stats
+    'total.revenue': 'Total de Receita',
+    'total.water.sold': 'Total de Água Vendida',
+    'total.commission': 'Total de Comissão',
+    'sales.transactions': 'Transações de Vendas',
+    'all.sales.with.detailed.information.and.status': 'Todas as vendas com informações detalhadas e status',
+    
     // Seller Dashboard
     'seller.dashboard': 'Painel do Vendedor',
     'manage.your.store.and.track.sales.performance': 'Gerencie sua loja e acompanhe o desempenho das vendas',
@@ -526,6 +553,33 @@ const translations: LanguageTranslations = {
     'track.your.purchases.and.earnings': 'Track your purchases and earnings',
     'total.liters.purchased': 'Total Liters Purchased',
     
+    // Admin Layout
+    'admin.panel': 'Admin Panel',
+    'loyalty.tiers': 'Loyalty Tiers',
+    'live.system': 'Live System',
+    
+    // Dashboard Stats
+    'total.liters.users': 'Total Liters/Users',
+    'commission.paid': 'Commission Paid',
+    'active.influencers': 'Active Influencers',
+    'sales.trend': 'Sales Trend',
+    'monthly.liters.users.sold.and.revenue.generated': 'Monthly liters/users sold and revenue generated',
+    'loyalty.tier.distribution': 'Loyalty Tier Distribution',
+    'customer.distribution.across.loyalty.levels': 'Customer distribution across loyalty levels',
+    
+    // User Management Stats
+    'registered.users': 'Registered Users',
+    'active.users': 'Active Users',
+    'platinum.users': 'Platinum Users',
+    'total.cashback': 'Total Cashback',
+    
+    // Sales Management Stats
+    'total.revenue': 'Total Revenue',
+    'total.water.sold': 'Total Water Sold',
+    'total.commission': 'Total Commission',
+    'sales.transactions': 'Sales Transactions',
+    'all.sales.with.detailed.information.and.status': 'All sales with detailed information and status',
+    
     // Seller Dashboard
     'seller.dashboard': 'Seller Dashboard',
     'manage.your.store.and.track.sales.performance': 'Manage your store and track sales performance',
@@ -728,6 +782,33 @@ const translations: LanguageTranslations = {
     'customer': 'Cliente',
     'track.your.purchases.and.earnings': 'Rastrea tus compras y ganancias',
     'total.liters.purchased': 'Total de Litros Comprados',
+    
+    // Admin Layout
+    'admin.panel': 'Panel Admin',
+    'loyalty.tiers': 'Niveles de Fidelidad',
+    'live.system': 'Sistema Activo',
+    
+    // Dashboard Stats
+    'total.liters.users': 'Total de Litros/Usuarios',
+    'commission.paid': 'Comisión Pagada',
+    'active.influencers': 'Influenciadores Activos',
+    'sales.trend': 'Tendencia de Ventas',
+    'monthly.liters.users.sold.and.revenue.generated': 'Litros/usuarios vendidos mensualmente e ingresos generados',
+    'loyalty.tier.distribution': 'Distribución de Niveles de Fidelidad',
+    'customer.distribution.across.loyalty.levels': 'Distribución de clientes por niveles de fidelidad',
+    
+    // User Management Stats
+    'registered.users': 'Usuarios Registrados',
+    'active.users': 'Usuarios Activos',
+    'platinum.users': 'Usuarios Platino',
+    'total.cashback': 'Total de Cashback',
+    
+    // Sales Management Stats
+    'total.revenue': 'Total de Ingresos',
+    'total.water.sold': 'Total de Agua Vendida',
+    'total.commission': 'Total de Comisión',
+    'sales.transactions': 'Transacciones de Ventas',
+    'all.sales.with.detailed.information.and.status': 'Todas las ventas con información detallada y estado',
     
     // Seller Dashboard
     'seller.dashboard': 'Panel del Vendedor',
@@ -1029,6 +1110,33 @@ const translations: LanguageTranslations = {
     'customer': 'Client',
     'track.your.purchases.and.earnings': 'Suivez vos achats et gains',
     'total.liters.purchased': 'Total de Litres Achetés',
+    
+    // Admin Layout
+    'admin.panel': 'Panneau Admin',
+    'loyalty.tiers': 'Niveaux de Fidélité',
+    'live.system': 'Système Actif',
+    
+    // Dashboard Stats
+    'total.liters.users': 'Total de Litres/Utilisateurs',
+    'commission.paid': 'Commission Payée',
+    'active.influencers': 'Influenceurs Actifs',
+    'sales.trend': 'Tendance des Ventes',
+    'monthly.liters.users.sold.and.revenue.generated': 'Litres/utilisateurs vendus mensuellement et revenus générés',
+    'loyalty.tier.distribution': 'Distribution des Niveaux de Fidélité',
+    'customer.distribution.across.loyalty.levels': 'Distribution des clients par niveaux de fidélité',
+    
+    // User Management Stats
+    'registered.users': 'Utilisateurs Inscrits',
+    'active.users': 'Utilisateurs Actifs',
+    'platinum.users': 'Utilisateurs Platine',
+    'total.cashback': 'Total de Cashback',
+    
+    // Sales Management Stats
+    'total.revenue': 'Total des Revenus',
+    'total.water.sold': 'Total d\'Eau Vendue',
+    'total.commission': 'Total des Commissions',
+    'sales.transactions': 'Transactions de Ventes',
+    'all.sales.with.detailed.information.and.status': 'Toutes les ventes avec informations détaillées et statut',
     
     // Seller Dashboard
     'seller.dashboard': 'Tableau de Bord du Vendeur',

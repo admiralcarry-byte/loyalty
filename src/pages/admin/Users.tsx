@@ -1302,15 +1302,15 @@ const Users = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            User Management
+            {translate('user.management')}
           </h1>
-          <p className="text-muted-foreground mt-1">Manage customers and influencers</p>
+          <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="w-4 h-4 mr-2" />
-              Add User
+              {translate('add.user')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -1620,7 +1620,7 @@ const Users = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-water-mist border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Registered Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('registered.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-water-blue">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -1636,7 +1636,7 @@ const Users = () => {
 
         <Card className="bg-gradient-to-br from-white to-water-light/20 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('active.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-water-blue to-water-deep">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -1654,7 +1654,7 @@ const Users = () => {
 
         <Card className="bg-gradient-to-br from-white to-success/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Platinum Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('platinum.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
               <Crown className="h-4 w-4 text-white" />
             </div>
@@ -1672,7 +1672,7 @@ const Users = () => {
 
         <Card className="bg-gradient-to-br from-white to-accent/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cashback</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.cashback')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-accent to-accent/80">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>

@@ -407,7 +407,7 @@ const Sales = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.revenue')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <DollarSign className="h-4 w-4 text-white" />
             </div>
@@ -423,7 +423,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Water Sold</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.water.sold')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -439,7 +439,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-purple-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cashback</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.cashback')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -455,7 +455,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-orange-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commission</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.commission')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
               <Users className="h-4 w-4 text-white" />
             </div>
@@ -527,9 +527,9 @@ const Sales = () => {
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            Sales Transactions
+            {translate('sales.transactions')}
           </CardTitle>
-          <CardDescription>All sales with detailed information and status</CardDescription>
+          <CardDescription>{translate('all.sales.with.detailed.information.and.status')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>

@@ -152,7 +152,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">ÁGUA TWEZAH</h1>
-              <p className="text-sm text-slate-300">Admin Panel</p>
+              <p className="text-sm text-slate-300">{translate('admin.panel')}</p>
             </div>
           </div>
           <Button
@@ -192,23 +192,23 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* Loyalty tier legend */}
         <div className="px-4 pb-4 bg-slate-800/30">
-          <h3 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Loyalty Tiers</h3>
+          <h3 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">{translate('loyalty.tiers')}</h3>
           <div className="grid grid-cols-2 gap-2">
             <div className="flex items-center gap-2 p-2 rounded-md bg-slate-700/50">
               <Crown className="w-4 h-4 text-loyalty-platinum" />
-              <span className="text-sm font-medium text-slate-300">Platinum</span>
+              <span className="text-sm font-medium text-slate-300">{translate('platinum')}</span>
             </div>
             <div className="flex items-center gap-2 p-2 rounded-md bg-slate-700/50">
               <Medal className="w-4 h-4 text-loyalty-gold" />
-              <span className="text-sm font-medium text-slate-300">Gold</span>
+              <span className="text-sm font-medium text-slate-300">{translate('gold')}</span>
             </div>
             <div className="flex items-center gap-2 p-2 rounded-md bg-slate-700/50">
               <Gem className="w-4 h-4 text-loyalty-silver" />
-              <span className="text-sm font-medium text-slate-300">Silver</span>
+              <span className="text-sm font-medium text-slate-300">{translate('silver')}</span>
             </div>
             <div className="flex items-center gap-2 p-2 rounded-md bg-slate-700/50">
               <Star className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-slate-300">Lead</span>
+              <span className="text-sm font-medium text-slate-300">{translate('lead')}</span>
             </div>
           </div>
         </div>
@@ -240,7 +240,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-4">
               <Badge className="bg-gradient-to-r from-success to-success/80 text-white shadow-success animate-pulse-glow">
                 <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
-                Live System
+                {translate('live.system')}
               </Badge>
               
               <div className="flex items-center gap-2">

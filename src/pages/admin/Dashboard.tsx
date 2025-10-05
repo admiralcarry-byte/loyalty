@@ -384,7 +384,7 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-to-br from-white to-water-light/20 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Liters/Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.liters.users')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-water-blue to-water-deep">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -400,7 +400,7 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-to-br from-white to-success/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commission Paid</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('commission.paid')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -416,7 +416,7 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-to-br from-white to-accent/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Influencers</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('active.influencers')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-accent to-accent/80">
               <TrendingUp className="h-4 w-4 text-white" />
             </div>
@@ -436,8 +436,8 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Sales Trend</CardTitle>
-            <CardDescription>Monthly liters/users sold and revenue generated</CardDescription>
+            <CardTitle>{translate('sales.trend')}</CardTitle>
+            <CardDescription>{translate('monthly.liters.users.sold.and.revenue.generated')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -474,9 +474,9 @@ const Dashboard = () => {
         <Card className="bg-gradient-to-br from-white to-water-mist/30 border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              Loyalty Tier Distribution
+              {translate('loyalty.tier.distribution')}
             </CardTitle>
-            <CardDescription>Customer distribution across loyalty levels</CardDescription>
+            <CardDescription>{translate('customer.distribution.across.loyalty.levels')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
