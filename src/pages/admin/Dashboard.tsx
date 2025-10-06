@@ -314,7 +314,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">{translationService.translate('loading.data')}</p>
+            <p className="text-muted-foreground">{translate('loading.data')}</p>
           </div>
         </div>
       </div>
@@ -335,10 +335,10 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="text-destructive font-medium mb-2">{translationService.translate('operation.failed')}</div>
+            <div className="text-destructive font-medium mb-2">{translate('operation.failed')}</div>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={fetchDashboardData} variant="outline">
-              {translationService.translate('please.try.again')}
+              {translate('please.try.again')}
             </Button>
           </div>
         </div>
@@ -352,9 +352,9 @@ const Dashboard = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-water-mist border border-border shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            {translationService.translate('dashboard')}
+            {translate('dashboard')}
           </h1>
-          <p className="text-muted-foreground mt-1">{translationService.translate('dashboard.subtitle')}</p>
+          <p className="text-muted-foreground mt-1">{translate('dashboard.subtitle')}</p>
         </div>
         <Button asChild className="bg-gradient-to-r from-primary to-water-blue hover:shadow-primary shadow-md">
           <Link to="/admin/reports">

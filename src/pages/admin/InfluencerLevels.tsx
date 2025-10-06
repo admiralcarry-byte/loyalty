@@ -37,10 +37,11 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { influencerLevelsService, InfluencerLevel, InfluencerStats, PromotionCandidate } from "@/services/influencerLevelsService";
-import { translationService } from "@/services/translationService";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const InfluencerLevels = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   const [editingLevel, setEditingLevel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [levelRequirements, setLevelRequirements] = useState<InfluencerLevel[]>([]);
@@ -82,8 +83,8 @@ const InfluencerLevels = () => {
     } catch (error) {
       console.error('Error loading influencer levels data:', error);
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.load.influencer.data'),
+        title: translate('error'),
+        description: translate('failed.to.load.influencer.data'),
         variant: "destructive",
       });
     } finally {
@@ -109,15 +110,15 @@ const InfluencerLevels = () => {
         );
         setEditingLevel(null);
         toast({
-          title: translationService.translate('level.updated'),
-          description: translationService.translate('level.requirements.updated'),
+          title: translate('level.updated'),
+          description: translate('level.requirements.updated'),
         });
       }
     } catch (error) {
       console.error('Error updating level:', error);
       toast({
-        title: translationService.translate('error'),
-        description: translationService.translate('failed.to.update.level'),
+        title: translate('error'),
+        description: translate('failed.to.update.level'),
         variant: "destructive",
       });
     }
@@ -133,9 +134,9 @@ const InfluencerLevels = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-water-mist border border-border shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            {translationService.translate('influencer.level.management')}
+            {translate('influencer.level.management')}
           </h1>
-          <p className="text-muted-foreground mt-1">{translationService.translate('influencer.level.subtitle')}</p>
+          <p className="text-muted-foreground mt-1">{translate('influencer.level.subtitle')}</p>
         </div>
         <div className="flex items-center gap-4">
           <Button 
@@ -144,7 +145,7 @@ const InfluencerLevels = () => {
             disabled={loading}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? translationService.translate('loading') : translationService.translate('refresh')}
+            {loading ? translate('loading') : translate('refresh')}
           </Button>
         </div>
       </div>
@@ -153,7 +154,7 @@ const InfluencerLevels = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('total.influencers')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('total.influencers')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Users className="h-4 w-4 text-white" />
             </div>
@@ -162,14 +163,14 @@ const InfluencerLevels = () => {
             <div className="text-2xl font-bold text-blue-600">{influencerStats.total_influencers || 0}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {influencerStats.influencer_growth_percentage ? `+${influencerStats.influencer_growth_percentage}%` : '0.0%'} {translationService.translate('from.last.month')}
+              {influencerStats.influencer_growth_percentage ? `+${influencerStats.influencer_growth_percentage}%` : '0.0%'} {translate('from.last.month')}
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('active.networks')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('active.networks')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <Target className="h-4 w-4 text-white" />
             </div>
@@ -185,7 +186,7 @@ const InfluencerLevels = () => {
 
         <Card className="bg-gradient-to-br from-white to-purple-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('avg.commission')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('avg.commission')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <BarChart3 className="h-4 w-4 text-white" />
             </div>
@@ -201,7 +202,7 @@ const InfluencerLevels = () => {
 
         <Card className="bg-gradient-to-br from-white to-orange-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translationService.translate('promotions')}</CardTitle>
+            <CardTitle className="text-sm font-medium">{translate('promotions')}</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
               <Award className="h-4 w-4 text-white" />
             </div>
@@ -221,7 +222,7 @@ const InfluencerLevels = () => {
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-2">
                 <RefreshCw className="w-6 h-6 animate-spin" />
-                <span>{translationService.translate('loading.level.requirements')}</span>
+                <span>{translate('loading.level.requirements')}</span>
               </div>
             </div>
           ) : (
@@ -242,17 +243,17 @@ const InfluencerLevels = () => {
                       </div>
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
-                          {level.name === "Platinum" ? translationService.translate('platinum.level') : 
-                           level.name === "Gold" ? translationService.translate('gold.level') : 
-                           translationService.translate('silver.level')}
+                          {level.name === "Platinum" ? translate('platinum.level') : 
+                           level.name === "Gold" ? translate('gold.level') : 
+                           translate('silver.level')}
                           <Badge variant="outline" className="ml-2">
-                            {level.name === "Platinum" ? translationService.translate('elite') : 
-                             level.name === "Gold" ? translationService.translate('premium') : 
-                             translationService.translate('standard')}
+                            {level.name === "Platinum" ? translate('elite') : 
+                             level.name === "Gold" ? translate('premium') : 
+                             translate('standard')}
                           </Badge>
                         </CardTitle>
                         <CardDescription>
-                          {translationService.translate('requirements.for')} {level.name} {translationService.translate('tier.influencers')}
+                          {translate('requirements.for')} {level.name} {translate('tier.influencers')}
                         </CardDescription>
                       </div>
                     </div>
@@ -263,7 +264,7 @@ const InfluencerLevels = () => {
                       className="bg-white border-slate-200 hover:bg-slate-50"
                     >
                       <Edit className="w-4 h-4 mr-2" />
-                      {translationService.translate('edit')}
+                      {translate('edit')}
                     </Button>
                   </div>
                 </CardHeader>
@@ -272,7 +273,7 @@ const InfluencerLevels = () => {
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="space-y-3">
-                          <Label className="text-sm font-medium">{translationService.translate('required.referrals')}</Label>
+                          <Label className="text-sm font-medium">{translate('required.referrals')}</Label>
                           <Input
                             type="number"
                             value={level.required_referrals}
@@ -283,7 +284,7 @@ const InfluencerLevels = () => {
                           />
                         </div>
                         <div className="space-y-3">
-                          <Label className="text-sm font-medium">{translationService.translate('active.clients')}</Label>
+                          <Label className="text-sm font-medium">{translate('active.clients')}</Label>
                           <Input
                             type="number"
                             value={level.required_active_clients}
@@ -294,7 +295,7 @@ const InfluencerLevels = () => {
                           />
                         </div>
                         <div className="space-y-3">
-                          <Label className="text-sm font-medium">{translationService.translate('commission.rate')} (%)</Label>
+                          <Label className="text-sm font-medium">{translate('commission.rate')} (%)</Label>
                           <Input
                             type="number"
                             value={level.commission_rate}
@@ -305,7 +306,7 @@ const InfluencerLevels = () => {
                             className="bg-white border-slate-200"
                           />
                           <p className="text-xs text-muted-foreground">
-                            {translationService.translate('commission.percentage.per.liter')}
+                            {translate('commission.percentage.per.liter')}
                           </p>
                         </div>
                       </div>
@@ -315,7 +316,7 @@ const InfluencerLevels = () => {
                           className="bg-gradient-to-r from-green-500 to-green-600 hover:shadow-green-500 shadow-md"
                         >
                           <Save className="w-4 h-4 mr-2" />
-                          {translationService.translate('save.changes')}
+                          {translate('save.changes')}
                         </Button>
                         <Button 
                           variant="outline" 
@@ -323,7 +324,7 @@ const InfluencerLevels = () => {
                           className="border-slate-200 hover:bg-slate-50"
                         >
                           <X className="w-4 h-4 mr-2" />
-                          {translationService.translate('cancel')}
+                          {translate('cancel')}
                         </Button>
                       </div>
                     </div>
