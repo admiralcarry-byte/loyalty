@@ -22,6 +22,7 @@ import {
   TestTube
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguageContext } from "@/contexts/LanguageContext";
 import { authService } from "@/services/authService";
 
 // Currency formatting function for AOA (Angolan Kwanza)
@@ -80,6 +81,7 @@ interface ReceiptAnalysisData {
 
 const BillingIntegration = () => {
   const { toast } = useToast();
+  const { translate } = useLanguageContext();
   
   // Invoice Generation States
   const [invoiceFormData, setInvoiceFormData] = useState<InvoiceFormData>({
