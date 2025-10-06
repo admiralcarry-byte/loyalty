@@ -92,6 +92,7 @@ const SellerBilling = () => {
   });
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [generatedInvoice, setGeneratedInvoice] = useState<any>(null);
 
   // Receipt Upload States
@@ -258,13 +259,98 @@ const SellerBilling = () => {
     return response.json();
   };
 
+  // Fetch customer data by phone number
+  const fetchCustomerByPhone = async (phoneNumber: string) => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      // Clear customer data if phone number is too short
+      setInvoiceFormData(prev => ({
+        ...prev,
+        purchaserName: '',
+        email: ''
+      }));
+      return;
+    }
+
+    setIsLoadingCustomer(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/users/customer-by-phone/${phoneNumber}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Auto-populate customer data
+          setInvoiceFormData(prev => ({
+            ...prev,
+            purchaserName: result.data.name,
+            email: result.data.email
+          }));
+          toast({
+            title: "Customer Found",
+            description: `Customer: ${result.data.name}`,
+          });
+        } else {
+          // Clear customer data if not found
+          setInvoiceFormData(prev => ({
+            ...prev,
+            purchaserName: '',
+            email: ''
+          }));
+          toast({
+            title: "Customer Not Found",
+            description: "No customer found with this phone number",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Clear customer data on error
+        setInvoiceFormData(prev => ({
+          ...prev,
+          purchaserName: '',
+          email: ''
+        }));
+        toast({
+          title: "Error",
+          description: "Failed to lookup customer information",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      // Clear customer data on error
+      setInvoiceFormData(prev => ({
+        ...prev,
+        purchaserName: '',
+        email: ''
+      }));
+      toast({
+        title: "Error",
+        description: "Failed to lookup customer information",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCustomer(false);
+    }
+  };
+
   // Invoice Generation Functions
   const handleInvoiceFormChange = (field: keyof InvoiceFormData, value: string | number) => {
     // Filter out disabled option values
     if (value === 'loading' || value === 'no-stores') {
       return;
     }
+    
     setInvoiceFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Trigger customer lookup when phone number changes
+    if (field === 'phoneNumber') {
+      fetchCustomerByPhone(value as string);
+    }
   };
 
   const generateInvoice = async () => {
@@ -687,33 +773,39 @@ const SellerBilling = () => {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                          <Label htmlFor="purchaserName">Purchaser Name *</Label>
-              <Input
-                            id="purchaserName"
-                            placeholder="Enter purchaser name"
-                            value={invoiceFormData.purchaserName}
-                            onChange={(e) => handleInvoiceFormChange('purchaserName', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-                          <Label htmlFor="phoneNumber">Phone Number</Label>
+                        <div className="space-y-2">
+                          <Label htmlFor="phoneNumber">Phone Number *</Label>
                           <Input
                             id="phoneNumber"
-                            placeholder="Enter phone number"
+                            placeholder="Enter customer phone number"
                             value={invoiceFormData.phoneNumber}
                             onChange={(e) => handleInvoiceFormChange('phoneNumber', e.target.value)}
+                            disabled={isLoadingCustomer}
+                          />
+                          {isLoadingCustomer && (
+                            <p className="text-xs text-muted-foreground">Loading customer data...</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="purchaserName">Purchaser Name *</Label>
+                          <Input
+                            id="purchaserName"
+                            placeholder="Auto-filled from phone number"
+                            value={invoiceFormData.purchaserName}
+                            disabled={true}
+                            className="bg-muted"
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-              <Input
+                        <Input
                           id="email"
-                type="email"
-                          placeholder="Enter email address"
+                          type="email"
+                          placeholder="Auto-filled from phone number"
                           value={invoiceFormData.email}
-                          onChange={(e) => handleInvoiceFormChange('email', e.target.value)}
+                          disabled={true}
+                          className="bg-muted"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">

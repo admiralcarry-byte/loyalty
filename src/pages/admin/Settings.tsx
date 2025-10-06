@@ -396,7 +396,7 @@ const Settings = () => {
             </Button>
 
             {/* Language Selection */}
-            <div className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-4">
+            {/* <div className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-4">
               <Globe className="w-6 h-6 text-slate-600" />
               <span className="text-sm font-medium text-slate-700 mb-1">{translate('select.language')}</span>
               <Select value={currentLanguage} onValueChange={handleLanguageChange}>
@@ -409,7 +409,7 @@ const Settings = () => {
                   <SelectItem value="Spanish">Español</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
