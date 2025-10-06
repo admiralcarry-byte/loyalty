@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { salesService, Sale } from "@/services/salesService";
 import { dashboardService } from "@/services/dashboardService";
-import { useLanguageContext } from "@/contexts/LanguageContext";
 import { formatDateTime } from "@/utils/dateUtils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -79,7 +78,6 @@ import {
 } from "@/components/ui/pagination";
 
 const Sales = () => {
-  const { translate } = useLanguageContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   
@@ -338,10 +336,10 @@ const Sales = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{translate('actions')}</DropdownMenuLabel>
+            <DropdownMenuLabel>"Actions"</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleViewDetails(sale)}>
               <Eye className="mr-2 h-4 w-4" />
-              {translate('view.details')}
+              "View Details"
             </DropdownMenuItem>
             {sale.status === "pending" && (
               <>
@@ -368,9 +366,9 @@ const Sales = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              {translate('sales.management')}
+              "Sales Management"
             </h1>
-            <p className="text-muted-foreground mt-1">{translate('monitor.and.manage.all.sales.transactions')}</p>
+            <p className="text-muted-foreground mt-1">"Monitor and manage all sales transactions and revenue"</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -390,9 +388,9 @@ const Sales = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              {translate('sales.management')}
+              "Sales Management"
             </h1>
-            <p className="text-muted-foreground mt-1">{translate('monitor.and.manage.all.sales.transactions')}</p>
+            <p className="text-muted-foreground mt-1">"Monitor and manage all sales transactions and revenue"</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -430,7 +428,7 @@ const Sales = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-green-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('total.revenue')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Total Revenue"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <DollarSign className="h-4 w-4 text-white" />
             </div>
@@ -446,7 +444,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-blue-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('total.water.sold')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Total Water Sold"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Droplets className="h-4 w-4 text-white" />
             </div>
@@ -462,7 +460,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-purple-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('total.cashback')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Total Cashback"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -478,7 +476,7 @@ const Sales = () => {
 
         <Card className="bg-gradient-to-br from-white to-orange-50 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('total.commission')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Total Commission"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
               <Users className="h-4 w-4 text-white" />
             </div>
@@ -501,17 +499,17 @@ const Sales = () => {
             <Search className="w-5 h-5 text-primary" />
             Search & Filters
           </CardTitle>
-          <CardDescription>{translate('find.specific.sales.transactions')}</CardDescription>
+          <CardDescription>"Find specific sales transactions"</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="search">{translate('search.sales')}</Label>
+              <Label htmlFor="search">"Search Sales"</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="search"
-                  placeholder={translate('search.by.customer.phone.or.location')}
+                  placeholder="Search by customer, phone or location"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gradient-to-r from-slate-50 to-white"
@@ -525,10 +523,10 @@ const Sales = () => {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{translate('all.status')}</SelectItem>
-                  <SelectItem value="pending">{translate('pending')}</SelectItem>
-                  <SelectItem value="verified">{translate('verified')}</SelectItem>
-                  <SelectItem value="rejected">{translate('rejected')}</SelectItem>
+                  <SelectItem value="all">"All Status"</SelectItem>
+                  <SelectItem value="pending">"Pending"</SelectItem>
+                  <SelectItem value="verified">"Verified"</SelectItem>
+                  <SelectItem value="rejected">"Rejected"</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -538,7 +536,7 @@ const Sales = () => {
                 className="w-full bg-gradient-to-r from-primary to-water-blue hover:shadow-primary shadow-md"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                {translate('add.sale')}
+                "Add Sale"
               </Button>
             </div>
           </div>
@@ -550,23 +548,23 @@ const Sales = () => {
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            {translate('sales.transactions')}
+            "Sales Transactions"
           </CardTitle>
-          <CardDescription>{translate('all.sales.with.detailed.information.and.status')}</CardDescription>
+          <CardDescription>"All sales with detailed information and status"</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50/50">
-                <TableHead className="font-semibold">{translate('customer')}</TableHead>
-                <TableHead className="font-semibold">{translate('water')}</TableHead>
-                <TableHead className="font-semibold">{translate('amount')}</TableHead>
-                <TableHead className="font-semibold">{translate('cashback')}</TableHead>
-                <TableHead className="font-semibold">{translate('commission')}</TableHead>
-                <TableHead className="font-semibold">{translate('date.time')}</TableHead>
-                <TableHead className="font-semibold">{translate('location')}</TableHead>
-                <TableHead className="font-semibold">{translate('status')}</TableHead>
-                <TableHead className="font-semibold">{translate('actions')}</TableHead>
+                <TableHead className="font-semibold">"Customer"</TableHead>
+                <TableHead className="font-semibold">"Water"</TableHead>
+                <TableHead className="font-semibold">"Amount"</TableHead>
+                <TableHead className="font-semibold">"Cashback"</TableHead>
+                <TableHead className="font-semibold">"Commission"</TableHead>
+                <TableHead className="font-semibold">"Date & Time"</TableHead>
+                <TableHead className="font-semibold">"Location"</TableHead>
+                <TableHead className="font-semibold">"Status"</TableHead>
+                <TableHead className="font-semibold">"Actions"</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -671,20 +669,20 @@ const Sales = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
-              {translate('add.new.sale')}
+              "Add New Sale"
             </DialogTitle>
             <DialogDescription>
-              {translate('create.a.new.sales.transaction')}
+              "Create a new sales transaction"
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="customer">{translate('customer.name')}</Label>
+                <Label htmlFor="customer">"Customer Name"</Label>
                 <Input
                   id="customer"
-                  placeholder={translate('enter.customer.name')}
+                  placeholder="Enter customer name"
                   value={newSaleData.customer}
                   onChange={(e) => setNewSaleData({...newSaleData, customer: e.target.value})}
                 />
@@ -706,17 +704,17 @@ const Sales = () => {
                 <Input
                   id="liters"
                   type="number"
-                  placeholder={translate('enter.liters')}
+                  placeholder="Enter liters"
                   value={newSaleData.liters}
                   onChange={(e) => setNewSaleData({...newSaleData, liters: e.target.value})}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="amount">{translate('amount.currency')}</Label>
+                <Label htmlFor="amount">"Amount (Kz)"</Label>
                 <Input
                   id="amount"
                   type="number"
-                  placeholder={translate('enter.amount')}
+                  placeholder="Enter amount"
                   value={newSaleData.amount}
                   onChange={(e) => setNewSaleData({...newSaleData, amount: e.target.value})}
                 />
@@ -724,25 +722,25 @@ const Sales = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="location">{translate('location')}</Label>
+              <Label htmlFor="location">"Location"</Label>
               <Input
                 id="location"
-                placeholder={translate('enter.store.location')}
+                placeholder="Enter store location"
                 value={newSaleData.location}
                 onChange={(e) => setNewSaleData({...newSaleData, location: e.target.value})}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="payment">{translate('payment.method')}</Label>
+              <Label htmlFor="payment">"Payment Method"</Label>
               <Select value={newSaleData.paymentMethod} onValueChange={(value) => setNewSaleData({...newSaleData, paymentMethod: value})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">{translate('cash')}</SelectItem>
-                  <SelectItem value="credit_card">{translate('credit.card')}</SelectItem>
-                  <SelectItem value="debit_card">{translate('debit.card')}</SelectItem>
+                  <SelectItem value="cash">"Cash"</SelectItem>
+                  <SelectItem value="credit_card">"Credit Card"</SelectItem>
+                  <SelectItem value="debit_card">"Debit Card"</SelectItem>
                   <SelectItem value="mobile_money">Mobile Money</SelectItem>
                   <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                   <SelectItem value="points">Points</SelectItem>
@@ -753,14 +751,14 @@ const Sales = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddSaleModal(false)}>
-              {translate('cancel')}
+              "Cancel"
             </Button>
             <Button 
               onClick={handleCreateSale} 
               disabled={isCreatingSale}
               className="bg-gradient-to-r from-primary to-water-blue"
             >
-              {isCreatingSale ? translate('creating') : translate('create.sale')}
+              {isCreatingSale ? "Creating..." : "Create Sale"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -772,10 +770,10 @@ const Sales = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />
-              {translate('sale.details')}
+              "Sale Details"
             </DialogTitle>
             <DialogDescription>
-              {translate('view.detailed.information.about.sale')} {viewingSale?.id}
+              "View detailed information about sale" {viewingSale?.id}
             </DialogDescription>
           </DialogHeader>
           
@@ -868,7 +866,7 @@ const Sales = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewingSale(null)}>
-              {translate('close')}
+              "Close"
             </Button>
           </DialogFooter>
         </DialogContent>

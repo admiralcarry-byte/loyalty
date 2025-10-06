@@ -8,10 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Droplets, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
-import { useLanguageContext } from "@/contexts/LanguageContext";
 
 const UserRegister = () => {
-  const { translate } = useLanguageContext();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -137,12 +135,12 @@ const UserRegister = () => {
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{translate('full.name')} *</Label>
+              <Label htmlFor="name">"Full Name" *</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder={translate('enter.full.name')}
+                placeholder="Enter full name"
                 value={formData.name}
                 onChange={handleInputChange}
                 required
@@ -150,12 +148,12 @@ const UserRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">{translate('email.address')} *</Label>
+              <Label htmlFor="email">"Email Address" *</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder={translate('user.example.com')}
+                placeholder="user@example.com"
                 value={formData.email}
                 onChange={handleInputChange}
                 required
@@ -163,12 +161,12 @@ const UserRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">{translate('phone.number')} *</Label>
+              <Label htmlFor="phone">"Phone Number" *</Label>
               <Input
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder={translate('enter.phone.number')}
+                placeholder="Enter phone number"
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
@@ -176,15 +174,15 @@ const UserRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="influencerPhone">{translate('influencer.phone')} *</Label>
+              <Label htmlFor="influencerPhone">"Influencer Phone" *</Label>
               <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone} required>
                 <SelectTrigger>
-                  <SelectValue placeholder={translate('select.influencer')} />
+                  <SelectValue placeholder="Select Influencer" />
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingInfluencers ? (
                     <SelectItem value="loading" disabled>
-                      {translate('loading.influencers')}
+                      "Loading influencers..."
                     </SelectItem>
                   ) : influencers.length > 0 ? (
                     influencers.map((influencer) => (
@@ -194,24 +192,24 @@ const UserRegister = () => {
                     ))
                   ) : (
                     <SelectItem value="no-influencers" disabled>
-                      {translate('no.influencers.available')}
+                      "No influencers available"
                     </SelectItem>
                   )}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                {translate('select.influencer.helper')}
+                "Select the influencer who referred you"
               </p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">{translate('password')} *</Label>
+              <Label htmlFor="password">"Password" *</Label>
               <div className="relative">
                 <Input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder={translate('enter.password')}
+                  placeholder="Enter password"
                   value={formData.password}
                   onChange={handleInputChange}
                   required
@@ -233,13 +231,13 @@ const UserRegister = () => {
             </div>
 
             <Button type="submit" className="w-full bg-success hover:bg-accent" disabled={isLoading}>
-              {isLoading ? translate('creating.account') : translate('register')}
+              {isLoading ? "Creating Account..." : "Register"}
             </Button>
           </form>
           
           <div className="mt-4 text-center space-y-2">
             <div className="text-sm text-muted-foreground">
-              {translate('already.have.account')}{" "}
+              "Already have an account?"{" "}
               <Link to="/user/login" className="text-success hover:underline">
                 Sign in here
               </Link>
@@ -247,7 +245,7 @@ const UserRegister = () => {
             <div className="pt-2">
               <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="w-4 h-4 mr-1" />
-                {translate('back.to.home')}
+                "Back to Home"
               </Link>
             </div>
           </div>

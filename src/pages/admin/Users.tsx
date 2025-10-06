@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
 import { authService } from "@/services/authService";
-import { useLanguageContext } from "@/contexts/LanguageContext";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -110,7 +109,6 @@ import {
 
 const Users = () => {
   const { toast } = useToast();
-  const { translate } = useLanguageContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterTier, setFilterTier] = useState("all");
   const [filterType, setFilterType] = useState("all");
@@ -680,29 +678,29 @@ const Users = () => {
              {user.type === "influencer" && (
                <DropdownMenuItem onClick={() => handleViewInfluencerNetwork(user)}>
                  <Network className="mr-2 h-4 w-4" />
-                 {translate('view.network')}
+                 "View Network"
                </DropdownMenuItem>
              )}
              <DropdownMenuItem onClick={() => handleViewDetails(user)}>
                <Eye className="mr-2 h-4 w-4" />
-               {translate('view.details')}
+               "View Details"
              </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEditUser(user)}>
               <Edit className="mr-2 h-4 w-4" />
-              {translate('edit.user.info')}
+              "Edit User Info"
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setEditingUser({ ...user, passwordMode: true })}>
               <Key className="mr-2 h-4 w-4" />
-              {translate('change.password')}
+              "Change Password"
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleBlockUser(user)} className="text-warning">
               <Ban className="mr-2 h-4 w-4" />
-              {user.status === "active" ? translate('block.user') : translate('unblock.user')}
+              {user.status === "active" ? "Block User" : "Unblock User"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleDeleteUser(user)} className="text-destructive">
               <Trash2 className="mr-2 h-4 w-4" />
-              {translate('delete.user')}
+              "Delete User"
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -1186,9 +1184,9 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              {translate('user.management')}
+              "User Management"
             </h1>
-            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
+            <p className="text-muted-foreground mt-1">"Manage customers and influencers"</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -1208,9 +1206,9 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              {translate('user.management')}
+              "User Management"
             </h1>
-            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
+            <p className="text-muted-foreground mt-1">"Manage customers and influencers"</p>
           </div>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -1239,15 +1237,15 @@ const Users = () => {
         <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-              {translate('user.management')}
+              "User Management"
             </h1>
-            <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
+            <p className="text-muted-foreground mt-1">"Manage customers and influencers"</p>
           </div>
           <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <UserPlus className="w-4 h-4 mr-2" />
-                {translate('add.user')}
+                "Add User"
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -1269,23 +1267,23 @@ const Users = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">{translate('phone')}</Label>
+                  <Label htmlFor="phone">"Phone"</Label>
                   <Input
                     id="phone"
                     value={newUserPhone}
                     onChange={(e) => setNewUserPhone(e.target.value)}
-                    placeholder={translate('enter.phone.number')}
+                    placeholder="Enter phone number"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">{translate('email')}</Label>
+                  <Label htmlFor="email">"Email"</Label>
                   <Input
                     id="email"
                     type="email"
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    placeholder={translate('enter.email.address')}
+                    placeholder="Enter email address"
                     required
                   />
                 </div>
@@ -1327,15 +1325,15 @@ const Users = () => {
       <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-white to-slate-50 border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-water-blue bg-clip-text text-transparent">
-            {translate('user.management')}
+            "User Management"
           </h1>
-          <p className="text-muted-foreground mt-1">{translate('manage.customers.and.influencers')}</p>
+          <p className="text-muted-foreground mt-1">"Manage customers and influencers"</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="w-4 h-4 mr-2" />
-              {translate('add.user')}
+              "Add User"
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -1365,7 +1363,7 @@ const Users = () => {
                     className="col-span-3" 
                     value={newUserPhone}
                     onChange={(e) => setNewUserPhone(e.target.value)}
-                    placeholder={translate('enter.phone.number')}
+                    placeholder="Enter phone number"
                     required
                   />
                 </div>
@@ -1377,7 +1375,7 @@ const Users = () => {
                     className="col-span-3" 
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    placeholder={translate('enter.email.address')}
+                    placeholder="Enter email address"
                     required
                   />
                 </div>
@@ -1411,19 +1409,19 @@ const Users = () => {
                 {editingUser?.passwordMode ? (
                   <>
                     <Key className="w-5 h-5" />
-                    {translate('change.password.for')} {editingUser?.name}
+                    "Change Password for" {editingUser?.name}
                   </>
                 ) : (
                   <>
                     <UserCog className="w-5 h-5" />
-                    {translate('edit.user.info')}rmation
+                    "Edit User Information"
                   </>
                 )}
               </DialogTitle>
               <DialogDescription>
                 {editingUser?.passwordMode 
-                  ? translate('set.a.new.password.for.this.user.account')
-                  : translate('update.the.users.personal.information.and.settings')
+                  ? "Set a new password for this user account"
+                  : "Update the user's personal information and settings"
                 }
               </DialogDescription>
             </DialogHeader>
@@ -1437,18 +1435,18 @@ const Users = () => {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder={translate('enter.new.password')}
+                    placeholder="Enter new password"
                   />
                 </div>
                 <div className="bg-info/10 text-info-foreground p-3 rounded-lg text-sm">
-                  <strong>{translate('note')}:</strong> {translate('the.user.will.need.to.use.this.new.password.for.their.next.login')}
+                  <strong>"Note":</strong> "The user will need to use this new password for their next login"
                 </div>
               </div>
             ) : (
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="editName">{translate('full.name')}</Label>
+                    <Label htmlFor="editName">"Full Name"</Label>
                     <Input
                       id="editName"
                       value={editFormData.name}
@@ -1521,7 +1519,7 @@ const Users = () => {
                   : handleUpdateUser(editingUser)
                 }
               >
-                {editingUser?.passwordMode ? translate('change.password') : translate('update.user')}
+                {editingUser?.passwordMode ? "Change Password" : "Update User"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1533,10 +1531,10 @@ const Users = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
-                {translate('user.details')}
+                "User Details"
               </DialogTitle>
               <DialogDescription>
-                {translate('view.detailed.information.about')} {viewingUser?.name}
+                "View detailed information about" {viewingUser?.name}
               </DialogDescription>
             </DialogHeader>
             
@@ -1645,7 +1643,7 @@ const Users = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-water-mist border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('registered.users')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Registered Users"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-water-blue">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -1654,14 +1652,14 @@ const Users = () => {
             <div className="text-2xl font-bold text-primary">{transformedUsers.length}</div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {customers.length} {translate('customers')}, {influencers.length} {translate('influencers')}
+              {customers.length} "Customers", {influencers.length} "Influencers"
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-water-light/20 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('active.users')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Active Users"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-water-blue to-water-deep">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -1672,14 +1670,14 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {transformedUsers.length > 0 ? Math.round((transformedUsers.filter(u => u.status === "active").length / transformedUsers.length) * 100) : 0}% {translate('active.rate')}
+              {transformedUsers.length > 0 ? Math.round((transformedUsers.filter(u => u.status === "active").length / transformedUsers.length) * 100) : 0}% "active rate"
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-success/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('platinum.users')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Platinum Users"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
               <Crown className="h-4 w-4 text-white" />
             </div>
@@ -1690,14 +1688,14 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {translate('highest.tier.members')}
+              "highest tier members"
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-white to-accent/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{translate('total.cashback')}</CardTitle>
+            <CardTitle className="text-sm font-medium">"Total Cashback"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-accent to-accent/80">
               <UsersIcon className="h-4 w-4 text-white" />
             </div>
@@ -1708,7 +1706,7 @@ const Users = () => {
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              {translate('rewards.distributed')}
+              "rewards distributed"
             </div>
           </CardContent>
         </Card>
@@ -1717,8 +1715,8 @@ const Users = () => {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>{translate('users')}</CardTitle>
-          <CardDescription>{translate('search.and.filter.users.by.various.criteria')}</CardDescription>
+          <CardTitle>"Users"</CardTitle>
+          <CardDescription>"Search and filter users by various criteria"</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-6">
@@ -1726,7 +1724,7 @@ const Users = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={translate('search.by.name.phone.or.email')}
+                  placeholder="Search by name, phone or email"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -1738,8 +1736,8 @@ const Users = () => {
                 <SelectValue placeholder="User Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{translate('all.types')}</SelectItem>
-                <SelectItem value="customer">{translate('customer')}</SelectItem>
+                <SelectItem value="all">"All Types"</SelectItem>
+                <SelectItem value="customer">"Customer"</SelectItem>
                 <SelectItem value="influencer">Influencer</SelectItem>
               </SelectContent>
             </Select>
@@ -1748,8 +1746,8 @@ const Users = () => {
                 <SelectValue placeholder="Loyalty Tier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{translate('all.tiers')}</SelectItem>
-                <SelectItem value="lead">{translate('lead')}</SelectItem>
+                <SelectItem value="all">"All Tiers"</SelectItem>
+                <SelectItem value="lead">"Lead"</SelectItem>
                 <SelectItem value="silver">Silver</SelectItem>
                 <SelectItem value="gold">Gold</SelectItem>
                 <SelectItem value="platinum">Platinum</SelectItem>
@@ -1759,24 +1757,24 @@ const Users = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList>
-              <TabsTrigger value="all">{translate('all.users')} ({filteredUsers.length})</TabsTrigger>
-              <TabsTrigger value="customers">{translate('customers')} ({customers.length})</TabsTrigger>
-              <TabsTrigger value="influencers">{translate('influencers')} ({influencers.length})</TabsTrigger>
+              <TabsTrigger value="all">"All Users" ({filteredUsers.length})</TabsTrigger>
+              <TabsTrigger value="customers">"Customers" ({customers.length})</TabsTrigger>
+              <TabsTrigger value="influencers">"Influencers" ({influencers.length})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="all" className="space-y-4">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{translate('user')}</TableHead>
-                    <TableHead>{translate('type')}</TableHead>
-                    <TableHead>{translate('tier')}</TableHead>
-                    <TableHead>{translate('liters.users')}</TableHead>
-                    <TableHead>{translate('cashback')}</TableHead>
-                    <TableHead>{translate('commission')}</TableHead>
-                    <TableHead>{translate('status')}</TableHead>
-                    <TableHead>{translate('joined')}</TableHead>
-                    <TableHead>{translate('actions')}</TableHead>
+                    <TableHead>"User"</TableHead>
+                    <TableHead>"Type"</TableHead>
+                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Liters/Users"</TableHead>
+                    <TableHead>"Cashback"</TableHead>
+                    <TableHead>"Commission"</TableHead>
+                    <TableHead>"Status"</TableHead>
+                    <TableHead>"Joined"</TableHead>
+                    <TableHead>"Actions"</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1878,15 +1876,15 @@ const Users = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{translate('customer')}</TableHead>
-                    <TableHead>{translate('type')}</TableHead>
-                    <TableHead>{translate('tier')}</TableHead>
-                    <TableHead>{translate('liters.users')}</TableHead>
-                    <TableHead>{translate('cashback')}</TableHead>
-                    <TableHead>{translate('commission')}</TableHead>
-                    <TableHead>{translate('status')}</TableHead>
-                    <TableHead>{translate('joined')}</TableHead>
-                    <TableHead>{translate('actions')}</TableHead>
+                    <TableHead>"Customer"</TableHead>
+                    <TableHead>"Type"</TableHead>
+                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Liters/Users"</TableHead>
+                    <TableHead>"Cashback"</TableHead>
+                    <TableHead>"Commission"</TableHead>
+                    <TableHead>"Status"</TableHead>
+                    <TableHead>"Joined"</TableHead>
+                    <TableHead>"Actions"</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1988,15 +1986,15 @@ const Users = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{translate('influencer')}</TableHead>
-                    <TableHead>{translate('type')}</TableHead>
-                    <TableHead>{translate('tier')}</TableHead>
-                    <TableHead>{translate('network')}</TableHead>
-                    <TableHead>{translate('cashback')}</TableHead>
-                    <TableHead>{translate('commission')}</TableHead>
-                    <TableHead>{translate('status')}</TableHead>
-                    <TableHead>{translate('joined')}</TableHead>
-                    <TableHead>{translate('actions')}</TableHead>
+                    <TableHead>"Influencer"</TableHead>
+                    <TableHead>"Type"</TableHead>
+                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Network"</TableHead>
+                    <TableHead>"Cashback"</TableHead>
+                    <TableHead>"Commission"</TableHead>
+                    <TableHead>"Status"</TableHead>
+                    <TableHead>"Joined"</TableHead>
+                    <TableHead>"Actions"</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
