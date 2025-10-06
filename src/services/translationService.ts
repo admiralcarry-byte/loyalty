@@ -179,12 +179,19 @@ const translations: LanguageTranslations = {
 
 class TranslationService {
   private currentLanguage: string = 'Portuguese';
+  private languageChangeListeners: (() => void)[] = [];
 
   setLanguage(language: string): void {
     this.currentLanguage = language;
+    // Notify all listeners
+    this.languageChangeListeners.forEach(listener => listener());
   }
 
   getCurrentLanguage(): string {
+    return this.currentLanguage;
+  }
+
+  getLanguage(): string {
     return this.currentLanguage;
   }
 
@@ -206,6 +213,17 @@ class TranslationService {
 
   getAvailableLanguages(): string[] {
     return Object.keys(translations);
+  }
+
+  addLanguageChangeListener(listener: () => void): void {
+    this.languageChangeListeners.push(listener);
+  }
+
+  removeLanguageChangeListener(listener: () => void): void {
+    const index = this.languageChangeListeners.indexOf(listener);
+    if (index > -1) {
+      this.languageChangeListeners.splice(index, 1);
+    }
   }
 }
 
