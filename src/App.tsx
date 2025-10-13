@@ -30,6 +30,10 @@ import AdminProfile from "./pages/admin/Profile";
 import AdminSettings from "./pages/admin/Settings";
 // import AIIntegration from "./pages/admin/AIIntegration";
 import BillingIntegration from "./pages/admin/BillingIntegration";
+import WalletManagement from "./pages/admin/WalletManagement";
+import AdminWalletSettings from "./pages/admin/AdminWalletSettings";
+import UserWalletManagement from "./pages/admin/UserWalletManagement";
+import WalletTransactions from "./pages/admin/WalletTransactions";
 import AdminRegister from "./pages/admin/Register";
 // import InfluencerLevels from "./pages/admin/InfluencerLevels";
 // import LoyaltyLevels from "./pages/admin/LoyaltyLevels";
@@ -108,6 +112,10 @@ const App = () => {
           <Route path="/admin/profile" element={<AdminGuard><AdminLayout><AdminProfile /></AdminLayout></AdminGuard>} />
           <Route path="/admin/settings" element={<AdminGuard><AdminLayout><AdminSettings /></AdminLayout></AdminGuard>} />
           <Route path="/admin/billing-integration" element={<AdminGuard><AdminLayout><BillingIntegration /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/wallet-management" element={<AdminGuard><AdminLayout><WalletManagement /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/wallet-management/admin-settings" element={<AdminGuard><AdminLayout><AdminWalletSettings /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/wallet-management/users" element={<AdminGuard><AdminLayout><UserWalletManagement /></AdminLayout></AdminGuard>} />
+          <Route path="/admin/wallet-management/transactions" element={<AdminGuard><AdminLayout><WalletTransactions /></AdminLayout></AdminGuard>} />
           <Route path="/admin/influencer-levels" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/loyalty-levels" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/qr-analysis" element={<Navigate to="/admin/billing-integration" replace />} />

@@ -21,6 +21,7 @@ const UserRegister = () => {
   const [influencers, setInfluencers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInfluencers, setIsLoadingInfluencers] = useState(false);
+  const [phoneError, setPhoneError] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -45,12 +46,51 @@ const UserRegister = () => {
     fetchInfluencers();
   }, []);
 
+  // Validate phone number format - check if it's 9 or 13 digits total
+  const validatePhoneNumber = (phoneNumber: string): boolean => {
+    const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
+    
+    // Check for 9 digits total (+ followed by 8 digits, e.g., +33333333)
+    if (cleanNumber.length === 9 && cleanNumber.startsWith('+')) {
+      return true;
+    }
+    
+    // Check for 13 digits total (+ followed by 12 digits, e.g., +111111111111)
+    if (cleanNumber.length === 13 && cleanNumber.startsWith('+')) {
+      return true;
+    }
+    
+    return false;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Validate phone number in real-time
+    if (name === 'phone') {
+      if (value.length === 0) {
+        setPhoneError("");
+      } else if (!validatePhoneNumber(value)) {
+        const cleanNumber = value.replace(/[^\d+]/g, '');
+        if (!cleanNumber.startsWith('+')) {
+          setPhoneError("Phone number must start with +");
+        } else if (cleanNumber.length < 9) {
+          setPhoneError("Phone number must be 8 digits total (e.g., +33333333)");
+        } else if (cleanNumber.length > 9 && cleanNumber.length < 13) {
+          setPhoneError("Phone number must be either 8 or 12 digits total");
+        } else if (cleanNumber.length > 13) {
+          setPhoneError("Phone number must be 12 digits total (e.g., +111111111111)");
+        } else {
+          setPhoneError("Invalid phone number format");
+        }
+      } else {
+        setPhoneError("");
+      }
+    }
   };
 
   const handleInfluencerSelect = (value: string) => {
@@ -70,10 +110,33 @@ const UserRegister = () => {
 
     try {
       // Validate form data
-      if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.influencerPhone) {
+      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
         toast({
           title: "Validation Error",
-          description: "Please fill in all required fields including selecting an influencer",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate phone number format
+      if (!validatePhoneNumber(formData.phone)) {
+        const cleanNumber = formData.phone.replace(/[^\d+]/g, '');
+        let errorMessage = "Invalid phone number format";
+        
+        if (!cleanNumber.startsWith('+')) {
+          errorMessage = "Phone number must start with +";
+        } else if (cleanNumber.length < 9) {
+          errorMessage = "Phone number must be 8 digits total (e.g., +33333333)";
+        } else if (cleanNumber.length > 9 && cleanNumber.length < 13) {
+          errorMessage = "Phone number must be either 8 or 12 digits total";
+        } else if (cleanNumber.length > 13) {
+          errorMessage = "Phone number must be 12 digits total (e.g., +111111111111)";
+        }
+
+        toast({
+          title: "Phone Number Validation Error",
+          description: errorMessage,
           variant: "destructive",
         });
         return;
@@ -91,7 +154,7 @@ const UserRegister = () => {
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
-          influencerPhone: formData.influencerPhone
+          influencerPhone: formData.influencerPhone || undefined
         }),
       });
 
@@ -103,9 +166,10 @@ const UserRegister = () => {
         navigate("/user/login");
       } else {
         const errorData = await response.json();
+        console.error('Registration error:', errorData);
         toast({
           title: "Registration Failed",
-          description: errorData.message || "An error occurred during registration",
+          description: errorData.message || errorData.error || "An error occurred during registration",
           variant: "destructive",
         });
       }
@@ -166,16 +230,23 @@ const UserRegister = () => {
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder="Enter phone number"
+                placeholder="Enter phone number (+33333333 or +111111111111)"
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
+                className={phoneError ? "border-red-500" : ""}
               />
+              {phoneError && (
+                <p className="text-sm text-red-500">{phoneError}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Phone number must be 9 digits total (+ followed by 8 digits) or 13 digits total (+ followed by 12 digits)
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="influencerPhone">"Influencer Phone" *</Label>
-              <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone} required>
+              <Label htmlFor="influencerPhone">"Influencer Phone"</Label>
+              <Select onValueChange={handleInfluencerSelect} value={formData.influencerPhone}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Influencer" />
                 </SelectTrigger>

@@ -83,6 +83,11 @@ const getNavigationItems = (translate: (key: string) => string) => [
     icon: CreditCard,
   },
   {
+    name: "Wallet Management",
+    href: "/admin/wallet-management",
+    icon: Wallet,
+  },
+  {
     name: translate('settings'),
     href: "/admin/settings",
     icon: Settings,

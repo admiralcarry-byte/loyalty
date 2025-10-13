@@ -121,7 +121,6 @@ const Users = () => {
     name: "",
     email: "",
     phone: "",
-    tier: "",
     status: ""
   });
   const [selectedInfluencer, setSelectedInfluencer] = useState<any>(null);
@@ -152,9 +151,22 @@ const Users = () => {
       setIsLoading(true);
       setError(null);
       const response = await usersService.getUsers();
-      if (response.success) {
-        setUsers(response.data.users || []);
-        setLastRefreshTime(new Date());
+      console.log('=== DEBUG: Frontend received response ===');
+      console.log('Full response:', response);
+      console.log('Users data:', response.data?.users);
+      
+        if (response.success) {
+          const usersData = response.data.users || [];
+          console.log('=== Frontend Wallet Debug ===');
+          usersData.forEach((user: any, index: number) => {
+            if (user.wallet && user.wallet.wallet_number) {
+              console.log(`Frontend User ${index + 1} (${user.first_name}): Received wallet - ${user.wallet.wallet_provider}: ${user.wallet.wallet_number}`);
+            }
+          });
+          console.log('=== End Frontend Wallet Debug ===');
+
+          setUsers(usersData);
+          setLastRefreshTime(new Date());
       } else {
         setError('Failed to fetch users');
       }
@@ -326,21 +338,57 @@ const Users = () => {
   };
 
   // Transform backend data to match frontend expectations
-  const transformedUsers = users.map(user => ({
-    id: user._id || user.id,
-    name: `${user.first_name} ${user.last_name || ''}`.trim(),
-    phone: user.phone || '',
-    email: user.email,
-    type: user.role,
-    tier: user.loyalty_tier,
-    liters: user.total_liters || 0, // Now using actual sales data
-    cashback: user.total_cashback || 0, // Now using actual cashback from transactions
-    commission: user.total_commission || 0, // Now using actual commission from transactions
-    referrals: user.referral_count || 0, // Use the referral count from backend
-    joinDate: user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown',
-    status: user.status,
-    influencer: user.referred_by_name || null
-  }));
+  const transformedUsers = users.map(user => {
+    const transformed = {
+      id: user._id || user.id,
+      name: `${user.first_name} ${user.last_name || ''}`.trim(),
+      phone: user.phone || '',
+      email: user.email,
+      type: user.role,
+      tier: user.loyalty_tier,
+      wallet: user.wallet || null, // Add wallet information
+      liters: user.total_liters || 0, // Now using actual sales data
+      cashback: user.total_cashback || 0, // Now using actual cashback from transactions
+      commission: user.total_commission || 0, // Now using actual commission from transactions
+      referrals: user.referral_count || 0, // Use the referral count from backend
+      joinDate: user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown',
+      status: user.status,
+      influencer: user.referred_by_name || null
+    };
+    
+    // Debug: Log transformed user data
+    if (user.role === 'influencer' && transformed.wallet?.wallet_number) {
+      console.log(`Transformed influencer ${transformed.name}: Wallet ${transformed.wallet.wallet_provider} - ${transformed.wallet.wallet_number}`);
+    }
+    
+    return transformed;
+  });
+
+  const getWalletIcon = (provider: string) => {
+    switch (provider) {
+      case "mobile_money": return <Phone className="w-4 h-4 text-blue-600" />;
+      case "bank_transfer": return <DollarSign className="w-4 h-4 text-green-600" />;
+      case "crypto": return <Key className="w-4 h-4 text-purple-600" />;
+      case "digital_wallet": return <Settings className="w-4 h-4 text-orange-600" />;
+      default: return <DollarSign className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getWalletProviderDisplayName = (provider: string) => {
+    switch (provider) {
+      case "mobile_money": return "Mobile Money";
+      case "bank_transfer": return "Bank Transfer";
+      case "crypto": return "Crypto";
+      case "digital_wallet": return "Digital Wallet";
+      default: return "Unknown";
+    }
+  };
+
+  const formatWalletNumber = (walletNumber: string) => {
+    if (!walletNumber) return "Not set";
+    // Show only last 4 digits for security
+    return `***${walletNumber.slice(-4)}`;
+  };
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
@@ -405,7 +453,6 @@ const Users = () => {
       name: user.name || "",
       email: user.email || "",
       phone: user.phone || "",
-      tier: user.tier || "",
       status: user.status || ""
     });
   };
@@ -459,7 +506,6 @@ const Users = () => {
         email: editFormData.email,
         phone: editFormData.phone,
         status: editFormData.status,
-        loyalty_tier: editFormData.tier
       };
 
       // Split name into first_name and last_name
@@ -607,30 +653,69 @@ const Users = () => {
         </Badge>
       </TableCell>
       <TableCell>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Badge variant={getTierBadgeVariant(user.tier)} className="flex items-center gap-1 w-fit">
-                {getTierIcon(user.tier)}
-                {user.tier}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="text-sm">
-                <div className="font-medium">{user.tier} Tier</div>
-                <div className="text-muted-foreground">
-                  {user.tier === 'Lead' && '0+ liters required'}
-                  {user.tier === 'Silver' && '50+ liters required'}
-                  {user.tier === 'Gold' && '80+ liters required'}
-                  {user.tier === 'Platinum' && '100+ liters required'}
+        {user.type === "influencer" ? (
+          user.wallet?.wallet_number ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    {getWalletIcon(user.wallet.wallet_provider)}
+                    <div className="text-sm">
+                      <div className="font-medium">{formatWalletNumber(user.wallet.wallet_number)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {getWalletProviderDisplayName(user.wallet.wallet_provider)}
+                      </div>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-sm">
+                    <div className="font-medium">Wallet Information</div>
+                    <div className="text-muted-foreground">
+                      Provider: {getWalletProviderDisplayName(user.wallet.wallet_provider)}
+                    </div>
+                    <div className="text-muted-foreground">
+                      Number: {user.wallet.wallet_number}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Status: {user.wallet.wallet_verified ? 'Verified' : 'Not Verified'}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <DollarSign className="w-4 h-4" />
+              <span className="text-sm">No wallet</span>
+            </div>
+          )
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant={getTierBadgeVariant(user.tier)} className="flex items-center gap-1 w-fit">
+                  {getTierIcon(user.tier)}
+                  {user.tier}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="text-sm">
+                  <div className="font-medium">{user.tier} Tier</div>
+                  <div className="text-muted-foreground">
+                    {user.tier === 'Lead' && '0+ liters required'}
+                    {user.tier === 'Silver' && '50+ liters required'}
+                    {user.tier === 'Gold' && '80+ liters required'}
+                    {user.tier === 'Platinum' && '100+ liters required'}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Current: {user.liters || 0}L
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Current: {user.liters || 0}L
-                </div>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </TableCell>
       <TableCell>
         {user.type === "customer" ? (
@@ -1471,40 +1556,21 @@ const Users = () => {
                     onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="editTier">Loyalty Tier</Label>
-                    <Select 
-                      value={editFormData.tier}
-                      onValueChange={(value) => setEditFormData(prev => ({ ...prev, tier: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select tier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="lead">Lead</SelectItem>
-                        <SelectItem value="silver">Silver</SelectItem>
-                        <SelectItem value="gold">Gold</SelectItem>
-                        <SelectItem value="platinum">Platinum</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="editStatus">Status</Label>
-                    <Select 
-                      value={editFormData.status}
-                      onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editStatus">Status</Label>
+                  <Select 
+                    value={editFormData.status}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             )}
@@ -1561,16 +1627,21 @@ const Users = () => {
                       <div className="text-sm text-gray-600">User Type</div>
                       <div className="font-medium capitalize">{viewingUser.role || 'customer'}</div>
                     </div>
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600">Loyalty Tier</div>
-                      <div className="font-medium capitalize flex items-center gap-2">
-                        {viewingUser.loyalty_tier === 'platinum' && <Crown className="w-4 h-4 text-loyalty-platinum" />}
-                        {viewingUser.loyalty_tier === 'gold' && <Medal className="w-4 h-4 text-loyalty-gold" />}
-                        {viewingUser.loyalty_tier === 'silver' && <Gem className="w-4 h-4 text-loyalty-silver" />}
-                        {viewingUser.loyalty_tier === 'lead' && <Star className="w-4 h-4 text-accent" />}
-                        {viewingUser.loyalty_tier || 'Lead'}
+                    {viewingUser.role === 'influencer' && viewingUser.wallet && (
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="text-sm text-gray-600">Wallet Information</div>
+                        <div className="font-medium flex items-center gap-2">
+                          {getWalletIcon(viewingUser.wallet.wallet_provider)}
+                          <div>
+                            <div className="text-xs">{getWalletProviderDisplayName(viewingUser.wallet.wallet_provider)}</div>
+                            <div className="text-sm">{formatWalletNumber(viewingUser.wallet.wallet_number)}</div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Status: {viewingUser.wallet.wallet_verified ? 'Verified' : 'Not Verified'}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm text-gray-600">Status</div>
                       <div className="font-medium">
@@ -1677,18 +1748,18 @@ const Users = () => {
 
         <Card className="bg-gradient-to-br from-white to-success/10 border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">"Platinum Users"</CardTitle>
+            <CardTitle className="text-sm font-medium">"Verified Wallets"</CardTitle>
             <div className="p-2 rounded-lg bg-gradient-to-br from-success to-success/80">
-              <Crown className="h-4 w-4 text-white" />
+              <CheckCircle className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
-              {transformedUsers.filter(u => u.tier === "platinum").length}
+              {transformedUsers.filter(u => u.wallet?.wallet_verified).length}
             </div>
             <div className="flex items-center text-xs text-success font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              "highest tier members"
+              "verified influencers"
             </div>
           </CardContent>
         </Card>
@@ -1731,16 +1802,6 @@ const Users = () => {
                 />
               </div>
             </div>
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="User Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">"All Types"</SelectItem>
-                <SelectItem value="customer">"Customer"</SelectItem>
-                <SelectItem value="influencer">Influencer</SelectItem>
-              </SelectContent>
-            </Select>
             <Select value={filterTier} onValueChange={setFilterTier}>
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Loyalty Tier" />
@@ -1751,6 +1812,16 @@ const Users = () => {
                 <SelectItem value="silver">Silver</SelectItem>
                 <SelectItem value="gold">Gold</SelectItem>
                 <SelectItem value="platinum">Platinum</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="User Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">"All Types"</SelectItem>
+                <SelectItem value="customer">"Customer"</SelectItem>
+                <SelectItem value="influencer">Influencer</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1768,7 +1839,7 @@ const Users = () => {
                   <TableRow>
                     <TableHead>"User"</TableHead>
                     <TableHead>"Type"</TableHead>
-                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Wallet/Level"</TableHead>
                     <TableHead>"Liters/Users"</TableHead>
                     <TableHead>"Cashback"</TableHead>
                     <TableHead>"Commission"</TableHead>
@@ -1878,7 +1949,7 @@ const Users = () => {
                   <TableRow>
                     <TableHead>"Customer"</TableHead>
                     <TableHead>"Type"</TableHead>
-                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Level"</TableHead>
                     <TableHead>"Liters/Users"</TableHead>
                     <TableHead>"Cashback"</TableHead>
                     <TableHead>"Commission"</TableHead>
@@ -1988,7 +2059,7 @@ const Users = () => {
                   <TableRow>
                     <TableHead>"Influencer"</TableHead>
                     <TableHead>"Type"</TableHead>
-                    <TableHead>"Tier"</TableHead>
+                    <TableHead>"Wallet"</TableHead>
                     <TableHead>"Network"</TableHead>
                     <TableHead>"Cashback"</TableHead>
                     <TableHead>"Commission"</TableHead>

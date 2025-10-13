@@ -41,6 +41,16 @@ interface InvoiceFormData {
   storeNumber: string;
 }
 
+interface CashbackInfo {
+  accumulatedCashback: number;
+  cashbackUsed: number;
+  cashbackEarned: number;
+  originalAmount: number;
+  finalPaymentAmount: number;
+  savings: number;
+}
+
+
 interface ReceiptAnalysisData {
   ocrData: {
     extractedData: {
@@ -94,6 +104,7 @@ const SellerBilling = () => {
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [generatedInvoice, setGeneratedInvoice] = useState<any>(null);
+  const [cashbackInfo, setCashbackInfo] = useState<CashbackInfo | null>(null);
 
   // Receipt Upload States
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
@@ -259,10 +270,28 @@ const SellerBilling = () => {
     return response.json();
   };
 
+
+  // Validate phone number format - check if it's 9 or 13 digits total
+  const isValidPhoneNumber = (phoneNumber: string): boolean => {
+    const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
+    
+    // Check for 9 digits total (+ followed by 8 digits, e.g., +66665555)
+    if (cleanNumber.length === 9 && cleanNumber.startsWith('+')) {
+      return true;
+    }
+    
+    // Check for 13 digits total (+ followed by 12 digits, e.g., +244123456789)
+    if (cleanNumber.length === 13 && cleanNumber.startsWith('+')) {
+      return true;
+    }
+    
+    return false;
+  };
+
   // Fetch customer data by phone number
   const fetchCustomerByPhone = async (phoneNumber: string) => {
-    if (!phoneNumber || phoneNumber.length < 10) {
-      // Clear customer data if phone number is too short
+    if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
+      // Clear customer data if phone number is invalid
       setInvoiceFormData(prev => ({
         ...prev,
         purchaserName: '',
@@ -271,10 +300,13 @@ const SellerBilling = () => {
       return;
     }
 
+    // Use the original phone number for API lookup (just clean it)
+    const normalizedPhone = phoneNumber.replace(/[^\d+]/g, '');
+
     setIsLoadingCustomer(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${apiUrl}/users/customer-by-phone/${phoneNumber}`, {
+      const response = await fetch(`${apiUrl}/users/customer-by-phone/${normalizedPhone}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -290,6 +322,14 @@ const SellerBilling = () => {
             purchaserName: result.data.name,
             email: result.data.email
           }));
+          
+          // Set cashback information if available
+          if (result.data.cashbackInfo) {
+            setCashbackInfo(result.data.cashbackInfo);
+          } else {
+            setCashbackInfo(null);
+          }
+          
           toast({
             title: "Customer Found",
             description: `Customer: ${result.data.name}`,
@@ -301,6 +341,7 @@ const SellerBilling = () => {
             purchaserName: '',
             email: ''
           }));
+          setCashbackInfo(null);
           toast({
             title: "Customer Not Found",
             description: "No customer found with this phone number",
@@ -314,6 +355,7 @@ const SellerBilling = () => {
           purchaserName: '',
           email: ''
         }));
+        setCashbackInfo(null);
         toast({
           title: "Error",
           description: "Failed to lookup customer information",
@@ -328,6 +370,7 @@ const SellerBilling = () => {
         purchaserName: '',
         email: ''
       }));
+      setCashbackInfo(null);
       toast({
         title: "Error",
         description: "Failed to lookup customer information",
@@ -346,12 +389,26 @@ const SellerBilling = () => {
     }
     
     setInvoiceFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Trigger customer lookup when phone number changes
-    if (field === 'phoneNumber') {
-      fetchCustomerByPhone(value as string);
-    }
   };
+
+  // Debounced effect for fetching customer data when phone number changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (invoiceFormData.phoneNumber && isValidPhoneNumber(invoiceFormData.phoneNumber)) {
+        fetchCustomerByPhone(invoiceFormData.phoneNumber);
+      } else if (invoiceFormData.phoneNumber.length === 0) {
+        // Clear customer data if phone number is empty
+        setInvoiceFormData(prev => ({
+          ...prev,
+          purchaserName: '',
+          email: ''
+        }));
+        setCashbackInfo(null);
+      }
+    }, 1000); // 1 second delay to prevent continuous API calls
+
+    return () => clearTimeout(timeoutId);
+  }, [invoiceFormData.phoneNumber]);
 
   const generateInvoice = async () => {
     // Validate required fields
@@ -395,17 +452,18 @@ const SellerBilling = () => {
         description: "Invoice has been generated and downloaded successfully",
       });
       
-      // Reset form and close dialog
-      setInvoiceFormData({
-        purchaserName: '',
-        phoneNumber: '',
-        email: '',
-        litersPurchased: 0,
-        amount: 0,
-        storeNumber: ''
-      });
-      setIsInvoiceDialogOpen(false);
-      setSelectedStore(null);
+       // Reset form and close dialog
+       setInvoiceFormData({
+         purchaserName: '',
+         phoneNumber: '',
+         email: '',
+         litersPurchased: 0,
+         amount: 0,
+         storeNumber: ''
+       });
+       setCashbackInfo(null);
+       setIsInvoiceDialogOpen(false);
+       setSelectedStore(null);
     } catch (error) {
       toast({
         title: "Invoice Generation Failed",
@@ -777,7 +835,7 @@ const SellerBilling = () => {
                           <Label htmlFor="phoneNumber">Phone Number *</Label>
                           <Input
                             id="phoneNumber"
-                            placeholder="Enter customer phone number"
+                            placeholder="Enter phone number (9 or 13 digits total)"
                             value={invoiceFormData.phoneNumber}
                             onChange={(e) => handleInvoiceFormChange('phoneNumber', e.target.value)}
                             disabled={isLoadingCustomer}
@@ -819,18 +877,44 @@ const SellerBilling = () => {
                             onChange={(e) => handleInvoiceFormChange('litersPurchased', parseFloat(e.target.value) || 0)}
               />
             </div>
-            <div className="space-y-2">
-                          <Label htmlFor="amount">Amount (Kz) *</Label>
-              <Input
-                            id="amount"
-                            type="number"
-                            step="0.01"
-                            placeholder="Enter amount"
-                            value={invoiceFormData.amount}
-                            onChange={(e) => handleInvoiceFormChange('amount', parseFloat(e.target.value) || 0)}
-              />
-            </div>
-                      </div>
+             <div className="space-y-2">
+                           <Label htmlFor="amount">Amount (Kz) *</Label>
+               <Input
+                             id="amount"
+                             type="number"
+                             step="0.01"
+                             placeholder="Enter amount"
+                             value={invoiceFormData.amount}
+                             onChange={(e) => handleInvoiceFormChange('amount', parseFloat(e.target.value) || 0)}
+               />
+               {cashbackInfo && cashbackInfo.accumulatedCashback > 0 && (
+                 <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                   <div className="flex items-center gap-2 text-sm mb-2">
+                     <Coins className="h-4 w-4 text-green-600" />
+                     <span className="font-medium text-green-800">Available Cashback</span>
+                   </div>
+                   <div className="space-y-1 text-sm">
+                     <div className="flex justify-between">
+                       <span className="text-green-700">Accumulated Cashback:</span>
+                       <span className="font-mono text-green-800">{formatCurrency(cashbackInfo.accumulatedCashback)}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span className="text-green-700">Purchase Amount:</span>
+                       <span className="font-mono text-green-800">{formatCurrency(invoiceFormData.amount)}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span className="text-green-700">Cashback Applied:</span>
+                       <span className="font-mono text-green-800">{formatCurrency(Math.min(cashbackInfo.accumulatedCashback, invoiceFormData.amount))}</span>
+                     </div>
+                     <div className="border-t border-green-200 pt-1 flex justify-between">
+                       <span className="font-medium text-green-700">Final Payment:</span>
+                       <span className="font-mono font-bold text-green-800">{formatCurrency(Math.max(0, invoiceFormData.amount - cashbackInfo.accumulatedCashback))}</span>
+                     </div>
+                   </div>
+                 </div>
+               )}
+             </div>
+                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="storeNumber">Store Number</Label>
                         <div className="space-y-2">

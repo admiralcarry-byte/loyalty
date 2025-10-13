@@ -116,8 +116,10 @@ const Sales = () => {
         customer: sale.customer?.name || 'Walk-in Customer',
         customerPhone: sale.customer?.phone || 'N/A',
         liters: sale.total_liters || sale.quantity || 0, // Use total_liters first, then quantity
-        amount: sale.total_amount || 0,
-        cashback: sale.cashback_earned || 0,
+        amount: sale.total_amount || 0, // Final amount after cashback deduction
+        originalAmount: sale.original_amount || sale.total_amount || 0, // Original amount before cashback
+        cashbackApplied: sale.cashback_applied || 0, // Amount of cashback applied
+        cashback: sale.cashback_earned || 0, // Cashback earned from this purchase
         date: formattedDate,
         time: formattedTime,
         status: (() => {
@@ -296,6 +298,12 @@ const Sales = () => {
         <div className="font-medium text-green-600">
           {formatCurrency(sale.amount)}
         </div>
+        {sale.cashbackApplied > 0 && (
+          <div className="text-xs text-muted-foreground mt-1">
+            <span className="line-through">{formatCurrency(sale.originalAmount)}</span>
+            <span className="text-orange-600 ml-1">-{formatCurrency(sale.cashbackApplied)}</span>
+          </div>
+        )}
       </TableCell>
       <TableCell>
         <div className="text-sm">

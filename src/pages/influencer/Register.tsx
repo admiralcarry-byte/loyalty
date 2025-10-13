@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, Megaphone, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Droplets, Megaphone, Eye, EyeOff, ArrowLeft, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const InfluencerRegister = () => {
@@ -13,7 +14,9 @@ const InfluencerRegister = () => {
     name: "",
     email: "",
     password: "",
-    phone: ""
+    phone: "",
+    wallet_number: "",
+    wallet_provider: "mobile_money"
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,16 +30,23 @@ const InfluencerRegister = () => {
     }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       // Validate form data
-      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
+      if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.wallet_number) {
         toast({
           title: "Validation Error",
-          description: "Please fill in all required fields",
+          description: "Please fill in all required fields including wallet information",
           variant: "destructive",
         });
         return;
@@ -131,6 +141,50 @@ const InfluencerRegister = () => {
                 onChange={handleInputChange}
                 required
               />
+            </div>
+
+            {/* Wallet Information Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-loyalty-platinum" />
+                <h3 className="font-semibold">Wallet Information</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Enter your wallet details to receive commission payments automatically
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="wallet_provider">Wallet Provider *</Label>
+                  <Select
+                    value={formData.wallet_provider}
+                    onValueChange={(value) => handleSelectChange('wallet_provider', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select wallet provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="crypto">Cryptocurrency</SelectItem>
+                      <SelectItem value="digital_wallet">Digital Wallet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="wallet_number">Wallet Number/Address *</Label>
+                  <Input
+                    id="wallet_number"
+                    name="wallet_number"
+                    type="text"
+                    placeholder="Enter wallet number or address"
+                    value={formData.wallet_number}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
             </div>
             
             <div className="space-y-2">

@@ -128,9 +128,9 @@ const SellerLogin = () => {
           </form>
           
           <div className="mt-4 text-center space-y-2">
-            <Button variant="link" className="text-sm">
+            {/* <Button variant="link" className="text-sm">
               Forgot password?
-            </Button>
+            </Button> */}
             <div className="text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link to="/seller/register" className="text-loyalty-gold hover:underline">
