@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { salesService, Sale } from "@/services/salesService";
 import { dashboardService } from "@/services/dashboardService";
 import { formatDateTime } from "@/utils/dateUtils";
+import MaskedPhone from "@/components/ui/MaskedPhone";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Currency formatting function for AOA (Angolan Kwanza)
@@ -284,7 +285,9 @@ const Sales = () => {
           </div>
           <div>
             <div className="font-medium">{sale.customer}</div>
-            <div className="text-sm text-muted-foreground">{sale.customerPhone}</div>
+            <div className="text-sm text-muted-foreground">
+              <MaskedPhone phone={sale.customerPhone} />
+            </div>
           </div>
         </div>
       </TableCell>
@@ -812,7 +815,9 @@ const Sales = () => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-500">Phone Number</Label>
-                    <div className="font-medium">{viewingSale.customerPhone}</div>
+                    <div className="font-medium">
+                      <MaskedPhone phone={viewingSale.customerPhone} />
+                    </div>
                   </div>
                 </div>
               </div>

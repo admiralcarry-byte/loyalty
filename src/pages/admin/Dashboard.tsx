@@ -50,6 +50,7 @@ import { translationService } from "@/services/translationService";
 import { authService } from "@/services/authService";
 import { usersService } from "@/services/usersService";
 import { useLanguageContext } from "@/contexts/LanguageContext";
+import MaskedPhone from "@/components/ui/MaskedPhone";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -663,7 +664,9 @@ const Dashboard = () => {
                     <TableCell>
                       <div>
                         <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">{user.phone}</div>
+                        <div className="text-sm text-muted-foreground">
+                          <MaskedPhone phone={user.phone} />
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>

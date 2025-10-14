@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usersService } from "@/services/usersService";
 import { authService } from "@/services/authService";
+import MaskedPhone from "@/components/ui/MaskedPhone";
 
 // Currency formatting function for AOA (Angolan Kwanza)
 const formatCurrency = (amount: number) => {
@@ -640,9 +641,8 @@ const Users = () => {
           </div>
           <div>
             <div className="font-medium">{user.name}</div>
-            <div className="text-sm text-muted-foreground flex items-center gap-1">
-              <Phone className="w-3 h-3" />
-              {user.phone}
+            <div className="text-sm text-muted-foreground">
+              <MaskedPhone phone={user.phone} />
             </div>
           </div>
         </div>
@@ -1114,7 +1114,9 @@ const Users = () => {
                        </div>
                        <div>
                          <div className="text-sm text-muted-foreground">Phone</div>
-                         <div className="font-medium">{selectedInfluencer.phone}</div>
+                         <div className="font-medium">
+                           <MaskedPhone phone={selectedInfluencer.phone} />
+                         </div>
                        </div>
                      </div>
                      
@@ -1614,7 +1616,9 @@ const Users = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">{viewingUser.name}</h3>
-                      <p className="text-sm text-gray-600">{viewingUser.phone}</p>
+                      <p className="text-sm text-gray-600">
+                        <MaskedPhone phone={viewingUser.phone} />
+                      </p>
                       <p className="text-sm text-gray-600">{viewingUser.email}</p>
                     </div>
                   </div>

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Droplets, Shield, Eye, EyeOff, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
+import { Droplets, Shield, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 
@@ -19,29 +19,8 @@ const AdminRegister = () => {
     phone: ""
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [registrationEnabled, setRegistrationEnabled] = useState<boolean | null>(null);
-  const [statusMessage, setStatusMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Check if admin registration is enabled on component mount
-  useEffect(() => {
-    const checkRegistrationStatus = async () => {
-      try {
-        const response = await authService.checkAdminRegistrationStatus();
-        if (response.success) {
-          setRegistrationEnabled(response.data.enabled);
-          setStatusMessage(response.data.message);
-        }
-      } catch (error) {
-        console.error('Error checking registration status:', error);
-        setRegistrationEnabled(false);
-        setStatusMessage('Unable to verify registration status. Please try again later.');
-      }
-    };
-
-    checkRegistrationStatus();
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -122,66 +101,6 @@ const AdminRegister = () => {
     }
   };
 
-  // Show loading state while checking registration status
-  if (registrationEnabled === null) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Checking registration availability...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show disabled message if registration is not enabled
-  if (!registrationEnabled) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3">
-              <Droplets className="w-10 h-10 text-water-blue" />
-              <Shield className="w-8 h-8 text-destructive" />
-            </div>
-            <CardTitle className="text-2xl">ÁGUA TWEZAH</CardTitle>
-            <CardDescription>Admin Panel Registration</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {statusMessage}
-              </AlertDescription>
-            </Alert>
-            
-            <div className="text-center text-sm text-muted-foreground">
-              This platform allows only one administrator account. An administrator already exists.
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <Link to="/admin/login">
-                <Button className="w-full" variant="default">
-                  Go to Admin Login
-                </Button>
-              </Link>
-              <Link to="/">
-                <Button className="w-full" variant="outline">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -194,10 +113,10 @@ const AdminRegister = () => {
           <CardDescription>Admin Panel Registration</CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-4">
+            <Alert className="mb-4">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              {statusMessage}
+              Admin registration is available
             </AlertDescription>
           </Alert>
 

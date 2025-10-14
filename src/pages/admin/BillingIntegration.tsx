@@ -240,17 +240,33 @@ const BillingIntegration = () => {
   };
 
 
-  // Validate phone number format - check if it's 9 or 13 digits total
-  const isValidPhoneNumber = (phoneNumber: string): boolean => {
+  // Normalize phone number - add + if only numbers are entered
+  const normalizePhoneNumber = (phoneNumber: string): string => {
+    if (!phoneNumber) return phoneNumber;
+    
+    // Remove all non-digit characters except +
     const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
     
+    // If it's only digits (no +), add + in front
+    if (/^\d+$/.test(cleanNumber)) {
+      return '+' + cleanNumber;
+    }
+    
+    // If it already has +, return as is
+    return cleanNumber;
+  };
+
+  // Validate phone number format - check if it's 9 or 13 digits total
+  const isValidPhoneNumber = (phoneNumber: string): boolean => {
+    const normalizedNumber = normalizePhoneNumber(phoneNumber);
+    
     // Check for 9 digits total (+ followed by 8 digits, e.g., +66665555)
-    if (cleanNumber.length === 9 && cleanNumber.startsWith('+')) {
+    if (normalizedNumber.length === 9 && normalizedNumber.startsWith('+')) {
       return true;
     }
     
     // Check for 13 digits total (+ followed by 12 digits, e.g., +244123456789)
-    if (cleanNumber.length === 13 && cleanNumber.startsWith('+')) {
+    if (normalizedNumber.length === 13 && normalizedNumber.startsWith('+')) {
       return true;
     }
     
@@ -269,8 +285,8 @@ const BillingIntegration = () => {
       return;
     }
 
-    // Use the original phone number for API lookup (just clean it)
-    const normalizedPhone = phoneNumber.replace(/[^\d+]/g, '');
+    // Use the normalized phone number for API lookup
+    const normalizedPhone = normalizePhoneNumber(phoneNumber);
 
     setIsLoadingCustomer(true);
     try {
@@ -352,7 +368,9 @@ const BillingIntegration = () => {
 
   // Handle phone number change
   const handlePhoneNumberChange = (value: string) => {
-    setInvoiceFormData(prev => ({ ...prev, phoneNumber: value }));
+    // Auto-normalize phone number (add + if only numbers)
+    const normalizedValue = normalizePhoneNumber(value);
+    setInvoiceFormData(prev => ({ ...prev, phoneNumber: normalizedValue }));
   };
 
   // Debounced effect for fetching customer data
@@ -399,6 +417,7 @@ const BillingIntegration = () => {
       const now = new Date();
       const invoiceData = {
         ...invoiceFormData,
+        phoneNumber: normalizePhoneNumber(invoiceFormData.phoneNumber), // Ensure phone number is normalized
         amount: finalAmount, // Send the final amount after cashback deduction
         originalAmount: originalAmount, // Store original amount for reference
         cashbackApplied: cashbackAvailable, // Store cashback applied
@@ -678,7 +697,7 @@ const BillingIntegration = () => {
         method: 'POST',
         body: JSON.stringify({
           email: receiptAnalysis.ocrData.extractedData.email,
-          phoneNumber: receiptAnalysis.ocrData.extractedData.phoneNumber,
+          phoneNumber: normalizePhoneNumber(receiptAnalysis.ocrData.extractedData.phoneNumber),
           litersPurchased: receiptAnalysis.ocrData.extractedData.litersPurchased,
           amount: receiptAnalysis.ocrData.extractedData.amount,
           storeNumber: receiptAnalysis.ocrData.extractedData.storeNumber
@@ -808,7 +827,7 @@ const BillingIntegration = () => {
                           <Label htmlFor="phoneNumber">Phone Number *</Label>
                           <Input
                             id="phoneNumber"
-                            placeholder="Enter phone number (9 or 13 digits total)"
+                            placeholder="Enter phone number (e.g., 123456789 or +123456789)"
                             value={invoiceFormData.phoneNumber}
                             onChange={(e) => handlePhoneNumberChange(e.target.value)}
                             disabled={isLoadingCustomer}
